@@ -1,4 +1,4 @@
-import { Item, Products } from "@/app/type";
+import { Item } from "@/app/type";
 import {
   getItemStatus,
   getStatusText,
@@ -12,7 +12,6 @@ interface CategoryCardProps {
   items: Item[];
   totalItems: number;
   itemsToBuy: number;
-  hasItemsToBuy: boolean;
 }
 
 export default function CategoryCard({
@@ -20,7 +19,6 @@ export default function CategoryCard({
   items,
   totalItems,
   itemsToBuy,
-  hasItemsToBuy,
 }: CategoryCardProps) {
   return (
     <div
