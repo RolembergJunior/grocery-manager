@@ -3,8 +3,6 @@
 import type { Item, Products } from "@/app/type";
 import { auth } from "@/auth";
 
-const API_BASE = "/api/products";
-
 export async function subscribeProducts({
   signal,
 }: {
@@ -15,7 +13,9 @@ export async function subscribeProducts({
   if (!session?.user) return [];
 
   const res = await fetch(
-    `http://localhost:3000/${API_BASE}?userId=${session.user.id as string}`,
+    `${process.env.NEXTAUTH_URL}/api/products?userId=${
+      session.user.id as string
+    }`,
     {
       method: "GET",
       credentials: "include",
@@ -38,7 +38,9 @@ export async function saveProducts(
   if (!session?.user) return;
 
   const res = await fetch(
-    `http://localhost:3000/${API_BASE}?userId=${session.user.id as string}`,
+    `${process.env.NEXTAUTH_URL}/api/products?userId=${
+      session.user.id as string
+    }`,
     {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -60,7 +62,7 @@ export async function updateOrCreate(
   if (!session?.user) return;
 
   const res = await fetch(
-    `http://localhost:3000/api/update-or-create?userId=${
+    `${process.env.NEXTAUTH_URL}/api/update-or-create?userId=${
       session.user.id as string
     }`,
     {
