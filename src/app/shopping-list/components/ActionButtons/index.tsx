@@ -1,3 +1,4 @@
+import { Item } from "@/app/type";
 import { Download, Share2 } from "lucide-react";
 
 export default function ActionButtons({
@@ -5,9 +6,9 @@ export default function ActionButtons({
   completedCount,
   groupedItems,
 }: {
-  items: any[];
+  items: Item[];
   completedCount: number;
-  groupedItems: any;
+  groupedItems: { category: string; categoryItems: Item[] };
 }) {
   function downloadList() {
     const listData = {
@@ -18,9 +19,9 @@ export default function ActionButtons({
       categories: Object.entries(groupedItems).map(
         ([category, categoryItems]) => ({
           category,
-          items: categoryItems.map((item) => ({
+          items: (categoryItems as Item[]).map((item: Item) => ({
             name: item.name,
-            targetQuantity: item.targetQuantity,
+            targetQuantity: item.neededQuantity,
             boughtQuantity: item.boughtQuantity,
             completed: item.completed,
           })),
@@ -62,7 +63,7 @@ export default function ActionButtons({
   async function shareList() {
     const shareData = {
       title: "My Shopping List",
-      text: `Shopping List - ${completedCount}/${totalCount} items completed`,
+      text: `Shopping List - ${completedCount}/${items.length} items completed`,
       url: window.location.href,
     };
 
