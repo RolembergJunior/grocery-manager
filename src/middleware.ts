@@ -8,7 +8,8 @@ const { auth } = NextAuth({
 
 export default auth(async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const isAuthenticated = !!auth();
+
+  const isAuthenticated = !!req?.auth?.user;
 
   const protectedRoutes = ["/", "/shopping-list"];
 

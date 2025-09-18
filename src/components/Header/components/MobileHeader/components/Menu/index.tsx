@@ -4,6 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Edit, ImagePlus, LogOut } from "lucide-react";
 import { Session } from "next-auth";
 import RenderWhen from "@/components/RenderWhen";
+import SignOutButton from "../../../SignOutButton";
+import { signOut } from "@/auth";
+import { signOutAction } from "@/app/actions/manageAuth";
+import Image from "next/image";
 
 export default function Menu({ session }: { session: Session | null }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -41,7 +45,7 @@ export default function Menu({ session }: { session: Session | null }) {
       icon: LogOut,
       label: "Sign out",
       onClick: () => {
-        console.log("Sign out clicked");
+        signOutAction();
         setUserMenuOpen(false);
       },
       danger: true,
@@ -56,9 +60,13 @@ export default function Menu({ session }: { session: Session | null }) {
         className="flex items-center space-x-3 px-4 py-2 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg shadow-sm transition-all duration-200 focus:outline-none"
       >
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">R</span>
-          </div>
+          <Image
+            src={session?.user?.image || ""}
+            alt={session?.user?.name || ""}
+            width={40}
+            height={40}
+            className="rounded-full"
+          />
         </div>
 
         <div className="flex-1 text-left">
@@ -84,11 +92,13 @@ export default function Menu({ session }: { session: Session | null }) {
             <div className="absolute right-0 z-20 mt-2 w-64 bg-white border border-gray-100 rounded-xl shadow-xl ring-1 ring-black/10 ring-opacity-5 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
               <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold">
-                      {session?.user?.image}
-                    </span>
-                  </div>
+                  <Image
+                    src={session?.user?.image || ""}
+                    alt={session?.user?.name || ""}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
                   <div>
                     <p className="text-sm font-semibold text-gray-900">
                       {session?.user?.name}
