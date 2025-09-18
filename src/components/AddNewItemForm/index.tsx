@@ -8,31 +8,7 @@ import { toast } from "sonner";
 import { saveProducts } from "@/services/products";
 import { productsAtom } from "@/lib/atoms";
 import { useAtom } from "jotai";
-
-const categoryOptions = [
-  { value: "fridge", label: "Fridge" },
-  { value: "cupboard", label: "Cupboard" },
-  { value: "freezer", label: "Freezer" },
-  { value: "pantry", label: "Pantry" },
-  { value: "produce", label: "Produce" },
-  { value: "dairy", label: "Dairy" },
-  { value: "meat", label: "Meat" },
-  { value: "cleaning", label: "Cleaning" },
-  { value: "personal-hygiene", label: "Personal Hygiene" },
-  { value: "other", label: "Other" },
-];
-
-const unitOptions = [
-  { value: "pcs", label: "Unidade" },
-  { value: "kg", label: "Kilogramas" },
-  { value: "g", label: "Gramas" },
-  { value: "l", label: "Litros" },
-  { value: "ml", label: "Mililitros" },
-  { value: "lbs", label: "Pounds" },
-  { value: "oz", label: "Ounces" },
-  { value: "cups", label: "Copos" },
-  { value: "spoons", label: "Spoons" },
-];
+import { categoryOptions, unitOptions } from "@/app/utils";
 
 export default function AddNewItemForm() {
   const [formData, setFormData] = useState<FormData>({
@@ -67,7 +43,6 @@ export default function AddNewItemForm() {
         neededQuantity: formData.neededQuantity || 0,
         unit: formData.unit,
       };
-      toast.success("Item atualizado com sucesso!");
     } else {
       newProducts.push({
         id: Date.now(),
@@ -77,7 +52,6 @@ export default function AddNewItemForm() {
         unit: formData.unit,
         category,
       });
-      toast.success("Item criado com sucesso!");
     }
 
     saveData(newProducts);

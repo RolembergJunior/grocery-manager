@@ -7,7 +7,7 @@ import SignInButton from "./components/signInButton";
 import SignOutButton from "./components/SignOutButton";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-import { Package, Plus, ShoppingCart, User } from "lucide-react";
+import { Package, Plus, ShoppingCart, Signal, User } from "lucide-react";
 import { useSetAtom } from "jotai";
 import { productsAtom } from "@/lib/atoms";
 import { toast } from "sonner";
@@ -45,7 +45,11 @@ export default function Header() {
 
         const data = await res.json();
         setProducts(data.products || []);
-      } catch (err) {
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
         toast.error(
           "Houve um erro ao tentar carregar os dados. Tente novamente mais tarde."
         );

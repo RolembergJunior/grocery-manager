@@ -58,3 +58,28 @@ export function getCategories(
     return acc;
   }, [] as { value: string; label: string }[]);
 }
+
+export const categoryOptions = [
+  { value: "fridge", label: "Geladeira" },
+  { value: "cupboard", label: "Armário" },
+  { value: "freezer", label: "Congelador" },
+  { value: "pantry", label: "Despensa" },
+  { value: "produce", label: "Hortifrúti" },
+  { value: "dairy", label: "Lácteos" },
+  { value: "meat", label: "Carnes" },
+  { value: "cleaning", label: "Limpeza" },
+  { value: "personal-hygiene", label: "Higiene Pessoal" },
+  { value: "other", label: "Outro" },
+];
+
+export const unitOptions = [
+  { value: "pcs", label: "Unidade" },
+  { value: "kg", label: "Kilogramas" },
+  { value: "g", label: "Gramas" },
+  { value: "l", label: "Litros" },
+  { value: "ml", label: "Mililitros" },
+  { value: "lbs", label: "Libras" },
+  { value: "oz", label: "Onças" },
+  { value: "cups", label: "Xícaras" },
+  { value: "spoons", label: "Colheres" },
+];

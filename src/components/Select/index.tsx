@@ -42,7 +42,7 @@ export default function SelectComponent({
           {label}
         </label>
       </RenderWhen>
-      <div className="relative inline-block w-32">
+      <div className="relative inline-block w-full">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}

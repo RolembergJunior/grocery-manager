@@ -16,7 +16,7 @@ type ControlsProps = {
   products: Item[];
 };
 
-function Controls({
+export default function Controls({
   searchTerm,
   onSearchChange,
   filterValue,
@@ -60,7 +60,7 @@ function Controls({
               <SelectComponent
                 options={getCategories(products)}
                 defaultValue={filterValue}
-                onChange={onFilterChange}
+                onChange={(value) => onFilterChange(value as string)}
                 label="Filtrar por categoria"
               />
             </div>
@@ -84,5 +84,3 @@ function Controls({
     </>
   );
 }
-
-export default Controls;
