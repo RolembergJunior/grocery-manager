@@ -27,7 +27,6 @@ export default function Header() {
 
     async function initProducts() {
       if (!session?.user) {
-        setProducts([]);
         return;
       }
 
@@ -61,7 +60,7 @@ export default function Header() {
     return () => {
       abortController.abort();
     };
-  }, [session?.user, setProducts]);
+  }, [session?.user]);
 
   return (
     <>
@@ -81,19 +80,6 @@ export default function Header() {
               >
                 <Package className="w-6 h-6" />
                 <span className="text-xs mt-1">Inventário</span>
-              </div>
-            </Link>
-
-            <Link href="/?add=1" scroll>
-              <div
-                className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${
-                  pathname === "/add"
-                    ? "text-green-600"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                <Plus className="w-6 h-6" />
-                <span className="text-xs mt-1">Adicionar</span>
               </div>
             </Link>
 

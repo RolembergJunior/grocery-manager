@@ -43,10 +43,10 @@ export default function StatusSelect({
 }: StatusSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const getStatusClassName = (
+  function getStatusClassName(
     status: string,
     isSelected: boolean = false
-  ): string => {
+  ): string {
     const baseClasses = isSelected
       ? "px-3 py-1 rounded-full text-xs font-semibold min-w-fit cursor-pointer"
       : "px-3 py-2 rounded-lg text-sm font-medium cursor-pointer hover:bg-opacity-80 transition-all duration-200";
@@ -71,12 +71,12 @@ export default function StatusSelect({
             : "bg-blue-50 text-blue-700 hover:bg-blue-100"
         }`;
     }
-  };
+  }
 
-  const handleStatusSelect = (status: string) => {
+  function handleStatusSelect(status: string) {
     onStatusChange(status);
     setIsOpen(false);
-  };
+  }
 
   if (disabled) {
     return (
@@ -105,12 +105,7 @@ export default function StatusSelect({
       </button>
 
       <RenderWhen isTrue={isOpen}>
-        <>
-          <div
-            className="fixed inset-0 z-50"
-            onClick={() => setIsOpen(false)}
-          />
-
+        <div className="z-50">
           <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
             <div className="py-1">
               {statusOptions.map((option) => (
@@ -119,7 +114,7 @@ export default function StatusSelect({
                   onClick={() => handleStatusSelect(option.value)}
                   className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors duration-150 ${
                     currentStatus === option.value ? "bg-gray-50" : ""
-                  }`}
+                  } cursor-pointer`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -138,7 +133,7 @@ export default function StatusSelect({
               ))}
             </div>
           </div>
-        </>
+        </div>
       </RenderWhen>
     </div>
   );

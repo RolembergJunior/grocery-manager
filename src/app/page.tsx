@@ -13,7 +13,16 @@ import { productsAtom } from "@/lib/atoms";
 export default function Home(): JSX.Element {
   const products = useAtomValue(productsAtom);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedFilter, setSelectedFilter] = useState<{
+    [key: string]: string[];
+  }>({});
+
+  function handleSelectFilter(filterKey: string, value: string[]) {
+    setSelectedFilter({
+      ...selectedFilter,
+      [filterKey]: value,
+    });
+  }
 
   const { totalItems, needsShopping, totalCategories } =
     calculateStatistics(products);
@@ -41,8 +50,8 @@ export default function Home(): JSX.Element {
           <Controls
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            filterValue={statusFilter}
-            onFilterChange={setStatusFilter}
+            selectedFilters={selectedFilter}
+            onFilterChange={handleSelectFilter}
             products={products}
           />
 
@@ -53,7 +62,7 @@ export default function Home(): JSX.Element {
             <ProductList
               products={products}
               searchTerm={searchTerm}
-              statusFilter={statusFilter}
+              selectedFilter={selectedFilter}
             />
           </RenderWhen>
         </div>

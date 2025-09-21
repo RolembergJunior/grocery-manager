@@ -43,18 +43,21 @@ export function getCategoryStats(items: Item[]) {
 export function filterItems(
   items: Item[],
   searchTerm: string,
-  statusFilter: string
+  selectFilter: { [keyFilter: string]: string[] }
 ) {
   return items.filter((item) => {
     const matchesSearch = searchTerm
       ? item.name.toLowerCase().includes(searchTerm.toLowerCase())
       : true;
 
-    const itemStatus = getItemStatus(item);
+    const matchesSelectFilter = Object.entries(selectFilter).length
+      ? Object.entries(selectFilter).some(([key, value]) =>
+          value.length
+            ? value.includes(item[key as keyof Item] as string)
+            : true
+        )
+      : true;
 
-    const matchesStatus =
-      statusFilter === "all" ? true : itemStatus === statusFilter;
-
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesSelectFilter;
   });
 }

@@ -1,3 +1,4 @@
+import { Check, Circle, Trash } from "lucide-react";
 import { useState } from "react";
 
 export default function StatusFilter({
@@ -11,9 +12,12 @@ export default function StatusFilter({
 
   const filters = [
     { value: "all", label: "Todos" },
-    { value: "comprados", label: "Comprados" },
-    { value: "pendentes", label: "Pendentes" },
-    { value: "removidos", label: "Removidos" },
+    { value: "comprados", label: <Check className="w-4 h-4 text-green-500" /> },
+    {
+      value: "pendentes",
+      label: <Circle className="w-4 h-4 text-yellow-500" />,
+    },
+    { value: "removidos", label: <Trash className="w-4 h-4 text-red-500" /> },
   ];
 
   function handleFilterClick(filterValue: string) {
@@ -22,13 +26,13 @@ export default function StatusFilter({
   }
 
   return (
-    <div className="flex justify-center gap-2 p-1 bg-gray-100 rounded-lg">
-      {filters.map((filter: { value: string; label: string }) => (
+    <div className="flex justify-between gap-2 p-1 bg-gray-100 rounded-lg">
+      {filters.map((filter: { value: string; label: React.ReactNode }) => (
         <button
           key={filter.value}
           onClick={() => handleFilterClick(filter.value)}
-          className={`
-            px-4 py-2 text-sm font-medium rounded-md transition-all duration-200
+          className={` flex  justify-center
+            px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 w-full
             ${
               activeFilter === filter.value
                 ? "bg-white text-blue-600 shadow-sm"

@@ -25,7 +25,7 @@ export default function List({
   }
 
   return (
-    <div className="px-4 mb-14 h-full ">
+    <div className="mb-14 h-full ">
       <RenderWhen isTrue={products.length > 0} elseElement={<EmptyState />}>
         {Object.entries(groupedItems()).map(([category, categoryItems]) => (
           <Category

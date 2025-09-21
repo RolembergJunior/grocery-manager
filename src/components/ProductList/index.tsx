@@ -10,11 +10,12 @@ import {
 import RenderWhen from "../RenderWhen";
 import { useMemo } from "react";
 import CategoryCard from "./components/CategoryCard";
+import { getCategoryName } from "@/app/utils";
 
 interface ProductListProps {
   products: Products;
   searchTerm?: string;
-  statusFilter?: string;
+  selectedFilter: { [key: string]: string[] };
 }
 
 interface FilteredCategoryProps {
@@ -28,7 +29,7 @@ interface FilteredCategoryProps {
 export default function ProductList({
   products,
   searchTerm = "",
-  statusFilter = "all",
+  selectedFilter,
 }: ProductListProps) {
   const filteredProducts = useMemo(() => {
     const sorteredCategories = getSortedCategories(products);
@@ -36,12 +37,12 @@ export default function ProductList({
     return sorteredCategories.reduce(
       (acc: FilteredCategoryProps[], category) => {
         const items = getItemsByCategory(products, category);
-        const filteredItems = filterItems(items, searchTerm, statusFilter);
+        const filteredItems = filterItems(items, searchTerm, selectedFilter);
         const { totalItems, itemsToBuy } = getCategoryStats(filteredItems);
 
         if (filteredItems.length > 0) {
           acc.push({
-            category,
+            category: getCategoryName(category),
             items: filteredItems,
             totalItems,
             itemsToBuy,
@@ -53,7 +54,7 @@ export default function ProductList({
       },
       []
     );
-  }, [products, searchTerm, statusFilter]);
+  }, [products, searchTerm, selectedFilter]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">

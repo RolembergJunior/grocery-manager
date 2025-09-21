@@ -22,7 +22,7 @@ export default function Filters({
   products,
 }: FilterProps) {
   return (
-    <div className="p-4">
+    <div className="mb-4">
       <div className="flex items-center gap-3 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

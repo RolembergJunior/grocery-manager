@@ -40,18 +40,6 @@ export default function MobileHeader({
             </div>
           </Link>
 
-          <Link href="/?add=1">
-            <div
-              className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${isActive(
-                "/add",
-                pathname
-              )}`}
-            >
-              <Plus className="w-6 h-6" />
-              <span className="text-xs mt-1">Adicionar</span>
-            </div>
-          </Link>
-
           <Link
             href="/shopping-list"
             aria-current={pathname === "/shopping-list" ? "page" : undefined}

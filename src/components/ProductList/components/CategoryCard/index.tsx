@@ -23,7 +23,7 @@ export default function CategoryCard({
   return (
     <div
       key={category}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:transform hover:-translate-y-2 transition-all"
+      className="bg-white rounded-2xl shadow-lg hover:transform hover:-translate-y-2 transition-all"
     >
       <div className="bg-gradient-to-r from-teal-200 to-pink-200 p-6">
         <h3 className="text-xl font-bold text-gray-800 capitalize mb-1">
@@ -33,7 +33,7 @@ export default function CategoryCard({
           {formatItemCountText(totalItems, itemsToBuy)}
         </p>
       </div>
-      <div className="max-h-96 overflow-y-auto">
+      <>
         {items?.map((item: Item) => (
           <ProductCard
             key={item.id}
@@ -42,7 +42,7 @@ export default function CategoryCard({
             statusText={getStatusText(getItemStatus(item))}
           />
         ))}
-      </div>
+      </>
     </div>
   );
 }
