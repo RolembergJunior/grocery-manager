@@ -6,6 +6,8 @@ import { useState } from "react";
 import RenderWhen from "@/components/RenderWhen";
 import { toast } from "sonner";
 import { updateOrCreate } from "@/services/products";
+import { useSetAtom } from "jotai";
+import { productsAtom } from "@/lib/atoms";
 
 interface ProductObservationProps {
   item: Item;
@@ -15,6 +17,8 @@ export default function ProductObservation({ item }: ProductObservationProps) {
   const [showTextArea, setShowTextArea] = useState(false);
   const [observation, setObservation] = useState(item.observation || "");
 
+  const setProducts = useSetAtom(productsAtom);
+
   function handleSave() {
     toast.promise(
       updateOrCreate({
@@ -23,7 +27,15 @@ export default function ProductObservation({ item }: ProductObservationProps) {
       }),
       {
         loading: "Salvando...",
-        success: "Observação salva com sucesso!",
+        success: () => {
+          setProducts((prevProducts) =>
+            prevProducts.map((product) =>
+              product.id === item.id ? { ...product, observation } : product
+            )
+          );
+
+          return "Observação salva com sucesso!";
+        },
         error:
           "Houve um erro ao tentar salvar a observação do item. Tente novamente mais tarde, por favor.",
       }

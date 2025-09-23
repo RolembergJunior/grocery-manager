@@ -2,14 +2,13 @@
 
 import React, { useMemo, useState } from "react";
 import Filters from "./components/Filters";
-import AddItem from "./components/AddItem";
 import RenderWhen from "@/components/RenderWhen";
 import MarkCompletedButton from "./components/MarkCompletedButton";
 import List from "./components/List";
 import ListTypeSelection from "./components/ListTypeSelection";
 import CongratulationsModal from "./components/CongratulationsModal";
 import ShoppingListHeader from "./components/ShoppingListHeader";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   productsAtom,
   standaloneItemsAtom,
@@ -23,6 +22,7 @@ import {
   matchesSearchFilter,
   matchesStatusFilter,
 } from "./utils";
+import AddItemButton from "./components/AddItem";
 
 export default function ShoppingListApp() {
   const [selectedListType, setSelectedListType] =
@@ -202,7 +202,7 @@ export default function ShoppingListApp() {
         />
 
         <RenderWhen isTrue={selectedListType === "standalone"}>
-          <AddItem onAddItem={handleAddItem} />
+          <AddItemButton onAddItem={handleAddItem} />
         </RenderWhen>
 
         <List

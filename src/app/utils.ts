@@ -89,7 +89,13 @@ export function getCategories(
 
 export function getCategoryName(category: string): string {
   return (
-    categoryOptions.find((c) => c.value === category.toLowerCase())?.label ||
+    categoryOptions.find((c) => c.value === category?.toLowerCase())?.label ||
     category
+  );
+}
+
+export function getUnitName(unit: string): string {
+  return (
+    unitOptions.find((c) => c.value === unit?.toLowerCase())?.label || unit
   );
 }

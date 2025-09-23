@@ -11,10 +11,20 @@ export const isProductsEmptyAtom = atom((get) => {
 
 export const fetchProductsAtom = atom(null, async (_get, set) => {
   const abortController = new AbortController();
-  const products = await subscribeProducts({ signal: abortController.signal });
 
-  set(productsAtom, products);
+  try {
+    const products = await subscribeProducts({
+      signal: abortController.signal,
+    });
+    set(productsAtom, products);
+  } catch (error) {
+    console.error("Falha ao buscar produtos:", error);
+  }
+
+  return () => abortController.abort();
 });
+
+export const isLoadingProductsAtom = atom(false);
 
 export const standaloneItemsAtom = atom<Item[]>([]);
 

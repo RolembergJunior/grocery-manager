@@ -8,10 +8,12 @@ import Statistics from "@/components/Statistics";
 import Controls from "@/components/Controls";
 import ProductList from "@/components/ProductList";
 import { useAtomValue } from "jotai";
-import { productsAtom } from "@/lib/atoms";
+import { productsAtom, isLoadingProductsAtom } from "@/lib/atoms";
+import Loading from "@/components/Loading";
 
-export default function Home(): JSX.Element {
+export default function Home() {
   const products = useAtomValue(productsAtom);
+  const isLoadingProducts = useAtomValue(isLoadingProductsAtom);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<{
     [key: string]: string[];
@@ -26,6 +28,16 @@ export default function Home(): JSX.Element {
 
   const { totalItems, needsShopping, totalCategories } =
     calculateStatistics(products);
+
+  if (isLoadingProducts) {
+    return (
+      <Loading
+        size="xl"
+        className="min-h-dvh md:min-h-screen"
+        message="Carregando produtos..."
+      />
+    );
+  }
 
   return (
     <div className="min-h-dvh md:min-h-screen bg-[#1E459F] p-2">

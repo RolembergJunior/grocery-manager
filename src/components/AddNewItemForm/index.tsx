@@ -70,6 +70,7 @@ export default function AddNewItemForm() {
       loading: "Salvando produto...",
       success: () => {
         setProducts(newProducts);
+
         return "Produto salvo com sucesso!!";
       },
       error:
@@ -157,8 +158,8 @@ export default function AddNewItemForm() {
           </label>
           <Select
             defaultValue={formData.unit}
-            onChange={(value: string) =>
-              setFormData({ ...formData, unit: value })
+            onChange={(value: string[]) =>
+              setFormData({ ...formData, unit: value[0] })
             }
             options={unitOptions}
           />

@@ -4,38 +4,19 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Item } from "@/app/type";
 import RenderWhen from "@/components/RenderWhen";
-
+import Modal from "@/components/Modal";
+import SelectComponent from "@/components/Select";
+import {
+  categoryOptions,
+  getCategoryName,
+  getUnitName,
+  unitOptions,
+} from "@/app/utils";
 interface AddItemProps {
   onAddItem: (item: Omit<Item, "id">) => void;
 }
 
-const categories = [
-  "Alimentação",
-  "Bebidas",
-  "Higiene",
-  "Limpeza",
-  "Padaria",
-  "Açougue",
-  "Hortifruti",
-  "Laticínios",
-  "Congelados",
-  "Outros",
-];
-
-const units = [
-  "unidade",
-  "kg",
-  "g",
-  "litro",
-  "ml",
-  "pacote",
-  "caixa",
-  "lata",
-  "garrafa",
-  "saco",
-];
-
-export default function AddItem({ onAddItem }: AddItemProps) {
+export default function AddItemButton({ onAddItem }: AddItemProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItem, setNewItem] = useState({
     name: "",
@@ -85,9 +66,12 @@ export default function AddItem({ onAddItem }: AddItemProps) {
       </button>
 
       <RenderWhen isTrue={showAddForm}>
-        <div className="bg-white mt-4 p-4 rounded-lg shadow-sm border border-slate-200">
+        <Modal
+          isOpen={showAddForm}
+          onClose={() => setShowAddForm(false)}
+          title="Adicionar novo item"
+        >
           <div className="space-y-4">
-            {/* Item Name */}
             <div>
               <label className="block text-slate-700 text-sm font-medium mb-2">
                 Nome do Item *
@@ -103,28 +87,19 @@ export default function AddItem({ onAddItem }: AddItemProps) {
               />
             </div>
 
-            {/* Category */}
             <div>
               <label className="block text-slate-700 text-sm font-medium mb-2">
                 Categoria *
               </label>
-              <select
-                value={newItem.category}
-                onChange={(e) =>
-                  setNewItem({ ...newItem, category: e.target.value })
+              <SelectComponent
+                defaultValue={getCategoryName(newItem.category)}
+                onChange={(value: string[]) =>
+                  setNewItem({ ...newItem, category: value[0] })
                 }
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none"
-              >
-                <option value="">Selecione uma categoria</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+                options={categoryOptions}
+              />
             </div>
 
-            {/* Quantities */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-slate-700 text-sm font-medium mb-2">
@@ -162,27 +137,19 @@ export default function AddItem({ onAddItem }: AddItemProps) {
               </div>
             </div>
 
-            {/* Unit */}
             <div>
               <label className="block text-slate-700 text-sm font-medium mb-2">
                 Unidade
               </label>
-              <select
-                value={newItem.unit}
-                onChange={(e) =>
-                  setNewItem({ ...newItem, unit: e.target.value })
+              <SelectComponent
+                defaultValue={getUnitName(newItem.unit)}
+                onChange={(value: string[]) =>
+                  setNewItem({ ...newItem, unit: value[0] })
                 }
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none"
-              >
-                {units.map((unit) => (
-                  <option key={unit} value={unit}>
-                    {unit}
-                  </option>
-                ))}
-              </select>
+                options={unitOptions}
+              />
             </div>
 
-            {/* Observation */}
             <div>
               <label className="block text-slate-700 text-sm font-medium mb-2">
                 Observação (opcional)
@@ -198,7 +165,6 @@ export default function AddItem({ onAddItem }: AddItemProps) {
               />
             </div>
 
-            {/* Action Buttons */}
             <div className="flex gap-2">
               <button
                 onClick={handleAddItem}
@@ -214,7 +180,7 @@ export default function AddItem({ onAddItem }: AddItemProps) {
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       </RenderWhen>
     </div>
   );

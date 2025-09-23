@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { Package, Plus, ShoppingCart, Signal, User } from "lucide-react";
 import { useSetAtom } from "jotai";
-import { productsAtom } from "@/lib/atoms";
+import { isLoadingProductsAtom, productsAtom } from "@/lib/atoms";
 import { toast } from "sonner";
 import MobileHeader from "./components/MobileHeader";
 import { isActive } from "./utils";
@@ -19,6 +19,8 @@ export default function Header() {
   const pathname = usePathname();
 
   const setProducts = useSetAtom(productsAtom);
+
+  const setIsLoadingProducts = useSetAtom(isLoadingProductsAtom);
 
   const title = pathname === "/shopping-list" ? "Compras" : "Inventário";
 
@@ -30,12 +32,17 @@ export default function Header() {
         return;
       }
 
+      setIsLoadingProducts(true);
+
       try {
         const userId = (session?.user as any)?.id || session?.user?.email;
         const res = await fetch(`/api/products?userId=${userId}`, {
           method: "GET",
           credentials: "include",
           signal: abortController.signal,
+          next: {
+            tags: ["products"],
+          },
         });
 
         if (!res.ok) {
@@ -52,6 +59,8 @@ export default function Header() {
         toast.error(
           "Houve um erro ao tentar carregar os dados. Tente novamente mais tarde."
         );
+      } finally {
+        setIsLoadingProducts(false);
       }
     }
 

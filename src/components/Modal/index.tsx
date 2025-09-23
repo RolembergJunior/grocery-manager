@@ -95,7 +95,7 @@ export default function Modal({
             <RenderWhen isTrue={!!showCloseButton}>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 cursor-pointer"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5 text-gray-500" />
@@ -104,7 +104,7 @@ export default function Modal({
           </div>
         </RenderWhen>
 
-        <div className="p-6 max-h-[60vh] overflow-y-scroll">{children}</div>
+        <div className="p-6 max-h-[55vh] overflow-y-scroll">{children}</div>
       </div>
     </div>
   );
