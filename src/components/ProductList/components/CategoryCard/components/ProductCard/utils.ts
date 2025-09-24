@@ -10,3 +10,16 @@ export function getStatusClassName(status: string): string {
       return `${baseClasses} bg-gradient-to-r from-blue-300 to-blue-400 text-white`;
   }
 }
+
+export function getStatusText(statusValue: string): string {
+  switch (statusValue) {
+    case "needs-shopping":
+      return "Preciso comprar";
+    case "almost-empty":
+      return "Quase acabando";
+    case "full":
+      return "Tenho suficiente";
+    default:
+      return "";
+  }
+}

@@ -80,3 +80,29 @@ export async function updateOrCreate(
   const data = (await res.json()) as { item: Item };
   return data.item;
 }
+
+export async function deleteItem(
+  id: string
+): Promise<void | { error: string } | { ok: true }> {
+  const session = await auth();
+
+  if (!session?.user) return;
+
+  const res = await fetch(
+    `${process.env.NEXTAUTH_URL}/api/products?userId=${
+      session.user.id as string
+    }`,
+    {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ id }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to delete: ${res.status}`);
+  }
+
+  return { ok: true };
+}

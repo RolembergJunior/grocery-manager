@@ -99,7 +99,7 @@ export default function ProductObservation({ item }: ProductObservationProps) {
             </h2>
             <button
               onClick={() => setShowTextArea(true)}
-              className="hover:bg-white active:bg-gray-100 p-2 rounded-lg transition-all duration-200 group"
+              className="hover:bg-white active:bg-gray-100 p-2 rounded-lg transition-all duration-200 cursor-pointer"
               title="Editar observação"
             >
               <Edit className="w-4 h-4 text-gray-500 group-hover:text-primary-orange-hover transition-colors" />

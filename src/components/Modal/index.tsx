@@ -104,7 +104,7 @@ export default function Modal({
           </div>
         </RenderWhen>
 
-        <div className="p-6 max-h-[55vh] overflow-y-scroll">{children}</div>
+        <div className="p-6 max-h-[55vh] overflow-y-auto">{children}</div>
       </div>
     </div>
   );
