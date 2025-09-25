@@ -8,6 +8,7 @@ export interface Item {
   observation?: string;
   boughtQuantity?: number;
   completed?: boolean;
+  statusCompra: number;
 }
 
 export type Products = Item[];

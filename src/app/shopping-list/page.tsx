@@ -35,7 +35,6 @@ export default function ShoppingListApp() {
   const [showCongratulationsModal, setShowCongratulationsModal] =
     useState(false);
 
-  // Add state for standalone list name
   const [standaloneListName, setStandaloneListName] = useState("Lista Avulsa");
 
   const [products, setProducts] = useAtom(productsAtom);
@@ -46,9 +45,7 @@ export default function ShoppingListApp() {
     if (selectedListType === "standalone") {
       return standaloneItems;
     } else if (selectedListType === "inventory-based") {
-      return products.filter(
-        (item) => item.currentQuantity < item.neededQuantity
-      );
+      return products.filter((item) => item.statusCompra === 1);
     }
     return [];
   }, [selectedListType, standaloneItems, products]);

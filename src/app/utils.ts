@@ -25,6 +25,12 @@ export const unitOptions = [
   { value: "spoons", label: "Colheres" },
 ];
 
+export const buyStatusOptions = [
+  { value: 0, label: "Precisa comprar" },
+  { value: 1, label: "Quase acabando" },
+  { value: 2, label: "Em estoque" },
+];
+
 export function calculateStatistics(products: Products): {
   totalItems: number;
   needsShopping: number;

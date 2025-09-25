@@ -4,4 +4,5 @@ export interface FormData {
   currentQuantity: number;
   neededQuantity: number;
   unit: string;
+  statusCompra: number | null;
 }

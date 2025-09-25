@@ -8,7 +8,12 @@ import { toast } from "sonner";
 import { saveProducts } from "@/services/products";
 import { productsAtom } from "@/lib/atoms";
 import { useAtom } from "jotai";
-import { categoryOptions, getCategoryName, unitOptions } from "@/app/utils";
+import {
+  buyStatusOptions,
+  categoryOptions,
+  getCategoryName,
+  unitOptions,
+} from "@/app/utils";
 
 export default function AddNewItemForm() {
   const [formData, setFormData] = useState<FormData>({
@@ -17,12 +22,17 @@ export default function AddNewItemForm() {
     currentQuantity: 0,
     neededQuantity: 0,
     unit: "",
+    statusCompra: null,
   });
 
   const [products, setProducts] = useAtom(productsAtom);
 
   function handleAddItem() {
-    if (!formData.name.trim() || !formData.category.trim()) {
+    if (
+      !formData.name.trim() ||
+      !formData.category.trim() ||
+      !formData.statusCompra
+    ) {
       toast.error("Por favor, preencha os campos!");
       return;
     }
@@ -42,6 +52,7 @@ export default function AddNewItemForm() {
         currentQuantity: formData.currentQuantity || 0,
         neededQuantity: formData.neededQuantity || 0,
         unit: formData.unit,
+        statusCompra: formData.statusCompra as number,
       };
     } else {
       newProducts.push({
@@ -51,6 +62,7 @@ export default function AddNewItemForm() {
         neededQuantity: formData.neededQuantity || 0,
         unit: formData.unit,
         category,
+        statusCompra: formData.statusCompra as number,
       });
     }
 
@@ -62,6 +74,7 @@ export default function AddNewItemForm() {
       currentQuantity: 0,
       neededQuantity: 0,
       unit: "",
+      statusCompra: null,
     });
   }
 
@@ -153,7 +166,7 @@ export default function AddNewItemForm() {
 
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-            <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+            <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
             Unidade
           </label>
           <Select
@@ -162,6 +175,20 @@ export default function AddNewItemForm() {
               setFormData({ ...formData, unit: value[0] })
             }
             options={unitOptions}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+            <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+            Status da compra
+          </label>
+          <Select
+            defaultValue={formData.statusCompra?.toString()}
+            onChange={(value: string[]) =>
+              setFormData({ ...formData, statusCompra: parseInt(value[0]) })
+            }
+            options={buyStatusOptions}
           />
         </div>
 

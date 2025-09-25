@@ -1,35 +1,43 @@
 "use client";
 
 import RenderWhen from "@/components/RenderWhen";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { getStatusText } from "../../utils";
+import StatusOptionButton, {
+  OptionItem,
+} from "./components/StatusOptionButton";
+import { useSetAtom } from "jotai";
+import { toast } from "sonner";
+import { updateOrCreate } from "@/services/products";
+import { Item } from "@/app/type";
+import { productsAtom } from "@/lib/atoms";
 
 export interface StatusOption {
-  value: string;
+  value: number;
   label: string;
   description: string;
 }
 
 interface StatusSelectProps {
-  currentStatus: string;
-  statusText: string;
-  onStatusChange: (status: string) => void;
+  currentStatus: number;
+  item: Item;
   disabled?: boolean;
 }
 
-const statusOptions: StatusOption[] = [
+const statusOptions: OptionItem[] = [
   {
-    value: "needs-shopping",
+    value: 1,
     label: "Preciso comprar",
     description: "Item precisa ser comprado",
   },
   {
-    value: "almost-empty",
+    value: 2,
     label: "Quase acabando",
     description: "Item está quase acabando",
   },
   {
-    value: "full",
+    value: 3,
     label: "Tenho suficiente",
     description: "Item está em quantidade adequada",
   },
@@ -37,14 +45,14 @@ const statusOptions: StatusOption[] = [
 
 export default function StatusSelect({
   currentStatus,
-  statusText,
-  onStatusChange,
   disabled = false,
+  item,
 }: StatusSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const setProducts = useSetAtom(productsAtom);
 
   function getStatusClassName(
-    status: string,
+    status: number,
     isSelected: boolean = false
   ): string {
     const baseClasses = isSelected
@@ -52,36 +60,64 @@ export default function StatusSelect({
       : "px-3 py-2 rounded-lg text-sm font-medium cursor-pointer hover:bg-opacity-80 transition-all duration-200";
 
     switch (status) {
-      case "needs-shopping":
+      case 1:
         return `${baseClasses} ${
           isSelected
             ? "bg-gradient-to-r from-red-400 to-red-500 text-white"
             : "bg-red-50 text-red-700 hover:bg-red-100"
         }`;
-      case "almost-empty":
+      case 2:
         return `${baseClasses} ${
           isSelected
             ? "bg-gradient-to-r from-yellow-300 to-yellow-400 text-gray-800"
             : "bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
         }`;
-      default:
+      case 3:
         return `${baseClasses} ${
           isSelected
             ? "bg-gradient-to-r from-blue-300 to-blue-400 text-white"
             : "bg-blue-50 text-blue-700 hover:bg-blue-100"
         }`;
+      default:
+        return baseClasses;
     }
   }
 
-  function handleStatusSelect(status: string) {
-    onStatusChange(status);
+  async function handleStatusSelect(status: string | number) {
+    const newStatus = status as number;
+
+    if (newStatus === currentStatus) {
+      setIsOpen(false);
+      return;
+    }
+
+    const updatedItem = {
+      ...item,
+      statusCompra: newStatus,
+    };
+
+    toast.promise(updateOrCreate(updatedItem), {
+      loading: "Atualizando status...",
+      success: (result) => {
+        if (result && typeof result === "object" && "id" in result) {
+          setProducts((prevProducts: Item[]) =>
+            prevProducts.map((product) =>
+              product.id === item.id ? { ...updatedItem } : product
+            )
+          );
+        }
+        return "Status atualizado!";
+      },
+      error: "Erro ao atualizar status",
+    });
+
     setIsOpen(false);
   }
 
   if (disabled) {
     return (
       <span className={getStatusClassName(currentStatus, true)}>
-        {statusText}
+        {getStatusText(currentStatus)}
       </span>
     );
   }
@@ -96,7 +132,7 @@ export default function StatusSelect({
         )} flex items-center gap-1 hover:scale-105 transition-transform duration-200`}
         title="Clique para alterar o status"
       >
-        {statusText}
+        {getStatusText(currentStatus)}
         <ChevronDown
           className={`w-3 h-3 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -109,27 +145,15 @@ export default function StatusSelect({
           <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
             <div className="py-1">
               {statusOptions.map((option) => (
-                <button
+                <StatusOptionButton
                   key={option.value}
-                  onClick={() => handleStatusSelect(option.value)}
-                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors duration-150 ${
-                    currentStatus === option.value ? "bg-gray-50" : ""
-                  } cursor-pointer`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className={getStatusClassName(option.value)}>
-                        {option.label}
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {option.description}
-                      </p>
-                    </div>
-                    {currentStatus === option.value && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    )}
-                  </div>
-                </button>
+                  option={option}
+                  isSelected={currentStatus === option.value}
+                  onSelect={handleStatusSelect}
+                  getOptionClassName={(value) =>
+                    getStatusClassName(value as number)
+                  }
+                />
               ))}
             </div>
           </div>

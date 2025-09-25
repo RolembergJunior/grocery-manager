@@ -77,8 +77,9 @@ export async function updateOrCreate(
     throw new Error(`Failed to save: ${res.status}`);
   }
 
-  const data = (await res.json()) as { item: Item };
-  return data.item;
+  const data = (await res.json()) as Item;
+
+  return data;
 }
 
 export async function deleteItem(

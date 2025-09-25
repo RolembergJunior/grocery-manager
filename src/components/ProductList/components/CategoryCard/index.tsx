@@ -35,12 +35,7 @@ export default function CategoryCard({
       </div>
       <>
         {items?.map((item: Item) => (
-          <ProductCard
-            key={item.id}
-            item={item}
-            status={getItemStatus(item)}
-            statusText={getStatusText(getItemStatus(item))}
-          />
+          <ProductCard key={item.id} item={item} status={item.statusCompra} />
         ))}
       </>
     </div>

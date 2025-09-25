@@ -11,13 +11,13 @@ export function getStatusClassName(status: string): string {
   }
 }
 
-export function getStatusText(statusValue: string): string {
+export function getStatusText(statusValue: number): string {
   switch (statusValue) {
-    case "needs-shopping":
+    case 1:
       return "Preciso comprar";
-    case "almost-empty":
+    case 2:
       return "Quase acabando";
-    case "full":
+    case 3:
       return "Tenho suficiente";
     default:
       return "";

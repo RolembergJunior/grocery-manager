@@ -10,18 +10,10 @@ import DeleteButton from "./components/DeleteButton";
 
 interface ProductCardProps {
   item: Item;
-  status: string;
+  status: number;
 }
 
 export default function ProductCard({ item, status }: ProductCardProps) {
-  const [manualStatus, setManualStatus] = useState<string | null>(null);
-
-  function handleStatusChange(newStatus: string) {
-    setManualStatus(newStatus);
-  }
-
-  const displayStatus = manualStatus || status;
-
   return (
     <div
       key={item.id}
@@ -33,11 +25,7 @@ export default function ProductCard({ item, status }: ProductCardProps) {
             {item.name}
           </h3>
           <div className="flex items-center gap-2">
-            <StatusSelect
-              currentStatus={displayStatus}
-              statusText={getStatusText(displayStatus)}
-              onStatusChange={handleStatusChange}
-            />
+            <StatusSelect currentStatus={status} item={item} />
           </div>
         </div>
 
