@@ -1,6 +1,6 @@
 "use client";
 
-import React, { JSX, useState } from "react";
+import React, { JSX } from "react";
 import { calculateStatistics } from "./utils";
 import RenderWhen from "@/components/RenderWhen";
 import EmptyProducts from "@/components/EmptyProducts";
@@ -14,17 +14,6 @@ import Loading from "@/components/Loading";
 export default function Home() {
   const products = useAtomValue(productsAtom);
   const isLoadingProducts = useAtomValue(isLoadingProductsAtom);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState<{
-    [key: string]: string[];
-  }>({});
-
-  function handleSelectFilter(filterKey: string, value: string[]) {
-    setSelectedFilter({
-      ...selectedFilter,
-      [filterKey]: value,
-    });
-  }
 
   const { totalItems, needsShopping, totalCategories } =
     calculateStatistics(products);
@@ -59,23 +48,13 @@ export default function Home() {
             totalCategories={totalCategories}
           />
 
-          <Controls
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedFilters={selectedFilter}
-            onFilterChange={handleSelectFilter}
-            products={products}
-          />
+          <Controls products={products} />
 
           <RenderWhen
             isTrue={!!products.length}
             elseElement={<EmptyProducts />}
           >
-            <ProductList
-              products={products}
-              searchTerm={searchTerm}
-              selectedFilter={selectedFilter}
-            />
+            <ProductList products={products} />
           </RenderWhen>
         </div>
       </div>

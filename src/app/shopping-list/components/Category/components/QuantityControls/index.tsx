@@ -3,23 +3,24 @@
 import React from "react";
 import { Plus, Minus, X } from "lucide-react";
 import { Item } from "@/app/type";
+import { useSetAtom } from "jotai";
+import { updateBoughtQuantityAtom, removeItemAtom } from "@/lib/atoms";
 
 interface QuantityControlsProps {
   item: Item;
-  updateBoughtQuantity: (id: number, change: number) => void;
-  removeItem: (id: number) => void;
 }
 
 export default function QuantityControls({
   item,
-  updateBoughtQuantity,
-  removeItem,
 }: QuantityControlsProps) {
+  const updateQuantity = useSetAtom(updateBoughtQuantityAtom);
+  const removeItem = useSetAtom(removeItemAtom);
+
   return (
     <div className="flex items-center gap-2">
       <button
         onClick={() =>
-          updateBoughtQuantity(item.id, (item.boughtQuantity || 1) - 1)
+          updateQuantity({ id: item.id, quantity: (item.boughtQuantity || 1) - 1 })
         }
         disabled={(item.boughtQuantity || 0) <= 0}
         className="w-8 h-8 bg-slate-200 hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 rounded-full flex items-center justify-center transition-all duration-200"
@@ -33,7 +34,7 @@ export default function QuantityControls({
 
       <button
         onClick={() =>
-          updateBoughtQuantity(item.id, (item.boughtQuantity || 0) + 1)
+          updateQuantity({ id: item.id, quantity: (item.boughtQuantity || 0) + 1 })
         }
         disabled={(item.boughtQuantity || 0) >= item.neededQuantity}
         className="w-8 h-8 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full flex items-center justify-center transition-all duration-200"

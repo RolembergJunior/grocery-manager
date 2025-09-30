@@ -11,11 +11,11 @@ import RenderWhen from "../RenderWhen";
 import { useMemo } from "react";
 import CategoryCard from "./components/CategoryCard";
 import { getCategoryName } from "@/app/utils";
+import { useAtomValue } from "jotai";
+import { mainSearchAtom, mainFiltersAtom } from "@/lib/atoms";
 
 interface ProductListProps {
   products: Products;
-  searchTerm?: string;
-  selectedFilter: { [key: string]: string[] };
 }
 
 interface FilteredCategoryProps {
@@ -26,11 +26,10 @@ interface FilteredCategoryProps {
   hasItemsToBuy: boolean;
 }
 
-export default function ProductList({
-  products,
-  searchTerm = "",
-  selectedFilter,
-}: ProductListProps) {
+export default function ProductList({ products }: ProductListProps) {
+  const searchTerm = useAtomValue(mainSearchAtom);
+  const selectedFilter = useAtomValue(mainFiltersAtom);
+
   const filteredProducts = useMemo(() => {
     const sorteredCategories = getSortedCategories(products);
 

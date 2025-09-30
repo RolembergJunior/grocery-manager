@@ -14,6 +14,9 @@ import {
   standaloneItemsAtom,
   selectedListTypeAtom,
   fetchProductsAtom,
+  searchFilterAtom,
+  categoryFilterAtom,
+  statusFilterAtom,
 } from "@/lib/atoms";
 import { ShoppingListType, Item } from "@/app/type";
 import { toast } from "sonner";
@@ -29,9 +32,9 @@ export default function ShoppingListApp() {
     useAtom<ShoppingListType | null>(selectedListTypeAtom);
   const [standaloneItems, setStandaloneItems] =
     useAtom<Item[]>(standaloneItemsAtom);
-  const [searchFilter, setSearchFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchFilter, setSearchFilter] = useAtom(searchFilterAtom);
+  const [categoryFilter, setCategoryFilter] = useAtom(categoryFilterAtom);
+  const [statusFilter] = useAtom(statusFilterAtom);
   const [showCongratulationsModal, setShowCongratulationsModal] =
     useState(false);
 
@@ -59,79 +62,6 @@ export default function ShoppingListApp() {
       );
     });
   }, [currentItems, searchFilter, categoryFilter, statusFilter]);
-
-  function handleCheckProduct(id: number) {
-    if (selectedListType === "standalone") {
-      const updatedItems = standaloneItems.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            completed: !item.completed,
-          };
-        }
-        return item;
-      });
-      setStandaloneItems(updatedItems);
-    } else if (selectedListType === "inventory-based") {
-      const updatedProducts = products.map((product) => {
-        if (product.id === id) {
-          return {
-            ...product,
-            completed: !product.completed,
-          };
-        }
-        return product;
-      });
-      setProducts(updatedProducts);
-    }
-  }
-
-  function updateBoughtQuantity(id: number, quantity: number) {
-    if (selectedListType === "standalone") {
-      const updatedItems = standaloneItems.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              boughtQuantity: quantity,
-              completed: item.currentQuantity + quantity >= item.neededQuantity,
-            }
-          : item
-      );
-      setStandaloneItems(updatedItems);
-    } else if (selectedListType === "inventory-based") {
-      const updatedItems = products.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              boughtQuantity: quantity,
-              completed: item.currentQuantity + quantity >= item.neededQuantity,
-            }
-          : item
-      );
-      setProducts(updatedItems);
-    }
-  }
-
-  function removeItem(id: number) {
-    const updateProductsList = (list: Item[]): Item[] => {
-      return list.map((item) =>
-        item.id === id ? { ...item, isRemoved: 1 } : item
-      );
-    };
-
-    const currentList =
-      selectedListType === "standalone" ? standaloneItems : products;
-
-    const updatedList = updateProductsList(currentList);
-
-    if (selectedListType === "standalone") {
-      setStandaloneItems(updatedList);
-
-      return;
-    }
-
-    setProducts(updatedList);
-  }
 
   function handleAddItem(newItem: Omit<Item, "id">) {
     const id = Date.now();
@@ -197,25 +127,13 @@ export default function ShoppingListApp() {
       />
 
       <div className="p-4">
-        <Filters
-          searchTerm={searchFilter}
-          selectedCategory={categoryFilter}
-          onChangeSearch={setSearchFilter}
-          onChangeCategory={(category) => setCategoryFilter(category as string)}
-          onChangeStatus={setStatusFilter}
-          products={currentItems}
-        />
+        <Filters products={currentItems} />
 
         <RenderWhen isTrue={selectedListType === "standalone"}>
           <AddItemButton onAddItem={handleAddItem} />
         </RenderWhen>
 
-        <List
-          products={filteredItems}
-          handleCheckProduct={handleCheckProduct}
-          updateBoughtQuantity={updateBoughtQuantity}
-          removeItem={removeItem}
-        />
+        <List products={filteredItems} />
 
         <RenderWhen
           isTrue={

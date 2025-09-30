@@ -3,24 +3,18 @@ import { Item } from "@/app/type";
 import { getCategories } from "@/app/utils";
 import SelectComponent from "@/components/Select";
 import ShoopingStatus from "./components/ShoopingStatus";
+import { useAtom } from "jotai";
+import { searchFilterAtom, categoryFilterAtom, statusFilterAtom } from "@/lib/atoms";
 
 interface FilterProps {
-  searchTerm: string;
-  selectedCategory: string;
-  onChangeSearch: (searchTerm: string) => void;
-  onChangeCategory: (category: string | number | null) => void;
-  onChangeStatus: (status: string) => void;
   products: Item[];
 }
 
-export default function Filters({
-  searchTerm,
-  selectedCategory,
-  onChangeSearch,
-  onChangeCategory,
-  onChangeStatus,
-  products,
-}: FilterProps) {
+export default function Filters({ products }: FilterProps) {
+  const [searchTerm, setSearchTerm] = useAtom(searchFilterAtom);
+  const [selectedCategory, setSelectedCategory] = useAtom(categoryFilterAtom);
+  const [, setStatusFilter] = useAtom(statusFilterAtom);
+
   return (
     <div className="mb-4">
       <div className="flex items-center gap-3 mb-4">
@@ -32,7 +26,7 @@ export default function Filters({
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={(e) => {
-              onChangeSearch(e.target.value);
+              setSearchTerm(e.target.value);
             }}
           />
         </div>
@@ -42,12 +36,12 @@ export default function Filters({
             options={getCategories(products || [])}
             defaultValue={selectedCategory}
             showSelectAll
-            onChange={(e: string[]) => onChangeCategory(e[0])}
+            onChange={(e: string[]) => setSelectedCategory(e[0])}
           />
         </div>
       </div>
 
-      <ShoopingStatus onFilterChange={onChangeStatus} />
+      <ShoopingStatus onFilterChange={setStatusFilter} />
     </div>
   );
 }

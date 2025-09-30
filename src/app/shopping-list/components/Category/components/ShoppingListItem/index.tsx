@@ -6,12 +6,11 @@ import { Item } from "@/app/type";
 import RenderWhen from "@/components/RenderWhen";
 import QuantityControls from "../QuantityControls";
 import ItemObservation from "../ItemObservation";
+import { useSetAtom } from "jotai";
+import { toggleItemCompletedAtom } from "@/lib/atoms";
 
 interface ShoppingListItemProps {
   item: Item;
-  handleCheckProduct: (id: number) => void;
-  updateBoughtQuantity: (id: number, change: number) => void;
-  removeItem: (id: number) => void;
 }
 
 function getStatusStyles(completed: boolean, isRemoved: boolean) {
@@ -40,10 +39,8 @@ function getStatusStyles(completed: boolean, isRemoved: boolean) {
 
 export default function ShoppingListItem({
   item,
-  handleCheckProduct,
-  updateBoughtQuantity,
-  removeItem,
 }: ShoppingListItemProps) {
+  const toggleCompleted = useSetAtom(toggleItemCompletedAtom);
   const isRemoved = item.isRemoved === 1;
   const statusStyles = getStatusStyles(!!item.completed, isRemoved);
 
@@ -58,7 +55,7 @@ export default function ShoppingListItem({
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => handleCheckProduct(item.id)}
+              onClick={() => toggleCompleted(item.id)}
               disabled={isRemoved}
               className={`
                 w-6 h-6 rounded-full border-2 flex items-center justify-center
@@ -92,11 +89,7 @@ export default function ShoppingListItem({
         </div>
 
         <RenderWhen isTrue={!item.completed && !isRemoved}>
-          <QuantityControls
-            item={item}
-            updateBoughtQuantity={updateBoughtQuantity}
-            removeItem={removeItem}
-          />
+          <QuantityControls item={item} />
         </RenderWhen>
       </div>
 

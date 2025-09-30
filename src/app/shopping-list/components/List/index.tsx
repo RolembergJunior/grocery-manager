@@ -5,14 +5,8 @@ import { EmptyState } from "./components/EmptyState";
 
 export default function List({
   products,
-  handleCheckProduct,
-  updateBoughtQuantity,
-  removeItem,
 }: {
   products: Item[];
-  handleCheckProduct: (id: number) => void;
-  updateBoughtQuantity: (id: number, change: number) => void;
-  removeItem: (id: number) => void;
 }) {
   function groupedItems() {
     return products.reduce((groups: { [key: string]: Item[] }, item: Item) => {
@@ -32,9 +26,6 @@ export default function List({
             key={category}
             category={category}
             categoryItems={categoryItems}
-            handleCheckProduct={handleCheckProduct}
-            updateBoughtQuantity={updateBoughtQuantity}
-            removeItem={removeItem}
           />
         ))}
       </RenderWhen>

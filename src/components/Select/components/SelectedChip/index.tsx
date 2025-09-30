@@ -13,7 +13,6 @@ export default function SelectedChip({ option, onRemove }: SelectedChipProps) {
     <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-sm font-medium">
       <span>{option.label}</span>
       <button
-        type="button"
         onClick={(e) => {
           e.stopPropagation();
           onRemove();
