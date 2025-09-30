@@ -6,6 +6,7 @@ import RenderWhen from "../RenderWhen";
 import { OptionsType } from "@/app/type";
 import SelectedChip from "./components/SelectedChip";
 import SelectOption from "./components/SelectOptions";
+import { getLabelFromOptions } from "./utils";
 
 interface SelectProps {
   defaultValue?: string | string[];
@@ -15,6 +16,7 @@ interface SelectProps {
   onChange: (e: string[]) => void;
   multiSelect?: boolean;
   showSelectAll?: boolean;
+  className?: string;
 }
 
 export default function SelectComponent({
@@ -25,6 +27,7 @@ export default function SelectComponent({
   label,
   multiSelect = false,
   showSelectAll = false,
+  className,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(
@@ -55,8 +58,8 @@ export default function SelectComponent({
 
   function handleSingleSelect(option: OptionsType) {
     setSelectedValue(option.value as string);
-    setIsOpen(false);
     onChange([option.value as string]);
+    setIsOpen(false);
   }
 
   function handleMultiSelect(option: OptionsType) {
@@ -102,7 +105,7 @@ export default function SelectComponent({
         </label>
       </RenderWhen>
 
-      <div className="relative inline-block w-full">
+      <div className={`relative inline-block min-w-[10rem] ${className}`}>
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
@@ -133,7 +136,9 @@ export default function SelectComponent({
             <RenderWhen isTrue={!multiSelect}>
               <div className="flex items-center justify-between w-full">
                 <span className="text-gray-500 font-medium">
-                  {selectedValue ? selectedValue : placeholder}
+                  {selectedValue
+                    ? getLabelFromOptions(selectedValue, options)
+                    : placeholder}
                 </span>
               </div>
             </RenderWhen>
@@ -171,6 +176,24 @@ export default function SelectComponent({
                     </span>
                   </div>
                 </button>
+              </RenderWhen>
+
+              <RenderWhen
+                isTrue={!multiSelect && showSelectAll && options.length > 1}
+              >
+                <SelectOption
+                  key="all"
+                  option={{ value: "Todos", label: "Todos" }}
+                  multiSelect={multiSelect}
+                  isSelected={selectedValue === "Todos"}
+                  selectedValue={
+                    getLabelFromOptions(
+                      selectedValue as string,
+                      options
+                    ) as string
+                  }
+                  onSelect={(option) => handleSingleSelect(option)}
+                />
               </RenderWhen>
 
               {options.map((option) => (

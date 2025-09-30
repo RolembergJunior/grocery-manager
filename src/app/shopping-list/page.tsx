@@ -113,16 +113,24 @@ export default function ShoppingListApp() {
   }
 
   function removeItem(id: number) {
-    if (selectedListType === "standalone") {
-      const updatedItems = standaloneItems.filter((item) => item.id !== id);
-      setStandaloneItems(updatedItems);
-    } else if (selectedListType === "inventory-based") {
-      const updatedItems = products.map((item) =>
+    const updateProductsList = (list: Item[]): Item[] => {
+      return list.map((item) =>
         item.id === id ? { ...item, isRemoved: 1 } : item
       );
+    };
 
-      setProducts(updatedItems);
+    const currentList =
+      selectedListType === "standalone" ? standaloneItems : products;
+
+    const updatedList = updateProductsList(currentList);
+
+    if (selectedListType === "standalone") {
+      setStandaloneItems(updatedList);
+
+      return;
     }
+
+    setProducts(updatedList);
   }
 
   function handleAddItem(newItem: Omit<Item, "id">) {

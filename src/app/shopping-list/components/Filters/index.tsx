@@ -39,9 +39,10 @@ export default function Filters({
 
         <div className="relative">
           <SelectComponent
-            options={getCategories(products)}
+            options={getCategories(products || [])}
             defaultValue={selectedCategory}
-            onChange={onChangeCategory}
+            showSelectAll
+            onChange={(e: string[]) => onChangeCategory(e[0])}
           />
         </div>
       </div>

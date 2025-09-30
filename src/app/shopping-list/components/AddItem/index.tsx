@@ -97,6 +97,7 @@ export default function AddItemButton({ onAddItem }: AddItemProps) {
                   setNewItem({ ...newItem, category: value[0] })
                 }
                 options={categoryOptions}
+                className="w-full"
               />
             </div>
 
@@ -147,6 +148,7 @@ export default function AddItemButton({ onAddItem }: AddItemProps) {
                   setNewItem({ ...newItem, unit: value[0] })
                 }
                 options={unitOptions}
+                className="w-full"
               />
             </div>
 

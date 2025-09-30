@@ -9,6 +9,7 @@ export interface Item {
   boughtQuantity?: number;
   completed?: boolean;
   statusCompra: number;
+  isRemoved?: number;
 }
 
 export type Products = Item[];

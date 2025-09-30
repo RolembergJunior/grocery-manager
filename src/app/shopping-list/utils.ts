@@ -56,25 +56,6 @@ export function getFilteredData(
   return { filteredData, hasVisibleItems };
 }
 
-export function getIconFromCategory(category: string): string {
-  switch (category) {
-    case "fruits":
-      return "🍎";
-    case "vegetables":
-      return "🥕";
-    case "dairy":
-      return "🥛";
-    case "meat":
-      return "🥩";
-    case "bakery":
-      return "🍞";
-    case "pantry":
-      return "🥫";
-    default:
-      return "🛒";
-  }
-}
-
 export function matchesSearchFilter(item: Item, searchTerm: string): boolean {
   return item.name.toLowerCase().includes(searchTerm.toLowerCase());
 }
@@ -83,7 +64,7 @@ export function matchesCategoryFilter(
   item: Item,
   categoryFilter: string
 ): boolean {
-  return categoryFilter === "" || item.category.includes(categoryFilter);
+  return categoryFilter === "Todos" || item.category.includes(categoryFilter);
 }
 
 export function matchesStatusFilter(item: Item, statusFilter: string): boolean {

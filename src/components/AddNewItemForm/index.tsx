@@ -122,6 +122,7 @@ export default function AddNewItemForm() {
               setFormData({ ...formData, category: value[0] });
             }}
             options={categoryOptions}
+            className="w-full"
           />
         </div>
 
@@ -175,6 +176,7 @@ export default function AddNewItemForm() {
               setFormData({ ...formData, unit: value[0] })
             }
             options={unitOptions}
+            className="w-full"
           />
         </div>
 
@@ -189,6 +191,7 @@ export default function AddNewItemForm() {
               setFormData({ ...formData, statusCompra: parseInt(value[0]) })
             }
             options={buyStatusOptions}
+            className="w-full"
           />
         </div>
 

@@ -46,6 +46,7 @@ export default function FilterButtonModal({
             defaultValue={selectedFilters?.["category"] as string[]}
             onChange={(value) => onFilterChange("category", value || [])}
             multiSelect
+            className="w-full"
           />
 
           <div className="flex gap-4 pt-4 border-t border-gray-100">
