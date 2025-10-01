@@ -7,7 +7,7 @@ export interface FormData {
   currentQuantity: number | null;
   neededQuantity: number | null;
   unit: string;
-  statusCompra: number | null;
+  observation: string;
 }
 
 export type AddItemFormData = z.infer<typeof addItemFormSchema>;
@@ -18,6 +18,6 @@ export interface FormErrors {
   currentQuantity?: string;
   neededQuantity?: string;
   unit?: string;
-  statusCompra?: string;
-  _form?: string; // General form error
+  observation?: string;
+  _form?: string;
 }

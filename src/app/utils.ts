@@ -26,9 +26,9 @@ export const unitOptions = [
 ];
 
 export const buyStatusOptions = [
-  { value: 0, label: "Precisa comprar" },
-  { value: 1, label: "Quase acabando" },
-  { value: 2, label: "Em estoque" },
+  { value: 1, label: "Precisa comprar" },
+  { value: 2, label: "Quase acabando" },
+  { value: 3, label: "Em estoque" },
 ];
 
 export function calculateStatistics(products: Products): {
