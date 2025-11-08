@@ -17,7 +17,7 @@ export interface StatusOption {
 interface StatusSelectProps {
   currentStatus: number;
   disabled?: boolean;
-  onChange: (field: keyof Product, status: number) => void;
+  onChange: (status: number) => void;
 }
 
 const statusOptions: StatusOption[] = [
@@ -75,7 +75,7 @@ export default function StatusSelect({
   function handleStatusChange(value: string) {
     const newStatus = parseInt(value);
     if (newStatus !== currentStatus) {
-      onChange("statusCompra", newStatus);
+      onChange(newStatus);
     }
   }
 

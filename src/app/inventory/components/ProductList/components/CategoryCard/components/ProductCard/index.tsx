@@ -9,7 +9,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
 import StatusSelect from "./components/StatusSelect";
 import { toast } from "sonner";
-import { updateOrCreate } from "@/services/products";
+import { updateOrCreate, updateStatus } from "@/services/products";
 import { palletColors } from "@/app/utils";
 import { useSetAtom } from "jotai";
 import { productsAtom } from "@/lib/atoms";
@@ -51,10 +51,41 @@ export default function ProductCard({
   //   setNewItem({ ...newItem, [field]: formatedValue });
   // }
 
+  function handleProductStatus(status: number) {
+    setNewItem({ ...newItem, statusCompra: status });
+
+    toast.promise(
+      updateStatus({
+        id: newItem.id,
+        statusCompra: status,
+      }),
+      {
+        loading: "Salvando...",
+        success: () => {
+          setProducts((prevState) => {
+            const mapState = new Map(prevState.map((item) => [item.id, item]));
+
+            mapState.set(newItem.id, { ...newItem, statusCompra: status });
+
+            return Array.from(mapState.values());
+          });
+
+          return "Alterações salvas com sucesso!";
+        },
+        error: () => {
+          setNewItem({ ...newItem, statusCompra: item.statusCompra });
+
+          return "Erro ao salvar as alterações";
+        },
+      }
+    );
+  }
+
   function handleChangeItemProp(
     field: keyof Product,
     value: string | number | null
   ) {
+    console.log(field, value);
     setNewItem({ ...newItem, [field]: value });
   }
 
@@ -66,9 +97,13 @@ export default function ProductCard({
     toast.promise(updateOrCreate(newItem), {
       loading: "Salvando...",
       success: () => {
-        setProducts((prevState) =>
-          prevState.map((item) => (item.id === newItem.id ? newItem : item))
-        );
+        setProducts((prevState) => {
+          const mapState = new Map(prevState.map((item) => [item.id, item]));
+
+          mapState.set(newItem.id, newItem);
+
+          return Array.from(mapState.values());
+        });
 
         return "Alterações salvas com sucesso!";
       },
@@ -103,7 +138,7 @@ export default function ProductCard({
         <div className="flex items-center gap-2">
           <StatusSelect
             currentStatus={newItem.statusCompra}
-            onChange={handleChangeItemProp}
+            onChange={handleProductStatus}
           />
           <DeleteButton itemId={item.id} />
         </div>

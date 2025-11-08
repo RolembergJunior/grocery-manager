@@ -26,7 +26,6 @@ export async function PUT(req: NextRequest) {
       const updatedProduct: Product = {
         ...payload,
         userId: userId,
-        reccurency: null,
         updatedAt: now,
       };
 
