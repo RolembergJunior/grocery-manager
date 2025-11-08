@@ -13,8 +13,8 @@ export default function AddItemButtonModal() {
     <>
       <button
         onClick={() => setIsModalOpen(!isModalOpen)}
-        className={`p-4 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm hover:shadow-md transition-all duration-200 group flex items-center gap-2 font-medium ${
-          isModalOpen ? "bg-blue-700" : ""
+        className={`px-3 py-2 rounded-xl bg-blue active:bg-blue-400 text-white shadow-sm hover:shadow-md transition-all duration-200 group flex items-center gap-2 font-medium ${
+          isModalOpen ? "bg-blue-400" : ""
         }`}
         title="Adicionar novo produto"
       >

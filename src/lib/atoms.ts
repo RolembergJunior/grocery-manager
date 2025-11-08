@@ -1,8 +1,17 @@
 import { atom } from "jotai";
-import type { Products, Item, ShoppingListType } from "@/app/type";
+import type {
+  ShoppingListType,
+  Category,
+  List,
+  ListItem,
+  Product,
+} from "@/app/type";
 import { subscribeProducts } from "@/services/products";
+import { getCategories } from "@/services/categories";
+import { getLists } from "@/services/lists";
+import { getListItems } from "@/services/list-items";
 
-export const productsAtom = atom<Products>([]);
+export const productsAtom = atom<Product[]>([]);
 
 export const isProductsEmptyAtom = atom((get) => {
   const products = get(productsAtom);
@@ -26,11 +35,11 @@ export const fetchProductsAtom = atom(null, async (_get, set) => {
 
 export const isLoadingProductsAtom = atom(false);
 
-export const standaloneItemsAtom = atom<Item[]>([]);
+export const standaloneItemsAtom = atom<Product[]>([]);
 
 export const selectedListTypeAtom = atom<ShoppingListType | null>(null);
 
-export const toggleItemCompletedAtom = atom(null, (get, set, id: number) => {
+export const toggleItemCompletedAtom = atom(null, (get, set, id: string) => {
   const selectedListType = get(selectedListTypeAtom);
   const items =
     selectedListType === "standalone"
@@ -52,7 +61,7 @@ export const toggleItemCompletedAtom = atom(null, (get, set, id: number) => {
 
 export const updateBoughtQuantityAtom = atom(
   null,
-  (get, set, { id, quantity }: { id: number; quantity: number }) => {
+  (get, set, { id, quantity }: { id: string; quantity: number }) => {
     const selectedListType = get(selectedListTypeAtom);
     const items =
       selectedListType === "standalone"
@@ -79,7 +88,7 @@ export const updateBoughtQuantityAtom = atom(
   }
 );
 
-export const removeItemAtom = atom(null, (get, set, id: number) => {
+export const removeItemAtom = atom(null, (get, set, id: string) => {
   const selectedListType = get(selectedListTypeAtom);
   const items =
     selectedListType === "standalone"
@@ -105,3 +114,79 @@ export const statusFilterAtom = atom("");
 
 export const mainSearchAtom = atom("");
 export const mainFiltersAtom = atom<{ [key: string]: string[] }>({});
+
+// ============================================
+// CATEGORIES ATOMS
+// ============================================
+
+export const categoriesAtom = atom<Category[]>([]);
+
+export const fetchCategoriesAtom = atom(null, async (_get, set) => {
+  const abortController = new AbortController();
+
+  try {
+    const categories = await getCategories();
+    set(categoriesAtom, categories);
+  } catch (error) {
+    console.error("Falha ao buscar categorias:", error);
+  }
+
+  return () => abortController.abort();
+});
+
+export const isLoadingCategoriesAtom = atom(false);
+
+// ============================================
+// LISTS ATOMS
+// ============================================
+
+export const listsAtom = atom<List[]>([]);
+
+export const fetchListsAtom = atom(null, async (_get, set) => {
+  try {
+    const lists = await getLists();
+    set(listsAtom, lists);
+  } catch (error) {
+    console.error("Falha ao buscar listas:", error);
+  }
+});
+
+export const isLoadingListsAtom = atom(false);
+
+export const selectedListAtom = atom<List | null>(null);
+
+// ============================================
+// LIST_ITEMS ATOMS
+// ============================================
+
+export const listItemsAtom = atom<ListItem[]>([]);
+
+export const fetchListItemsAtom = atom(
+  null,
+  async (_get, set, listId?: string) => {
+    try {
+      const listItems = await getListItems(listId);
+      set(listItemsAtom, listItems);
+    } catch (error) {
+      console.error("Falha ao buscar itens da lista:", error);
+    }
+  }
+);
+
+export const isLoadingListItemsAtom = atom(false);
+
+export const toggleListItemCheckedAtom = atom(null, (get, set, id: string) => {
+  const listItems = get(listItemsAtom);
+  const updatedItems = listItems.map((item) =>
+    item.id === id ? { ...item, checked: !item.checked } : item
+  );
+  set(listItemsAtom, updatedItems);
+});
+
+export const removeListItemAtom = atom(null, (get, set, id: string) => {
+  const listItems = get(listItemsAtom);
+  const updatedItems = listItems.map((item) =>
+    item.id === id ? { ...item, isRemoved: true } : item
+  );
+  set(listItemsAtom, updatedItems);
+});

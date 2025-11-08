@@ -1,0 +1,131 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Helper function to validate string length
+    function validStringLength(str, maxLength) {
+      return str is string && str.size() <= maxLength;
+    }
+    
+    // ============================================
+    // PROFILES COLLECTION
+    // ============================================
+    match /profiles/{userId} {
+      // Users can read and write their own profile
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) 
+        && validStringLength(request.resource.data.name, 50)
+        && validStringLength(request.resource.data.name_app, 50)
+        && request.resource.data.keys().hasAll(['name', 'email', 'name_app', 'image_path', 'created_at', 'updated_at']);
+      allow update: if isOwner(userId)
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['created_at']))
+        && request.resource.data.updated_at is timestamp;
+      allow delete: if isOwner(userId);
+    }
+    
+    // ============================================
+    // PRODUCTS COLLECTION
+    // ============================================
+    match /products/{productId} {
+      // Users can only access their own products
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() 
+        && request.resource.data.userId == request.auth.uid
+        && validStringLength(request.resource.data.name, 20)
+        && request.resource.data.currentQuantity is number
+        && request.resource.data.neededQuantity is number
+        && request.resource.data.isRemoved in [0, 1]
+        && request.resource.data.keys().hasAll(['name', 'currentQuantity', 'neededQuantity', 'unit', 'category', 'observation', 'statusCompra', 'isRemoved', 'userId']);
+      allow update: if isAuthenticated() 
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+    
+    // ============================================
+    // CATEGORIES COLLECTION
+    // ============================================
+    match /categories/{categoryId} {
+      // Users can only access their own categories
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() 
+        && request.resource.data.userId == request.auth.uid
+        && validStringLength(request.resource.data.name, 20)
+        && request.resource.data.color_id is number
+        && request.resource.data.isRemoved is bool
+        && request.resource.data.keys().hasAll(['name', 'color_id', 'isRemoved', 'userId']);
+      allow update: if isAuthenticated() 
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+    
+    // ============================================
+    // LISTS COLLECTION
+    // ============================================
+    match /lists/{listId} {
+      // Users can only access their own lists
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() 
+        && request.resource.data.userId == request.auth.uid
+        && validStringLength(request.resource.data.name, 20)
+        && validStringLength(request.resource.data.description, 50)
+        && request.resource.data.reset_at is timestamp
+        && request.resource.data.isRemoved is bool
+        && request.resource.data.item_id is list
+        && request.resource.data.created_at is timestamp
+        && request.resource.data.updated_at is timestamp
+        && request.resource.data.keys().hasAll(['name', 'description', 'reset_at', 'isRemoved', 'userId', 'item_id', 'created_at', 'updated_at']);
+      allow update: if isAuthenticated() 
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['created_at']))
+        && request.resource.data.updated_at is timestamp;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+    
+    // ============================================
+    // LIST_ITEMS COLLECTION
+    // ============================================
+    match /list_items/{listItemId} {
+      // Users can only access their own list items
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() 
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.list_id is string
+        && request.resource.data.item_id is list
+        && request.resource.data.needed_quantity is number
+        && request.resource.data.checked is bool
+        && request.resource.data.isRemoved is bool
+        && request.resource.data.created_at is timestamp
+        && request.resource.data.updated_at is timestamp
+        && request.resource.data.keys().hasAll(['list_id', 'item_id', 'needed_quantity', 'checked', 'isRemoved', 'userId', 'created_at', 'updated_at']);
+      allow update: if isAuthenticated() 
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['created_at']))
+        && request.resource.data.updated_at is timestamp;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+    
+    // ============================================
+    // LEGACY: USERS COLLECTION (for migration period)
+    // ============================================
+    match /users/{userId} {
+      // Allow read/write during migration period
+      // TODO: Remove this rule after migration is complete
+      allow read, write: if isOwner(userId);
+    }
+  }
+}

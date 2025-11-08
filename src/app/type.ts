@@ -1,22 +1,8 @@
-export interface Item {
-  id: number;
-  name: string;
-  currentQuantity: number;
-  neededQuantity: number;
-  unit: string;
-  category: string;
-  observation?: string;
-  boughtQuantity?: number;
-  completed?: boolean;
-  statusCompra: number;
-  isRemoved?: number;
-}
-
-export type Products = Item[];
+import { JSX } from "react";
 
 export interface OptionsType {
   value: string | number | null;
-  label: string | number | null;
+  label: string | number | null | JSX.Element;
 }
 
 export type ShoppingListType = "standalone" | "inventory-based";
@@ -24,4 +10,65 @@ export type ShoppingListType = "standalone" | "inventory-based";
 export interface ShoppingListConfig {
   type: ShoppingListType;
   title: string;
+}
+
+export interface Profile {
+  name: string;
+  email: string;
+  nameApp: string;
+  imagePath: string;
+  createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  currentQuantity: number;
+  neededQuantity: number;
+  unit: string;
+  category: string;
+  observation: string;
+  statusCompra: number;
+  isRemoved: number;
+  userId: string;
+  reccurency: number | null;
+  createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  colorId: number;
+  isRemoved: boolean;
+  userId: string;
+}
+
+export interface List {
+  id: string;
+  name: string;
+  description: string;
+  resetAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  isRemoved: boolean;
+  userId: string;
+  itemId: string[];
+  createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+}
+
+export interface ListItem {
+  id: string;
+  name: string;
+  listId: string;
+  itemId: string[];
+  category: string;
+  neededQuantity: number;
+  unit: string;
+  observation: string | null;
+  checked: boolean;
+  isRemoved: boolean;
+  userId: string;
+  createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
 }

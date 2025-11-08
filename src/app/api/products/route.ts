@@ -1,8 +1,11 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
-import type { Item, Products } from "@/app/type";
-import { requireSessionUserId } from "@/lib/auth-server";
+import type { Product } from "@/app/type";
+import {
+  getProductsByUserId,
+  softDeleteProduct,
+} from "@/lib/firestore-helpers";
 
 export const runtime = "nodejs";
 
@@ -17,18 +20,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // try {
-    //   await requireSessionUserId(userId);
-    // } catch {
-    //   return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-    // }
+    const products = await getProductsByUserId(userId, false);
 
-    const ref = adminDb.collection("users").doc(userId);
-    const snap = await ref.get();
-    const data = snap.data() as { products?: Item[] } | undefined;
-
-    return NextResponse.json({ products: data?.products ?? [] });
-  } catch {
+    return NextResponse.json({ products });
+  } catch (error) {
+    console.error("Error fetching products:", error);
     return NextResponse.json(
       { error: "Erro interno do servidor" },
       { status: 500 }
@@ -52,11 +48,39 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Corpo inválido" }, { status: 400 });
     }
 
-    const { products } = body as { products: Products };
-    const ref = adminDb.collection("users").doc(userId);
-    await ref.set({ products }, { merge: true });
+    const { products } = body as { products: Product[] };
+
+    const batch = adminDb.batch();
+
+    for (const item of products) {
+      const productData: Omit<Product, "id"> = {
+        name: item.name,
+        currentQuantity: item.currentQuantity,
+        neededQuantity: item.neededQuantity,
+        unit: item.unit,
+        category: item.category,
+        statusCompra: item.statusCompra,
+        observation: item.observation || "",
+        isRemoved: item.isRemoved || 0,
+        userId: userId,
+        reccurency: item.reccurency,
+        createdAt: item.createdAt,
+        updatedAt: new Date(),
+      };
+
+      if (item.id) {
+        const docRef = adminDb.collection("products").doc(item.id);
+        batch.update(docRef, productData);
+      } else {
+        const docRef = adminDb.collection("products").doc();
+        batch.set(docRef, { ...productData, id: docRef.id });
+      }
+    }
+
+    await batch.commit();
     return NextResponse.json({ ok: true });
-  } catch {
+  } catch (error) {
+    console.error("Error updating products:", error);
     return NextResponse.json(
       { error: "Erro interno do servidor" },
       { status: 500 }
@@ -80,16 +104,9 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Corpo inválido" }, { status: 400 });
     }
 
-    const { id } = body as { id: number };
-    const ref = adminDb.collection("users").doc(userId);
+    const { id } = body as { id: string };
 
-    const snap = await ref.get();
-    const data = snap.data() as { products?: Item[] } | undefined;
-    const currentProducts = data?.products ?? [];
-
-    const updatedProducts = currentProducts.filter((item) => item.id !== id);
-
-    await ref.update({ products: updatedProducts });
+    await softDeleteProduct(id);
 
     return NextResponse.json({ ok: true });
   } catch (error) {

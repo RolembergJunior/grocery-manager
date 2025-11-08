@@ -7,9 +7,14 @@ import SignInButton from "./components/signInButton";
 import SignOutButton from "./components/SignOutButton";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-import { Package, Plus, ShoppingCart, Signal, User } from "lucide-react";
+import { Package, ShoppingCart, User, Store } from "lucide-react";
 import { useSetAtom } from "jotai";
-import { isLoadingProductsAtom, productsAtom } from "@/lib/atoms";
+import {
+  isLoadingProductsAtom,
+  productsAtom,
+  fetchListsAtom,
+  fetchCategoriesAtom,
+} from "@/lib/atoms";
 import { toast } from "sonner";
 import MobileHeader from "./components/MobileHeader";
 import { isActive } from "./utils";
@@ -22,10 +27,36 @@ export default function Header() {
 
   const setIsLoadingProducts = useSetAtom(isLoadingProductsAtom);
 
-  const title = pathname === "/shopping-list" ? "Compras" : "Inventário";
+  const fetchLists = useSetAtom(fetchListsAtom);
+  const fetchCategories = useSetAtom(fetchCategoriesAtom);
+
+  const title =
+    pathname === "/shopping-list"
+      ? "Compras"
+      : pathname === "/inventory"
+      ? "Inventário"
+      : pathname === "/profile"
+      ? "Perfil"
+      : "Home";
 
   useEffect(() => {
     const abortController = new AbortController();
+
+    async function migrateUsers() {
+      try {
+        const response = await fetch("/api/migrate", {
+          method: "POST",
+          signal: abortController.signal,
+        });
+        const status = await response.json();
+
+        console.log("Migration result:", status);
+      } catch (error) {
+        console.error("Migration check failed:", error);
+      }
+    }
+
+    migrateUsers();
 
     async function initProducts() {
       if (!session?.user) {
@@ -50,6 +81,8 @@ export default function Header() {
         }
 
         const data = await res.json();
+
+        console.log(data, "data");
         setProducts(data.products || []);
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
@@ -65,6 +98,8 @@ export default function Header() {
     }
 
     initProducts();
+    fetchLists();
+    fetchCategories();
 
     return () => {
       abortController.abort();
@@ -84,6 +119,21 @@ export default function Header() {
               <div
                 className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${isActive(
                   "/",
+                  pathname
+                )}`}
+              >
+                <Store className="w-6 h-6" />
+                <span className="text-xs mt-1">Home</span>
+              </div>
+            </Link>
+
+            <Link
+              href="/inventory"
+              aria-current={pathname === "/inventory" ? "page" : undefined}
+            >
+              <div
+                className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${isActive(
+                  "/inventory",
                   pathname
                 )}`}
               >
@@ -110,17 +160,19 @@ export default function Header() {
 
           <div className="flex items-center gap-3">
             {session?.user && (
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 ring-1 ring-gray-300">
-                {session.user.image ? (
-                  <img
-                    src={(session.user as any).image}
-                    alt={session.user.name || session.user.email || "User"}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="w-8 h-8 text-gray-500" />
-                )}
-              </div>
+              <Link href="/profile">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 ring-1 ring-gray-300 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all">
+                  {session.user.image ? (
+                    <img
+                      src={(session.user as any).image}
+                      alt={session.user.name || session.user.email || "User"}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-8 h-8 text-gray-500" />
+                  )}
+                </div>
+              </Link>
             )}
             <RenderWhen isTrue={!session?.user} elseElement={<SignOutButton />}>
               <SignInButton />

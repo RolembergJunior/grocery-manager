@@ -2,7 +2,13 @@
 
 import { ChangeEvent } from "react";
 import { AlertCircle } from "lucide-react";
-import Select from "@/components/Select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { FieldFormProps } from "./types";
 
 export default function FieldForm(props: FieldFormProps) {
@@ -13,6 +19,7 @@ export default function FieldForm(props: FieldFormProps) {
     error,
     required = false,
     className = "",
+    disabled = false,
   } = props;
 
   const baseInputClasses = `w-full p-3 border ${
@@ -31,8 +38,8 @@ export default function FieldForm(props: FieldFormProps) {
     onChange(e.target.value ? parseInt(e.target.value) : null);
   }
 
-  function handleSelectChange(values: string[]) {
-    onChange(values[0]);
+  function handleSelectChange(value: string) {
+    onChange(value);
   }
 
   function renderInput() {
@@ -47,6 +54,7 @@ export default function FieldForm(props: FieldFormProps) {
             required={required}
             placeholder={props.placeholder}
             maxLength={props.maxLength}
+            disabled={disabled}
           />
         );
 
@@ -60,20 +68,36 @@ export default function FieldForm(props: FieldFormProps) {
             required={required}
             min={props.min}
             max={props.max}
+            disabled={disabled}
           />
         );
 
       case "select":
         return (
           <Select
-            defaultValue={value as string}
-            onChange={handleSelectChange}
-            options={props.options}
-            className={`${
-              error ? "border-red-500 placeholder-red-400" : "border-gray-200"
-            } w-full placeholder-gray-400`}
-            placeholder={props.placeholder}
-          />
+            value={value as string}
+            onValueChange={handleSelectChange}
+            disabled={disabled}
+          >
+            <SelectTrigger
+              className={`w-full ${baseInputClasses} ${
+                error ? "border-red-500" : "border-gray-200"
+              }`}
+              size=""
+            >
+              <SelectValue placeholder={props.placeholder} />
+            </SelectTrigger>
+            <SelectContent>
+              {props.options?.map((option) => (
+                <SelectItem
+                  key={option.value?.toString() || ""}
+                  value={option.value?.toString() || ""}
+                >
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         );
 
       case "textarea":

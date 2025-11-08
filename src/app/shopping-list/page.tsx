@@ -1,160 +1,73 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import Filters from "./components/Filters";
-import RenderWhen from "@/components/RenderWhen";
-import MarkCompletedButton from "./components/MarkCompletedButton";
-import List from "./components/List";
-import ListTypeSelection from "./components/ListTypeSelection";
-import CongratulationsModal from "./components/CongratulationsModal";
-import ShoppingListHeader from "./components/ShoppingListHeader";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import {
-  productsAtom,
-  standaloneItemsAtom,
-  selectedListTypeAtom,
-  fetchProductsAtom,
-  searchFilterAtom,
-  categoryFilterAtom,
-  statusFilterAtom,
-} from "@/lib/atoms";
-import { ShoppingListType, Item } from "@/app/type";
-import { toast } from "sonner";
-import {
-  matchesCategoryFilter,
-  matchesSearchFilter,
-  matchesStatusFilter,
-} from "./utils";
-import AddItemButton from "./components/AddItem";
+import React from "react";
+import { ShoppingCart, Package } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ShoppingListApp() {
-  const [selectedListType, setSelectedListType] =
-    useAtom<ShoppingListType | null>(selectedListTypeAtom);
-  const [standaloneItems, setStandaloneItems] =
-    useAtom<Item[]>(standaloneItemsAtom);
-  const [searchFilter, setSearchFilter] = useAtom(searchFilterAtom);
-  const [categoryFilter, setCategoryFilter] = useAtom(categoryFilterAtom);
-  const [statusFilter] = useAtom(statusFilterAtom);
-  const [showCongratulationsModal, setShowCongratulationsModal] =
-    useState(false);
+  const router = useRouter();
 
-  const [standaloneListName, setStandaloneListName] = useState("Lista Avulsa");
-
-  const [products, setProducts] = useAtom(productsAtom);
-
-  const fetchProducts = useSetAtom(fetchProductsAtom);
-
-  const currentItems = useMemo(() => {
-    if (selectedListType === "standalone") {
-      return standaloneItems;
-    } else if (selectedListType === "inventory-based") {
-      return products.filter((item) => item.statusCompra === 1);
-    }
-    return [];
-  }, [selectedListType, standaloneItems, products]);
-
-  const filteredItems = useMemo(() => {
-    return currentItems.filter((item) => {
-      return (
-        matchesSearchFilter(item, searchFilter) &&
-        matchesCategoryFilter(item, categoryFilter) &&
-        matchesStatusFilter(item, statusFilter)
-      );
-    });
-  }, [currentItems, searchFilter, categoryFilter, statusFilter]);
-
-  function handleAddItem(newItem: Omit<Item, "id">) {
-    const id = Date.now();
-    const itemWithId: Item = {
-      ...newItem,
-      id,
-      completed: false,
-      boughtQuantity: 0,
-    };
-    setStandaloneItems((prev) => [...prev, itemWithId]);
+  function handleSelectListType(type: string) {
+    router.push(`/shopping-list/list?type=${type}`);
   }
-
-  function handleBackToSelection() {
-    setSelectedListType(null);
-    setSearchFilter("");
-    setCategoryFilter("");
-    setShowCongratulationsModal(false);
-    setStandaloneListName("Lista Avulsa");
-  }
-
-  function handleListCompleted() {
-    if (selectedListType === "standalone") {
-      setStandaloneItems([]);
-      setStandaloneListName("Lista Avulsa");
-
-      toast.success("Lista finalizada com sucesso!");
-      setShowCongratulationsModal(true);
-
-      return;
-    }
-
-    toast.promise(fetchProducts(), {
-      loading: "Finalizando lista...",
-      success: () => {
-        setShowCongratulationsModal(true);
-        return "Lista finalizada e inventário atualizado com sucesso!";
-      },
-      error: "Houve um erro ao finalizar a lista. Tente novamente mais tarde.",
-    });
-  }
-
-  const completedCount = filteredItems.filter((item) => item.completed).length;
-  const totalCount = filteredItems.length;
-  const progressPercentage =
-    totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-
-  if (!selectedListType) {
-    return <ListTypeSelection onSelectListType={setSelectedListType} />;
-  }
-
-  const listTitle =
-    selectedListType === "standalone"
-      ? standaloneListName
-      : "Lista Baseada no Estoque";
 
   return (
-    <div className="min-h-full ">
-      <ShoppingListHeader
-        selectedListType={selectedListType}
-        listTitle={listTitle}
-        onBackToSelection={handleBackToSelection}
-        onTitleChange={(newTitle) => setStandaloneListName(newTitle)}
-      />
+    <div className="bg-gray-50 px-4 py-10">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Lista de Compras
+          </h1>
+          <p className="text-gray-600">Escolha como deseja criar sua lista</p>
+        </div>
 
-      <div className="p-4">
-        <Filters products={currentItems} />
+        <div className="grid md:grid-cols-2 gap-6">
+          <div
+            onClick={() => handleSelectListType("standalone")}
+            className="bg-white rounded-xl p-6 shadow-lg border-2 border-transparent hover:border-blue-500 hover:shadow-xl transition-all duration-300 cursor-pointer group"
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
+                <ShoppingCart className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                Lista Avulsa
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Crie uma lista vazia e adicione manualmente os itens que deseja
+                comprar. Ideal para compras específicas ou quando você quer
+                total controle sobre a lista.
+              </p>
+            </div>
+          </div>
 
-        <RenderWhen isTrue={selectedListType === "standalone"}>
-          <AddItemButton onAddItem={handleAddItem} />
-        </RenderWhen>
+          <div
+            onClick={() => handleSelectListType("inventory-based")}
+            className="bg-white rounded-xl p-6 shadow-lg border-2 border-transparent hover:border-green-500 hover:shadow-xl transition-all duration-300 cursor-pointer group"
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
+                <Package className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                Lista Baseada no Estoque
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Lista automaticamente preenchida com itens que precisam ser
+                repostos. Baseada no seu estoque atual e nas quantidades
+                necessárias.
+              </p>
+            </div>
+          </div>
+        </div>
 
-        <List products={filteredItems} />
-
-        <RenderWhen
-          isTrue={
-            filteredItems.length > 0 &&
-            totalCount > 0 &&
-            !showCongratulationsModal
-          }
-        >
-          <MarkCompletedButton
-            progressPercentage={Number(progressPercentage.toFixed(2))}
-            completedCount={completedCount}
-            totalCount={totalCount}
-            onListCompleted={handleListCompleted}
-          />
-        </RenderWhen>
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-500">
+            Você pode voltar a esta tela a qualquer momento para trocar o tipo
+            de lista
+          </p>
+        </div>
       </div>
-
-      <CongratulationsModal
-        isOpen={showCongratulationsModal}
-        onGoBack={handleBackToSelection}
-      />
     </div>
   );
 }

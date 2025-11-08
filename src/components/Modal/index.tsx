@@ -9,6 +9,7 @@ interface ModalProps {
   children: React.ReactNode;
   title?: string;
   size?: "sm" | "md" | "lg" | "xl";
+  height?: "sm" | "md" | "lg" | "xl";
   showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
   className?: string;
@@ -22,12 +23,20 @@ const sizeClasses = {
   xl: "max-w-xl",
 };
 
+const heightClasses = {
+  sm: "max-h-sm",
+  md: "max-h-md",
+  lg: "max-h-lg",
+  xl: "max-h-xl",
+};
+
 export default function Modal({
   isOpen,
   onClose,
   children,
   title,
   size = "md",
+  height,
   showCloseButton = true,
   closeOnOverlayClick = true,
   className = "",
@@ -104,7 +113,13 @@ export default function Modal({
           </div>
         </RenderWhen>
 
-        <div className="p-6 max-h-[55vh] overflow-y-auto">{children}</div>
+        <div
+          className={`p-6 ${
+            height ? heightClasses[height] : "max-h-[55vh]"
+          } overflow-y-auto`}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

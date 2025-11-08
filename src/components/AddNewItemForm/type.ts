@@ -3,7 +3,7 @@ import { addItemFormSchema } from "./schema";
 
 export interface FormData {
   name: string;
-  category: string;
+  category: string | null;
   currentQuantity: number | null;
   neededQuantity: number | null;
   unit: string;

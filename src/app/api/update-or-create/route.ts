@@ -1,6 +1,6 @@
-import { Item } from "@/app/type";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { Product } from "@/app/type";
 import { NextRequest, NextResponse } from "next/server";
+import { createProduct, updateProduct } from "@/lib/firestore-helpers";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -18,25 +18,37 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Corpo inválido" }, { status: 400 });
     }
 
-    const payload = body as Item;
-    const ref = adminDb.collection("users").doc(userId);
+    const payload = body as Product;
 
-    const snapshot = await ref.get();
-    const data = snapshot.data() || {};
-    const products = (data.products || []) as Item[];
+    const now = new Date().toISOString();
 
-    const index = products.findIndex((p) => p.id === payload.id);
-    if (index >= 0) {
-      products[index] = { ...products[index], ...payload };
+    if (payload.id) {
+      const updatedProduct: Product = {
+        ...payload,
+        userId: userId,
+        reccurency: null,
+        updatedAt: now,
+      };
+
+      await updateProduct(payload.id, updatedProduct);
+
+      return NextResponse.json(updatedProduct, { status: 200 });
     } else {
-      products.push(payload);
+      const newProductData: Omit<Product, "id"> = {
+        ...payload,
+        userId: userId,
+        isRemoved: 0,
+        reccurency: null,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      const createdProduct = await createProduct(newProductData);
+
+      return NextResponse.json(createdProduct, { status: 200 });
     }
-
-    await ref.update({ products });
-
-    return NextResponse.json({ ...products[index] }, { status: 200 });
   } catch (err) {
-    console.error("Erro no PUT /products:", err);
+    console.error("Erro no PUT /update-or-create:", err);
     return NextResponse.json(
       { error: "Erro interno do servidor" },
       { status: 500 }

@@ -1,28 +1,23 @@
 "use client";
 
-import { Item, Products } from "@/app/type";
+import { Category, Product } from "@/app/type";
 import { useState } from "react";
 import { FormData, FormErrors } from "./type";
 import { addItemFormSchema } from "./schema";
 import { toast } from "sonner";
-import { saveProducts } from "@/services/products";
+import { saveProducts, updateOrCreate } from "@/services/products";
 import { productsAtom } from "@/lib/atoms";
 import { useAtom } from "jotai";
-import {
-  buyStatusOptions,
-  categoryOptions,
-  getCategoryName,
-  unitOptions,
-} from "@/app/utils";
+import { buyStatusOptions, unitOptions } from "@/app/utils";
 import { AlertCircle } from "lucide-react";
 import { z } from "zod";
 import { validateIfExists } from "./utils";
 import FieldForm from "../FieldForm";
 
-export default function AddNewItemForm() {
+export default function AddNewItemForm({ category }: { category: Category }) {
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    category: "",
+    category: category.id,
     currentQuantity: null,
     neededQuantity: null,
     unit: "",
@@ -62,38 +57,23 @@ export default function AddNewItemForm() {
       return;
     }
 
-    const newProducts: Products = Array.isArray(products) ? [...products] : [];
+    saveData();
 
-    newProducts.push({
-      id: Date.now(),
-      name: formData.name,
-      currentQuantity: formData.currentQuantity || 0,
-      neededQuantity: formData.neededQuantity || 0,
-      unit: formData.unit,
-      category: formData.category.toLowerCase(),
-      statusCompra: formData.statusCompra as number,
-    });
-
-    saveData(newProducts);
-
-    setFormData({
-      name: "",
-      category: "",
-      currentQuantity: null,
-      neededQuantity: null,
-      unit: "",
-      statusCompra: null,
-    });
+    setFormData({} as FormData);
     setErrors({});
   }
 
-  async function saveData(newProducts: Products): Promise<void> {
-    toast.promise(saveProducts(newProducts), {
+  async function saveData(): Promise<void> {
+    toast.promise(updateOrCreate(formData), {
       loading: "Salvando produto...",
-      success: () => {
+      success: (item: Product) => {
+        const newProducts: Product[] = [...products];
+
+        newProducts.push(item);
+
         setProducts(newProducts);
 
-        return "Produto salvo com sucesso!!";
+        return "Item salvo com sucesso!!";
       },
       error:
         "Houve um erro ao tentar salvar os dados. Tente novamente mais tarde.",
@@ -131,15 +111,14 @@ export default function AddNewItemForm() {
         />
 
         <FieldForm
-          type="select"
+          type="text"
           label="Categoria"
-          value={getCategoryName(formData.category)}
-          onChange={(value) => handleChangeInput("category", value)}
-          options={categoryOptions}
-          error={errors.category}
+          value={category?.name || ""}
+          onChange={() => null}
+          disabled
         />
 
-        <FieldForm
+        {/* <FieldForm
           type="number"
           label="Quantidade atual"
           value={formData.currentQuantity}
@@ -157,7 +136,7 @@ export default function AddNewItemForm() {
           error={errors.neededQuantity}
           required
           min={0}
-        />
+        /> */}
 
         <FieldForm
           type="select"
@@ -171,11 +150,7 @@ export default function AddNewItemForm() {
         <FieldForm
           type="select"
           label="Status da compra"
-          value={
-            buyStatusOptions.find(
-              (option) => option.value === formData.statusCompra
-            )?.label || null
-          }
+          value={formData.statusCompra?.toString() || ""}
           onChange={(value) =>
             handleChangeInput("statusCompra", parseInt(value as string))
           }

@@ -3,12 +3,11 @@
 import { Filter } from "lucide-react";
 import Modal from "../../Modal";
 import SelectComponent from "../../Select";
-import { getCategories } from "@/app/utils";
-import { Item } from "@/app/type";
+import { Product } from "@/app/type";
 import { useState } from "react";
 
 type FilterModalProps = {
-  products: Item[];
+  products: Product[];
   selectedFilters: { [filterKey: string]: string[] };
   onFilterChange: (filterKey: string, value: string[]) => void;
 };
@@ -24,7 +23,7 @@ export default function FilterButtonModal({
     <>
       <button
         onClick={() => setIsFilterOpen((v) => !v)}
-        className={`px-4 py-4 rounded-xl bg-white border border-gray-200 shadow-sm hover:bg-blue-50 hover:border-blue-300 active:bg-blue-100 transition-all duration-200 group ${
+        className={`px-3 py-2 rounded-xl bg-white border border-gray-200 shadow-sm hover:bg-blue-50 hover:border-blue-300 active:bg-blue-100 transition-all duration-200 group ${
           isFilterOpen ? "bg-blue-50 border-blue-300" : ""
         }`}
         title="Filtrar produtos"
@@ -42,7 +41,10 @@ export default function FilterButtonModal({
           <SelectComponent
             label="Categoria"
             placeholder="Selecione uma categoria"
-            options={getCategories(products)}
+            options={products.map((item) => ({
+              value: item.category,
+              label: item.name,
+            }))}
             defaultValue={selectedFilters?.["category"] as string[]}
             onChange={(value) => onFilterChange("category", value || [])}
             multiSelect

@@ -1,13 +1,13 @@
 "use server";
 
-import type { Item, Products } from "@/app/type";
+import type { Product } from "@/app/type";
 import { auth } from "@/auth";
 
 export async function subscribeProducts({
   signal,
 }: {
   signal: AbortSignal;
-}): Promise<Products> {
+}): Promise<Product[]> {
   const session = await auth();
 
   if (!session?.user) return [];
@@ -25,13 +25,13 @@ export async function subscribeProducts({
 
   if (!res.ok) return [];
 
-  const data = (await res.json()) as { products: Item[] };
+  const data = (await res.json()) as { products: Product[] };
   const products = Array.isArray(data.products) ? data.products : [];
-  return products as Products;
+  return products;
 }
 
 export async function saveProducts(
-  products: Products
+  products: Product[]
 ): Promise<void | { error: string }> {
   const session = await auth();
 
@@ -55,8 +55,8 @@ export async function saveProducts(
 }
 
 export async function updateOrCreate(
-  item: Item
-): Promise<void | { error: string } | Item> {
+  item: Product
+): Promise<void | { error: string } | Product> {
   const session = await auth();
 
   if (!session?.user) return;
@@ -77,7 +77,7 @@ export async function updateOrCreate(
     throw new Error(`Failed to save: ${res.status}`);
   }
 
-  const data = (await res.json()) as Item;
+  const data = (await res.json()) as Product;
 
   return data;
 }

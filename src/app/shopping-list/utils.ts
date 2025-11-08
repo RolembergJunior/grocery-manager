@@ -1,8 +1,8 @@
-import { Item, Products } from "../type";
+import { Product } from "../type";
 
 export function handleData(
   itemId: number,
-  shoppingData: Products,
+  shoppingData: Product[],
   type: "check" | "quantity" | "remove",
   newQuantity?: number
 ) {
@@ -30,10 +30,10 @@ export function handleData(
 }
 
 export function getFilteredData(
-  shoppingData: Products,
+  shoppingData: Product[],
   searchTerm: string,
   currentFilter: string
-): { filteredData: Products; hasVisibleItems: boolean } {
+): { filteredData: Product[]; hasVisibleItems: boolean } {
   const filteredData = {};
   let hasVisibleItems = false;
 
@@ -54,28 +54,4 @@ export function getFilteredData(
   }
 
   return { filteredData, hasVisibleItems };
-}
-
-export function matchesSearchFilter(item: Item, searchTerm: string): boolean {
-  return item.name.toLowerCase().includes(searchTerm.toLowerCase());
-}
-
-export function matchesCategoryFilter(
-  item: Item,
-  categoryFilter: string
-): boolean {
-  return categoryFilter === "Todos" || item.category.includes(categoryFilter);
-}
-
-export function matchesStatusFilter(item: Item, statusFilter: string): boolean {
-  switch (statusFilter) {
-    case "comprados":
-      return !!item.completed;
-    case "pendentes":
-      return !item.completed && !item.isRemoved;
-    case "removidos":
-      return !!item.isRemoved;
-    default:
-      return true;
-  }
 }

@@ -1,11 +1,9 @@
-import { Item } from "@/app/type";
+import { Product } from "@/app/type";
 import { FormData } from "./type";
 
-export function validateIfExists(products: Item[], formData: FormData) {
+export function validateIfExists(products: Product[], formData: FormData) {
   const isExists = products.some(
-    (item: Item) =>
-      item.name.toLowerCase() === formData.name.toLowerCase() &&
-      item.category.toLowerCase() === formData.category.toLowerCase()
+    (item: Product) => item.name.toLowerCase() === formData.name.toLowerCase()
   );
 
   return isExists;
