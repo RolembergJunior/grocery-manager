@@ -115,7 +115,7 @@ export default function CreateListModal({
           error={errors.name}
           required
           placeholder="Digite o nome da lista"
-          maxLength={50}
+          maxLength={20}
         />
 
         <FieldForm

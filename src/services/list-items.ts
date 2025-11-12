@@ -27,11 +27,19 @@ export async function getListItems(listId?: string): Promise<ListItem[]> {
   return Array.isArray(data.listItems) ? data.listItems : [];
 }
 
+interface CreateListItemProps {
+  listId: string;
+  itemId: string[];
+  name: string;
+  category: string;
+  unit: string;
+  neededQuantity: number;
+  checked: boolean;
+  isRemoved: boolean;
+}
+
 export async function createListItem(
-  listId: string,
-  itemId: string[],
-  neededQuantity: number,
-  checked?: boolean
+  newItem: CreateListItemProps
 ): Promise<ListItem | { error: string }> {
   const session = await auth();
 
@@ -47,7 +55,7 @@ export async function createListItem(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ listId, itemId, neededQuantity, checked }),
+      body: JSON.stringify(newItem),
     }
   );
 

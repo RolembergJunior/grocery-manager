@@ -14,6 +14,7 @@ import {
   productsAtom,
   fetchListsAtom,
   fetchCategoriesAtom,
+  fetchListItemsAtom,
 } from "@/lib/atoms";
 import { toast } from "sonner";
 import MobileHeader from "./components/MobileHeader";
@@ -29,6 +30,7 @@ export default function Header() {
 
   const fetchLists = useSetAtom(fetchListsAtom);
   const fetchCategories = useSetAtom(fetchCategoriesAtom);
+  const fetchListItems = useSetAtom(fetchListItemsAtom);
 
   const title =
     pathname === "/shopping-list"
@@ -41,22 +43,6 @@ export default function Header() {
 
   useEffect(() => {
     const abortController = new AbortController();
-
-    async function migrateUsers() {
-      try {
-        const response = await fetch("/api/migrate", {
-          method: "POST",
-          signal: abortController.signal,
-        });
-        const status = await response.json();
-
-        console.log("Migration result:", status);
-      } catch (error) {
-        console.error("Migration check failed:", error);
-      }
-    }
-
-    migrateUsers();
 
     async function initProducts() {
       if (!session?.user) {
@@ -71,9 +57,6 @@ export default function Header() {
           method: "GET",
           credentials: "include",
           signal: abortController.signal,
-          next: {
-            tags: ["products"],
-          },
         });
 
         if (!res.ok) {
@@ -82,7 +65,6 @@ export default function Header() {
 
         const data = await res.json();
 
-        console.log(data, "data");
         setProducts(data.products || []);
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
@@ -100,6 +82,7 @@ export default function Header() {
     initProducts();
     fetchLists();
     fetchCategories();
+    fetchListItems();
 
     return () => {
       abortController.abort();

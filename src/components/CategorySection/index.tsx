@@ -36,7 +36,7 @@ export default function CategorySection() {
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 px-4 scroll-smooth">
           <button
             onClick={() =>
-              setParamsModal({ ...paramsModal, isModalOpen: true })
+              setParamsModal({ isModalOpen: true, categoryToEdit: null })
             }
             className="border-2 border-dashed border-blue text-blue/40 rounded-3xl p-2 w-[7rem] aspect-square flex items-center justify-center shadow-sm hover:shadow-md hover:border-bluetext-blue/60 hover:bg-bluetext-blue/5 transition-all active:scale-95 group"
           >
@@ -53,7 +53,6 @@ export default function CategorySection() {
               } rounded-3xl aspect-square flex items-center justify-center p-2 w-[6rem] h-[6rem] shadow-md hover:scale-105 transition-transform active:scale-95`}
               onClick={() =>
                 setParamsModal({
-                  ...paramsModal,
                   isModalOpen: true,
                   categoryToEdit: category,
                 })

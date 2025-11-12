@@ -58,29 +58,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Corpo inválido" }, { status: 400 });
     }
 
-    const { listId, itemId, neededQuantity, checked } = body as {
-      listId: string;
-      itemId: string[];
-      neededQuantity: number;
-      checked?: boolean;
-    };
+    const payload = body as ListItem;
 
-    if (!listId || !itemId || neededQuantity === undefined) {
+    if (!payload.listId) {
       return NextResponse.json(
-        { error: "listId, itemId e neededQuantity são obrigatórios" },
+        { error: "listId é obrigatório" },
         { status: 400 }
       );
     }
 
     const listItemData: Omit<ListItem, "id"> = {
-      listId,
-      itemId,
-      neededQuantity,
-      checked: checked || false,
+      ...payload,
       isRemoved: false,
       userId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     const listItem = await createListItem(listItemData);
@@ -110,22 +102,14 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Corpo inválido" }, { status: 400 });
     }
 
-    const { id, itemId, neededQuantity, checked } = body as {
-      id: string;
-      itemId?: string[];
-      neededQuantity?: number;
-      checked?: boolean;
+    const payload = body as ListItem;
+
+    const updateData: Partial<Omit<ListItem, "id" | "userId" | "createdAt">> = {
+      ...payload,
+      updatedAt: new Date().toISOString(),
     };
 
-    const updateData: Partial<
-      Omit<ListItem, "id" | "userId" | "createdAt" | "updatedAt">
-    > = {};
-    if (itemId !== undefined) updateData.itemId = itemId;
-    if (neededQuantity !== undefined)
-      updateData.neededQuantity = neededQuantity;
-    if (checked !== undefined) updateData.checked = checked;
-
-    await updateListItem(id, updateData);
+    await updateListItem(payload.id, updateData);
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Error updating list item:", error);

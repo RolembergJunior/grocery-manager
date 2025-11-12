@@ -9,10 +9,10 @@ import { schema } from "./schema";
 import z from "zod";
 import { toast } from "sonner";
 import { validateIfExists } from "./utils";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { categoriesAtom } from "@/lib/atoms";
 import FieldForm from "../../../FieldForm";
-import { createCategory } from "@/services/categories";
+import { createCategory, updateCategory } from "@/services/categories";
 import { Category } from "@/app/type";
 
 interface CreateCategoryModalProps {
@@ -38,15 +38,16 @@ export default function CreateCategoryModal({
   const [categories, setCategories] = useAtom(categoriesAtom);
 
   useEffect(() => {
-    if (categoryToEdit) {
-      setCategoryName(categoryToEdit.name);
-      setSelectedColorId(categoryToEdit.colorId);
+    if (categoryToEdit && isModalOpen) {
+      setCategoryName(categoryToEdit?.name || "");
+      setSelectedColorId(categoryToEdit?.colorId || null);
     }
-  }, [categoryToEdit]);
+  }, [JSON.stringify(categoryToEdit), isModalOpen]);
 
   function handleCloseModal() {
     setCategoryName("");
     setSelectedColorId(null);
+    setErrors({});
     onCloseModal();
   }
 
@@ -69,13 +70,22 @@ export default function CreateCategoryModal({
     }
   }
 
-  function handleCreateCategory(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
+    if (categoryToEdit) {
+      update();
+      return;
+    }
+
+    create();
+  }
+
+  function create() {
     if (validateIfExists(categories, { name: categoryName })) {
       toast.error(
         "Não é possível criar a categoria pois a categoria já existe!"
@@ -95,13 +105,41 @@ export default function CreateCategoryModal({
     });
   }
 
+  function update() {
+    toast.promise(
+      updateCategory(categoryToEdit!.id, {
+        name: categoryName,
+        colorId: Number(selectedColorId),
+      }),
+      {
+        loading: "Atualizando categoria...",
+        success: () => {
+          setCategories((prev) =>
+            prev.map((category) =>
+              category.id === categoryToEdit!.id
+                ? {
+                    ...category,
+                    name: categoryName,
+                    colorId: Number(selectedColorId),
+                  }
+                : category
+            )
+          );
+
+          handleCloseModal();
+          return "Categoria atualizada com sucesso!";
+        },
+        error: "Erro ao atualizar categoria. Tente novamente.",
+      }
+    );
+  }
+
   const colorOptions = Object.entries(palletColors).map(([id, colors]) => ({
     value: id,
     label: (
       <div className="flex items-center gap-2">
         <div
-          className="w-6 h-6 rounded-full border-2 border-gray-200"
-          style={{ backgroundColor: colors.backgroundColor }}
+          className={`w-6 h-6 rounded-full border-2 border-gray-200 ${colors.bgClass}`}
         />
         <span>{colors.backgroundColor}</span>
       </div>
@@ -116,7 +154,7 @@ export default function CreateCategoryModal({
       iconTitle={<Palette className="w-6 h-6 text-blue-600" />}
       height="xl"
     >
-      <form onSubmit={handleCreateCategory} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <FieldForm
           type="text"
           label="Nome da Categoria"
@@ -131,9 +169,13 @@ export default function CreateCategoryModal({
         <FieldForm
           type="select"
           label="Cor da Categoria"
-          value={selectedColorId?.toString() || ""}
+          value={
+            selectedColorId?.toString() ||
+            categoryToEdit?.colorId?.toString() ||
+            ""
+          }
           onChange={(value) => {
-            setSelectedColorId(parseInt(value as string));
+            setSelectedColorId(Number(value));
           }}
           error={errors.color}
           required
@@ -145,12 +187,10 @@ export default function CreateCategoryModal({
           <div className="p-4 bg-gray-50 rounded-xl">
             <p className="text-sm font-medium text-gray-600 mb-2">Prévia:</p>
             <div
-              className="rounded-2xl p-4 flex items-center justify-center h-20 shadow-md"
-              style={{
-                backgroundColor:
-                  palletColors[selectedColorId as keyof typeof palletColors]
-                    ?.backgroundColor,
-              }}
+              className={`rounded-2xl p-4 flex items-center justify-center h-20 shadow-md ${
+                palletColors[selectedColorId as keyof typeof palletColors]
+                  ?.bgClass
+              }`}
             >
               <span className="text-white text-lg font-medium">
                 {categoryName || "Nome da Categoria"}
@@ -164,7 +204,7 @@ export default function CreateCategoryModal({
             type="submit"
             className="flex-1 p-3 bg-blue text-white rounded-xl hover:bg-blue/70 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Criar Categoria
+            {categoryToEdit ? "Atualizar Categoria" : "Criar Categoria"}
           </button>
 
           <button

@@ -57,10 +57,11 @@ export default function ListSection() {
             <Link
               href={`/shopping-list/${list.id}`}
               key={index}
-              className="bg-[var(--color-list-card)] rounded-2xl p-4 flex flex-col justify-center items-center h-24 w-[140px] flex-shrink-0 shadow-sm hover:shadow-md transition-shadow snap-start cursor-pointer active:scale-95"
+              className="bg-[var(--color-list-card)] rounded-2xl p-4 flex flex-col justify-center items-center h-24 w-[140px] flex-shrink-0 shadow-sm hover:shadow-lg hover:bg-blue/5 transition-all duration-300 snap-start cursor-pointer active:scale-95 group"
             >
-              <p className="text-blue font-medium border-b border-blue pb-1">
+              <p className="text-blue font-semibold text-center relative pb-1.5 group-hover:scale-105 transition-transform duration-300">
                 {list.name}
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue rounded-full group-hover:h-1 transition-all duration-300"></span>
               </p>
             </Link>
           ))}
