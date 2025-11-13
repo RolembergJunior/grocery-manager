@@ -6,15 +6,8 @@ import { ListItem } from "@/app/type";
 import { useState } from "react";
 import FilterModal from "./components/FilterModal";
 import ShoopingStatus from "./components/ShoopingStatus";
-import AddItemButton from "./components/AddItem";
 
-export default function Controls({
-  products,
-  onChangeData,
-}: {
-  products: ListItem[];
-  onChangeData: (data: ListItem[]) => void;
-}) {
+export default function Controls({ products }: { products: ListItem[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -23,10 +16,6 @@ export default function Controls({
     value: product.category,
     label: product.category,
   }));
-
-  function handleAddItem(item: Omit<ListItem, "id">) {
-    onChangeData([...products, item]);
-  }
 
   return (
     <div className="mb-10">
@@ -49,8 +38,6 @@ export default function Controls({
           onApplyFilters={(filters) => setCategoryFilters(filters.category)}
           currentFilters={{ category: categoryFilters }}
         />
-
-        <AddItemButton onAddItem={handleAddItem} />
       </div>
 
       <ShoopingStatus onFilterChange={setStatusFilter} />

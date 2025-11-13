@@ -1,18 +1,15 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useMemo } from "react";
+import { useAtomValue } from "jotai";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import {
-  listsAtom,
-  listItemsAtom,
-  fetchListsAtom,
-  fetchListItemsAtom,
-} from "@/lib/atoms";
+import { listsAtom, listItemsAtom } from "@/lib/atoms";
 import EditableHeader from "./components/EditableHeader";
 import NotebookList from "./components/NotebookList";
+import ProgressList from "./components/ProgressList";
+import Controls from "@/components/Controls";
 
 export default function ShoppingListPage() {
   const router = useRouter();
@@ -21,15 +18,6 @@ export default function ShoppingListPage() {
 
   const lists = useAtomValue(listsAtom);
   const listItems = useAtomValue(listItemsAtom);
-  const fetchLists = useSetAtom(fetchListsAtom);
-  const fetchListItems = useSetAtom(fetchListItemsAtom);
-
-  useEffect(() => {
-    fetchLists();
-    if (listId) {
-      fetchListItems(listId);
-    }
-  }, [fetchLists, fetchListItems, listId]);
 
   const currentList = useMemo(() => {
     return lists.find((list) => list.id === listId);
@@ -37,8 +25,12 @@ export default function ShoppingListPage() {
 
   const currentItems = useMemo(() => {
     if (!listId) return [];
-    return listItems.filter((item) => item.listId === listId && !item.isRemoved);
+    return listItems.filter(
+      (item) => item.listId === listId && !item.isRemoved
+    );
   }, [listItems, listId]);
+
+  console.log("listItems", listItems);
 
   const { checkedCount, totalCount, progressPercentage } = useMemo(() => {
     const checked = currentItems.filter((item) => item.checked).length;
@@ -90,7 +82,7 @@ export default function ShoppingListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-page-bg)] py-8 px-4 pb-20">
+    <div className="min-h-screen bg-cream py-8 px-4 pb-20">
       <div className="max-w-4xl mx-auto">
         <button
           onClick={handleBackToLists}
@@ -106,28 +98,13 @@ export default function ShoppingListPage() {
           initialDescription={currentList.description || ""}
         />
 
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-[var(--color-text-dark)]">
-                Progresso da Lista
-              </h3>
-              <p className="text-sm text-[var(--color-text-gray)]">
-                {checkedCount} de {totalCount} itens marcados
-              </p>
-            </div>
-            <div className="text-3xl font-bold text-[var(--color-blue)]">
-              {progressPercentage.toFixed(0)}%
-            </div>
-          </div>
+        <Controls products={currentItems} />
 
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div
-              className="bg-[var(--color-blue)] h-full transition-all duration-500 ease-out"
-              style={{ width: `${progressPercentage}%` }}
-            />
-          </div>
-        </div>
+        <ProgressList
+          checkedCount={checkedCount}
+          totalCount={totalCount}
+          progressPercentage={progressPercentage}
+        />
 
         <NotebookList items={currentItems} />
 

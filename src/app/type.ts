@@ -64,6 +64,7 @@ export interface ListItem {
   itemId: string[];
   category: string;
   neededQuantity: number;
+  boughtQuantity: number;
   unit: string;
   observation: string | null;
   checked: boolean;

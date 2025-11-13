@@ -72,7 +72,9 @@ export async function updateListItem(
   updates: {
     itemId?: string[];
     neededQuantity?: number;
+    boughtQuantity?: number;
     checked?: boolean;
+    observation?: string;
   }
 ): Promise<void | { error: string }> {
   const session = await auth();
