@@ -30,8 +30,6 @@ export default function ShoppingListPage() {
     );
   }, [listItems, listId]);
 
-  console.log("listItems", listItems);
-
   const { checkedCount, totalCount, progressPercentage } = useMemo(() => {
     const checked = currentItems.filter((item) => item.checked).length;
     const total = currentItems.length;

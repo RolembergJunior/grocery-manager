@@ -1,3 +1,4 @@
+import QuickListCard from "./components/QuickListCard";
 import InventoryListCard from "./components/InventoryListCard";
 import UserListsSection from "./components/UserListsSection";
 
@@ -17,12 +18,15 @@ export default function ShoppingListApp() {
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <h2 className="text-[var(--color-text-gray)] text-sm font-medium mb-2 px-1">
-              Lista Automática
+            <h2 className="text-[var(--color-text-gray)] text-sm font-semibold uppercase tracking-wide mb-3 px-1">
+              INICIAR NOVA LISTA
             </h2>
-            <InventoryListCard />
+            <div className="space-y-3">
+              <QuickListCard />
+              <InventoryListCard />
+            </div>
           </div>
 
           <UserListsSection />

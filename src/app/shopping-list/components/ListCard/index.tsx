@@ -2,10 +2,10 @@
 
 import { List, ListItem } from "@/app/type";
 import { useState } from "react";
-import { ChevronDown, Plus, ShoppingCart } from "lucide-react";
-import ListItemCard from "../ListItemCard";
+import { List as ListIcon, Plus, ShoppingCart } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
 import { useRouter } from "next/navigation";
+import ListItemCard from "../ListItemCard";
 
 interface ListCardProps {
   list: List;
@@ -14,7 +14,7 @@ interface ListCardProps {
 }
 
 export default function ListCard({ list, items, onAddItem }: ListCardProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
 
   const checkedCount = items.filter((item) => item.checked).length;
@@ -24,32 +24,30 @@ export default function ListCard({ list, items, onAddItem }: ListCardProps) {
     router.push(`/shopping-list/list?id=${list.id}`);
   }
 
+  function handleToggleExpand() {
+    setIsExpanded(!isExpanded);
+  }
+
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden transition-all hover:shadow-md">
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="bg-[var(--color-blue)] w-full p-4 flex items-center justify-between transition-all cursor-pointer hover:opacity-90"
+        onClick={handleToggleExpand}
+        className="bg-[var(--color-blue)] w-full p-6 flex items-center justify-between transition-all cursor-pointer hover:opacity-90"
       >
-        <div className="flex items-center gap-3">
-          <ChevronDown
-            className={`w-5 h-5 text-white transition-transform duration-300 ${
-              isOpen ? "rotate-0" : "-rotate-90"
-            }`}
-          />
+        <div className="flex items-center gap-4 flex-1">
+          <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
+            <ListIcon className="w-6 h-6 text-white" />
+          </div>
 
-          <div className="text-left">
+          <div className="text-left flex flex-col gap-2">
             <h3 className="text-white text-lg font-semibold">{list.name}</h3>
-            {/* <RenderWhen isTrue={!!list.description}>
-              <p className="text-white/80 text-sm mt-0.5">{list.description}</p>
-            </RenderWhen> */}
+            <div className="inline-flex self-start bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full font-medium text-sm">
+              {checkedCount}/{totalCount}
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full font-medium text-sm">
-            {checkedCount}/{totalCount}
-          </div>
-
+        <div className="flex items-center gap-2">
           <RenderWhen isTrue={!!onAddItem}>
             <button
               onClick={(e) => {
@@ -59,7 +57,7 @@ export default function ListCard({ list, items, onAddItem }: ListCardProps) {
               className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-200 active:scale-95"
               title="Adicionar item à lista"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
             </button>
           </RenderWhen>
 
@@ -78,7 +76,7 @@ export default function ListCard({ list, items, onAddItem }: ListCardProps) {
 
       <div
         className={`transition-all duration-300 ease-in-out ${
-          isOpen
+          isExpanded
             ? "max-h-[10000px] opacity-100"
             : "max-h-0 opacity-0 overflow-hidden"
         }`}
@@ -94,7 +92,7 @@ export default function ListCard({ list, items, onAddItem }: ListCardProps) {
             </div>
           }
         >
-          <div className="divide-y divide-gray-100">
+          <div className="p-4 space-y-2">
             {items.map((item: ListItem) => (
               <ListItemCard key={item.id} item={item} listId={list.id} />
             ))}

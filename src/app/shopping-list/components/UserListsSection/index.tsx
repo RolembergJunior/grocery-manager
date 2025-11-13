@@ -83,16 +83,16 @@ export default function UserListsSection() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-2 px-1">
-        <h2 className="text-[var(--color-text-gray)] text-sm font-medium">
-          Minhas Listas Personalizadas
+      <div className="flex items-center justify-between mb-3 px-1">
+        <h2 className="text-[var(--color-text-gray)] text-sm font-semibold uppercase tracking-wide">
+          MINHAS LISTAS PERSONALIZADAS
         </h2>
         <button
           onClick={handleOpenCreateListModal}
-          className="px-3 py-1.5 bg-[var(--color-blue)] text-white text-sm font-medium rounded-lg hover:opacity-90 transition-all duration-200 active:scale-95 shadow-sm"
+          className="w-10 h-10 bg-[var(--color-blue)] text-white rounded-full hover:opacity-90 transition-all duration-200 active:scale-95 shadow-md flex items-center justify-center"
           title="Criar nova lista"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-5 h-5" />
         </button>
       </div>
 
