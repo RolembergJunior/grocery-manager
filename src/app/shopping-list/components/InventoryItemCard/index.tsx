@@ -34,21 +34,18 @@ export default function InventoryItemCard({ item }: InventoryItemCardProps) {
   }
 
   function handleSave() {
-    toast.promise(
-      updateOrCreate(newItem),
-      {
-        loading: "Salvando...",
-        success: () => {
-          setProducts((prevState) => {
-            const mapState = new Map(prevState.map((item) => [item.id, item]));
-            mapState.set(newItem.id, newItem);
-            return Array.from(mapState.values());
-          });
-          return "Alterações salvas com sucesso!";
-        },
-        error: "Erro ao salvar as alterações",
-      }
-    );
+    toast.promise(updateOrCreate(newItem), {
+      loading: "Salvando...",
+      success: () => {
+        setProducts((prevState) => {
+          const mapState = new Map(prevState.map((item) => [item.id, item]));
+          mapState.set(newItem.id, newItem);
+          return Array.from(mapState.values());
+        });
+        return "Alterações salvas com sucesso!";
+      },
+      error: "Erro ao salvar as alterações",
+    });
   }
 
   return (
@@ -85,7 +82,7 @@ export default function InventoryItemCard({ item }: InventoryItemCardProps) {
               <div className="flex items-center gap-2">
                 <input
                   type="number"
-                  value={newItem.neededQuantity}
+                  value={newItem.neededQuantity || 0}
                   onChange={(e) =>
                     handleChangeItemProp(
                       "neededQuantity",

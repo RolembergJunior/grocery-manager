@@ -5,7 +5,7 @@ import { useAtomValue } from "jotai";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import { listsAtom, listItemsAtom } from "@/lib/atoms";
+import { listsAtom, listItemsAtom, productsAtom } from "@/lib/atoms";
 import EditableHeader from "./components/EditableHeader";
 import NotebookList from "./components/NotebookList";
 import ProgressList from "./components/ProgressList";
@@ -15,16 +15,55 @@ export default function ShoppingListPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const listId = searchParams.get("id");
+  const typeList = searchParams.get("type");
 
   const lists = useAtomValue(listsAtom);
   const listItems = useAtomValue(listItemsAtom);
+  const products = useAtomValue(productsAtom);
 
   const currentList = useMemo(() => {
+    if (typeList === "inventory-based") {
+      return {
+        id: "1",
+        name: "Lista do Estoque",
+        description: "Lista gerada automaticamente com base no estoque",
+      };
+    }
+
+    if (typeList === "quick-list") {
+      return {
+        id: "2",
+        name: "Lista Rápida",
+        description: "Lista gerada automaticamente com base no estoque",
+      };
+    }
+
     return lists.find((list) => list.id === listId);
   }, [lists, listId]);
 
   const currentItems = useMemo(() => {
-    if (!listId) return [];
+    if (typeList === "inventory-based") {
+      return products.filter((item) => {
+        if (item.statusCompra !== 1 || item.isRemoved) {
+          return false;
+        }
+
+        if (!item.reccurency) {
+          return true;
+        }
+
+        const updatedDate = new Date(item.updatedAt);
+        const recurrencyExpirationDate = new Date(updatedDate);
+        recurrencyExpirationDate.setDate(
+          recurrencyExpirationDate.getDate() + item.reccurency
+        );
+
+        return new Date() >= recurrencyExpirationDate;
+      });
+    }
+
+    if (!listId || typeList === "quick-list") return [];
+
     return listItems.filter(
       (item) => item.listId === listId && !item.isRemoved
     );

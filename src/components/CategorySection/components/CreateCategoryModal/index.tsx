@@ -152,7 +152,6 @@ export default function CreateCategoryModal({
       onClose={handleCloseModal}
       title="Criar Nova Categoria"
       iconTitle={<Palette className="w-6 h-6 text-blue-600" />}
-      height="xl"
     >
       <form onSubmit={handleSubmit} className="space-y-3">
         <FieldForm

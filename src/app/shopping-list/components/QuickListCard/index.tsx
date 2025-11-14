@@ -7,7 +7,7 @@ export default function QuickListCard() {
   const router = useRouter();
 
   function handleNavigateToQuickList() {
-    router.push(`/shopping-list/list?type=quick`);
+    router.push(`/shopping-list/list?type=quick-list`);
   }
 
   return (
