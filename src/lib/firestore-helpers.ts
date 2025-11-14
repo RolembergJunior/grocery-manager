@@ -281,6 +281,18 @@ export async function hardDeleteListItem(id: string): Promise<void> {
   await adminDb.collection(COLLECTIONS.LIST_ITEMS).doc(id).delete();
 }
 
+export async function hardDeleteListItemsById(id: string): Promise<void> {
+  await adminDb
+    .collection(COLLECTIONS.LIST_ITEMS)
+    .where("list_id", "==", id)
+    .get()
+    .then((snapshot) => {
+      snapshot.docs.forEach((doc) => {
+        doc.ref.delete();
+      });
+    });
+}
+
 // ============================================
 // BATCH OPERATIONS
 // ============================================

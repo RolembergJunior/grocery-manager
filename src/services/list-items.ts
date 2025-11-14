@@ -125,3 +125,27 @@ export async function deleteListItem(
     throw new Error(`Failed to delete list item: ${res.status}`);
   }
 }
+
+export async function deleteItemsByListId(listId: string): Promise<void> {
+  const session = await auth();
+
+  if (!session?.user) {
+    return;
+  }
+
+  const res = await fetch(
+    `${process.env.NEXTAUTH_URL}/api/delete-items-by-id?userId=${
+      session.user.id as string
+    }`,
+    {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ id: listId }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to delete list items: ${res.status}`);
+  }
+}

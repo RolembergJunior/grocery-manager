@@ -26,11 +26,11 @@ export async function createList(
   name: string,
   description: string,
   itemId?: string[]
-): Promise<List | { error: string }> {
+): Promise<List> {
   const session = await auth();
 
   if (!session?.user) {
-    return { error: "Não autenticado" };
+    throw new Error("Não autenticado");
   }
 
   const res = await fetch(
@@ -59,11 +59,11 @@ export async function updateList(
     resetAt?: string;
     itemId?: string[];
   }
-): Promise<void | { error: string }> {
+): Promise<List> {
   const session = await auth();
 
   if (!session?.user) {
-    return { error: "Não autenticado" };
+    throw new Error("Não autenticado");
   }
 
   const res = await fetch(
@@ -79,6 +79,9 @@ export async function updateList(
   if (!res.ok) {
     throw new Error(`Failed to update list: ${res.status}`);
   }
+
+  const data = (await res.json()) as { list: List };
+  return data.list;
 }
 
 export async function deleteList(

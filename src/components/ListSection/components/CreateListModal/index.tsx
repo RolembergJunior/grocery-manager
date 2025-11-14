@@ -1,6 +1,6 @@
 "use client";
 
-import { ListPlus } from "lucide-react";
+import { ListPlus, Trash2 } from "lucide-react";
 import Modal from "../../../Modal";
 import { useEffect, useState } from "react";
 import RenderWhen from "../../../RenderWhen";
@@ -8,10 +8,11 @@ import { toast } from "sonner";
 import { useAtom } from "jotai";
 import { listsAtom } from "@/lib/atoms";
 import FieldForm from "../../../FieldForm";
-import { createList } from "@/services/lists";
+import { createList, updateList, deleteList } from "@/services/lists";
 import { List } from "@/app/type";
 import { schema } from "./schema";
 import z from "zod";
+import { deleteItemsByListId } from "@/services/list-items";
 
 interface CreateListModalProps {
   isModalOpen: boolean;
@@ -68,13 +69,7 @@ export default function CreateListModal({
     }
   }
 
-  function handleCreateList(e: React.FormEvent) {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+  function create() {
     const listExists = lists.some(
       (list) => list.name.toLowerCase() === listName.toLowerCase()
     );
@@ -86,10 +81,7 @@ export default function CreateListModal({
 
     toast.promise(createList(listName, listDescription), {
       loading: "Criando lista...",
-      success: (res) => {
-        if ("error" in res) {
-          throw new Error(res.error);
-        }
+      success: (res: List) => {
         setLists([...lists, res]);
         handleCloseModal();
         return "Lista criada com sucesso!";
@@ -98,15 +90,105 @@ export default function CreateListModal({
     });
   }
 
+  function update() {
+    const listNameExists = lists.some(
+      (list) =>
+        list.name.toLowerCase() === listName.toLowerCase() &&
+        list.id !== listToEdit?.id
+    );
+
+    if (listNameExists) {
+      toast.error("Esse nome de lista já existe!");
+      return;
+    }
+
+    toast.promise(
+      updateList(listToEdit?.id as string, {
+        name: listName,
+        description: listDescription,
+      }),
+      {
+        loading: "Editando lista...",
+        success: (res: List) => {
+          const updatedList = lists.map((list) =>
+            list.id === listToEdit?.id ? res : list
+          );
+
+          setLists(updatedList);
+          handleCloseModal();
+          return "Lista editada com sucesso!";
+        },
+        error: "Erro ao editar lista. Tente novamente.",
+      }
+    );
+  }
+
+  function handleSaveList(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    if (listToEdit) {
+      update();
+
+      return;
+    }
+
+    create();
+  }
+
+  function handleDeleteList() {
+    if (!listToEdit) return;
+
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja excluir a lista "${listToEdit.name}"?`
+    );
+
+    if (!confirmDelete) return;
+
+    toast.promise(
+      async () => {
+        await Promise.all([
+          deleteList(listToEdit.id),
+          deleteItemsByListId(listToEdit.id),
+        ]);
+      },
+      {
+        loading: "Excluindo lista...",
+        success: () => {
+          const remainingLists = lists.filter(
+            (list) => list.id !== listToEdit.id
+          );
+          setLists(remainingLists);
+          handleCloseModal();
+          return "Lista excluída com sucesso!";
+        },
+        error: "Erro ao excluir lista. Tente novamente.",
+      }
+    );
+  }
+
   return (
     <Modal
       isOpen={isModalOpen}
       onClose={handleCloseModal}
-      title="Criar Nova Lista"
-      iconTitle={<ListPlus className="w-6 h-6 text-blue-600" />}
-      height="xl"
+      title="Nova Lista"
+      iconTitle={<ListPlus className="w-6 h-6 text-blue" />}
+      rightHeaderContent={
+        <RenderWhen isTrue={!!listToEdit}>
+          <button
+            type="button"
+            onClick={handleDeleteList}
+            className="inline-flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors duration-200"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </RenderWhen>
+      }
     >
-      <form onSubmit={handleCreateList} className="space-y-3">
+      <form onSubmit={handleSaveList} className="space-y-3">
         <FieldForm
           type="text"
           label="Nome da Lista"
@@ -125,7 +207,7 @@ export default function CreateListModal({
           onChange={(value) => setListDescription(value as string)}
           error={errors.description}
           placeholder="Digite uma descrição para a lista"
-          maxLength={200}
+          maxLength={35}
           rows={3}
         />
 
@@ -150,7 +232,7 @@ export default function CreateListModal({
             type="submit"
             className="flex-1 p-3 bg-blue text-white rounded-xl hover:bg-blue/70 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Criar Lista
+            {listToEdit ? "Editar Lista" : "Criar Lista"}
           </button>
 
           <button

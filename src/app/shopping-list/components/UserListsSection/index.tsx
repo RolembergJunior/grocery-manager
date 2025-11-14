@@ -7,21 +7,10 @@ import AddItemModal from "../AddItemModal";
 import { List } from "@/app/type";
 import { useAtomValue } from "jotai";
 import { listItemsAtom, listsAtom } from "@/lib/atoms";
-import { toast } from "sonner";
-import CreateListModal from "@/components/ListSection/components/CreateListModal";
-
-interface ModalParams {
-  isModalOpen: boolean;
-  listToEdit: List | null;
-}
 
 export default function UserListsSection() {
   const [selectedList, setSelectedList] = useState<List | null>(null);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
-  const [paramsListModal, setParamsListModal] = useState<ModalParams>({
-    isModalOpen: false,
-    listToEdit: null,
-  });
 
   const lists = useAtomValue(listsAtom);
   const listItems = useAtomValue(listItemsAtom);
@@ -43,24 +32,6 @@ export default function UserListsSection() {
   function handleCloseAddItemModal() {
     setIsAddItemModalOpen(false);
     setSelectedList(null);
-  }
-
-  function handleCloseCreateListModal() {
-    setParamsListModal({
-      isModalOpen: false,
-      listToEdit: null,
-    });
-  }
-
-  function handleOpenCreateListModal() {
-    if (listsWithItems.length === 5) {
-      return toast.error("Limite de listas atingido");
-    }
-
-    setParamsListModal({
-      isModalOpen: true,
-      listToEdit: null,
-    });
   }
 
   if (listsWithItems.length === 0) {
@@ -87,13 +58,6 @@ export default function UserListsSection() {
         <h2 className="text-[var(--color-text-gray)] text-sm font-semibold uppercase tracking-wide">
           MINHAS LISTAS PERSONALIZADAS
         </h2>
-        <button
-          onClick={handleOpenCreateListModal}
-          className="w-10 h-10 bg-[var(--color-blue)] text-white rounded-full hover:opacity-90 transition-all duration-200 active:scale-95 shadow-md flex items-center justify-center"
-          title="Criar nova lista"
-        >
-          <Plus className="w-5 h-5" />
-        </button>
       </div>
 
       <div className="space-y-4">
@@ -114,11 +78,6 @@ export default function UserListsSection() {
           listId={selectedList.id}
         />
       )}
-
-      <CreateListModal
-        {...paramsListModal}
-        onCloseModal={handleCloseCreateListModal}
-      />
     </>
   );
 }

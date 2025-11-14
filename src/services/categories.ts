@@ -27,11 +27,11 @@ export async function getCategories(): Promise<Category[]> {
 export async function createCategory(
   name: string,
   colorId: number
-): Promise<Category | { error: string }> {
+): Promise<Category> {
   const session = await auth();
 
   if (!session?.user) {
-    return { error: "Não autenticado" };
+    throw new Error("Não autenticado");
   }
 
   const res = await fetch(

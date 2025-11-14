@@ -1,6 +1,6 @@
 "use client";
 
-import { Palette } from "lucide-react";
+import { Palette, Trash2 } from "lucide-react";
 import Modal from "../../../Modal";
 import { palletColors } from "@/app/utils";
 import { useEffect, useState } from "react";
@@ -12,7 +12,11 @@ import { validateIfExists } from "./utils";
 import { useAtom } from "jotai";
 import { categoriesAtom } from "@/lib/atoms";
 import FieldForm from "../../../FieldForm";
-import { createCategory, updateCategory } from "@/services/categories";
+import {
+  createCategory,
+  deleteCategory,
+  updateCategory,
+} from "@/services/categories";
 import { Category } from "@/app/type";
 
 interface CreateCategoryModalProps {
@@ -134,6 +138,29 @@ export default function CreateCategoryModal({
     );
   }
 
+  function handleDeleteList() {
+    if (!categoryToEdit) return;
+
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja excluir a categoria "${categoryToEdit.name}"?`
+    );
+
+    if (!confirmDelete) return;
+
+    toast.promise(deleteCategory(categoryToEdit.id), {
+      loading: "Excluindo categoria...",
+      success: () => {
+        setCategories((prev) =>
+          prev.filter((category) => category.id !== categoryToEdit.id)
+        );
+
+        handleCloseModal();
+        return "Categoria excluída com sucesso!";
+      },
+      error: "Erro ao excluir categoria. Tente novamente.",
+    });
+  }
+
   const colorOptions = Object.entries(palletColors).map(([id, colors]) => ({
     value: id,
     label: (
@@ -151,7 +178,18 @@ export default function CreateCategoryModal({
       isOpen={isModalOpen}
       onClose={handleCloseModal}
       title="Criar Nova Categoria"
-      iconTitle={<Palette className="w-6 h-6 text-blue-600" />}
+      iconTitle={<Palette className="w-6 h-6 text-blue" />}
+      rightHeaderContent={
+        <RenderWhen isTrue={!!categoryToEdit}>
+          <button
+            type="button"
+            onClick={handleDeleteList}
+            className="inline-flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors duration-200"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </RenderWhen>
+      }
     >
       <form onSubmit={handleSubmit} className="space-y-3">
         <FieldForm

@@ -65,12 +65,14 @@ export async function POST(req: NextRequest) {
     const listData: Omit<List, "id"> = {
       name,
       description: description || "",
-      resetAt: resetAt ? new Date(resetAt) : new Date(),
+      resetAt: resetAt
+        ? new Date(resetAt).toISOString()
+        : new Date().toISOString(),
       isRemoved: false,
       userId,
       itemId: itemId || [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     const list = await createList(listData);
@@ -100,24 +102,19 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Corpo inválido" }, { status: 400 });
     }
 
-    const { id, name, description, resetAt, itemId } = body as {
-      id: string;
-      name?: string;
-      description?: string;
-      resetAt?: string;
-      itemId?: string[];
+    const payload = body as List;
+
+    if (!payload.id) {
+      return NextResponse.json({ error: "id é obrigatório" }, { status: 400 });
+    }
+
+    const updateData = {
+      ...payload,
+      updatedAt: new Date().toISOString(),
     };
 
-    const updateData: Partial<
-      Omit<List, "id" | "userId" | "createdAt" | "updatedAt">
-    > = {};
-    if (name !== undefined) updateData.name = name;
-    if (description !== undefined) updateData.description = description;
-    if (resetAt !== undefined) updateData.resetAt = new Date(resetAt);
-    if (itemId !== undefined) updateData.itemId = itemId;
-
-    await updateList(id, updateData);
-    return NextResponse.json({ ok: true });
+    await updateList(payload.id, updateData);
+    return NextResponse.json({ list: payload }, { status: 200 });
   } catch (error) {
     console.error("Error updating list:", error);
     return NextResponse.json(

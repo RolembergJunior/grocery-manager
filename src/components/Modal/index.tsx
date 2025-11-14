@@ -14,6 +14,7 @@ interface ModalProps {
   closeOnOverlayClick?: boolean;
   className?: string;
   iconTitle?: React.ReactNode;
+  rightHeaderContent?: React.ReactNode;
 }
 
 const sizeClasses = {
@@ -41,6 +42,7 @@ export default function Modal({
   closeOnOverlayClick = true,
   className = "",
   iconTitle,
+  rightHeaderContent,
 }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
@@ -93,7 +95,9 @@ export default function Modal({
         `}
         onClick={(e) => e.stopPropagation()}
       >
-        <RenderWhen isTrue={!!title || !!showCloseButton}>
+        <RenderWhen
+          isTrue={!!title || !!showCloseButton || !!rightHeaderContent}
+        >
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <RenderWhen isTrue={!!title}>
               <div className="flex items-center gap-2">
@@ -101,15 +105,18 @@ export default function Modal({
                 <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
               </div>
             </RenderWhen>
-            <RenderWhen isTrue={!!showCloseButton}>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 cursor-pointer"
-                aria-label="Close modal"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </RenderWhen>
+            <div className="flex items-center gap-2">
+              {rightHeaderContent}
+              <RenderWhen isTrue={!!showCloseButton}>
+                <button
+                  onClick={onClose}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 cursor-pointer"
+                  aria-label="Close modal"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </RenderWhen>
+            </div>
           </div>
         </RenderWhen>
 
