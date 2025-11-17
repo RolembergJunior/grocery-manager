@@ -33,6 +33,7 @@ export interface Product {
   isRemoved: number;
   userId: string;
   reccurency: number | null;
+  checked?: boolean;
   createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
   updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
 }
@@ -61,7 +62,7 @@ export interface ListItem {
   id: string;
   name: string;
   listId: string;
-  itemId: string[];
+  itemId: string | null; // ID do produto do inventário (quando fromList === "inventory")
   category: string;
   neededQuantity: number;
   boughtQuantity: number;
@@ -69,6 +70,7 @@ export interface ListItem {
   observation: string | null;
   checked: boolean;
   isRemoved: boolean;
+  fromList: "inventory" | "created"; // Origem do item: inventário ou criado manualmente
   userId: string;
   createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
   updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"

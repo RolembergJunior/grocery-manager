@@ -1,15 +1,18 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useAtomValue } from "jotai";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import { listsAtom, listItemsAtom, productsAtom } from "@/lib/atoms";
-import EditableHeader from "./components/EditableHeader";
+import { listsAtom } from "@/lib/atoms";
 import NotebookList from "./components/NotebookList";
 import ProgressList from "./components/ProgressList";
 import Controls from "@/components/Controls";
+import RenderWhen from "@/components/RenderWhen";
+import AlertDialog from "@/components/AlertDialog";
+import { useList } from "@/hooks/use-list";
+import { completeList } from "@/services/list-manager";
 
 export default function ShoppingListPage() {
   const router = useRouter();
@@ -17,19 +20,13 @@ export default function ShoppingListPage() {
   const listId = searchParams.get("id");
   const typeList = searchParams.get("type");
 
+  const [isOpenAlert, setIsOpenAlert] = useState(false);
+
   const lists = useAtomValue(listsAtom);
-  const listItems = useAtomValue(listItemsAtom);
-  const products = useAtomValue(productsAtom);
+
+  const { items } = useList(listId!);
 
   const currentList = useMemo(() => {
-    if (typeList === "inventory-based") {
-      return {
-        id: "1",
-        name: "Lista do Estoque",
-        description: "Lista gerada automaticamente com base no estoque",
-      };
-    }
-
     if (typeList === "quick-list") {
       return {
         id: "2",
@@ -39,35 +36,13 @@ export default function ShoppingListPage() {
     }
 
     return lists.find((list) => list.id === listId);
-  }, [lists, listId]);
+  }, [lists, listId, typeList]);
 
   const currentItems = useMemo(() => {
-    if (typeList === "inventory-based") {
-      return products.filter((item) => {
-        if (item.statusCompra !== 1 || item.isRemoved) {
-          return false;
-        }
-
-        if (!item.reccurency) {
-          return true;
-        }
-
-        const updatedDate = new Date(item.updatedAt);
-        const recurrencyExpirationDate = new Date(updatedDate);
-        recurrencyExpirationDate.setDate(
-          recurrencyExpirationDate.getDate() + item.reccurency
-        );
-
-        return new Date() >= recurrencyExpirationDate;
-      });
-    }
-
     if (!listId || typeList === "quick-list") return [];
 
-    return listItems.filter(
-      (item) => item.listId === listId && !item.isRemoved
-    );
-  }, [listItems, listId]);
+    return items.filter((item) => item.listId === listId && !item.isRemoved);
+  }, [items, listId, typeList]);
 
   const { checkedCount, totalCount, progressPercentage } = useMemo(() => {
     const checked = currentItems.filter((item) => item.checked).length;
@@ -87,12 +62,23 @@ export default function ShoppingListPage() {
 
   function handleCompleteList() {
     if (checkedCount < totalCount) {
-      toast.error("Marque todos os itens antes de finalizar a lista");
+      setIsOpenAlert(true);
+
       return;
     }
 
-    toast.success("Lista finalizada com sucesso!");
-    router.push("/shopping-list");
+    onConfirm();
+  }
+
+  async function onConfirm() {
+    toast.promise(completeList(listId!), {
+      loading: "Finalizando a lista...",
+      success: () => {
+        router.push("/shopping-list");
+        return "Lista finalizada com sucesso!";
+      },
+      error: "Erro ao tentar finalizar lista. Tente novamente mais tarde!",
+    });
   }
 
   if (!currentList) {
@@ -119,45 +105,67 @@ export default function ShoppingListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream py-8 px-4 pb-20">
-      <div className="max-w-4xl mx-auto">
-        <button
-          onClick={handleBackToLists}
-          className="flex items-center gap-2 text-[var(--color-text-gray)] hover:text-[var(--color-text-dark)] mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="font-medium">Voltar para listas</span>
-        </button>
+    <>
+      <div className="min-h-screen bg-cream py-8 px-4 pb-20">
+        <div className="max-w-4xl mx-auto">
+          <button
+            onClick={handleBackToLists}
+            className="flex items-center gap-2 text-[var(--color-text-gray)] hover:text-[var(--color-text-dark)] mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Voltar para listas</span>
+          </button>
 
-        <EditableHeader
-          listId={currentList.id}
-          initialName={currentList.name}
-          initialDescription={currentList.description || ""}
-        />
+          <h1 className="font-bold text-text-dark uppercase tracking-wide">
+            {currentList.name}
+          </h1>
 
-        <Controls products={currentItems} />
+          <Controls products={currentItems} />
 
-        <ProgressList
-          checkedCount={checkedCount}
-          totalCount={totalCount}
-          progressPercentage={progressPercentage}
-        />
+          <ProgressList
+            checkedCount={checkedCount}
+            totalCount={totalCount}
+            progressPercentage={progressPercentage}
+          />
 
-        <NotebookList items={currentItems} />
+          <NotebookList items={currentItems} />
 
-        {totalCount > 0 && (
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={handleCompleteList}
-              disabled={checkedCount < totalCount}
-              className="flex items-center gap-2 px-8 py-4 bg-[var(--color-blue)] text-white rounded-xl hover:opacity-90 font-semibold transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-            >
-              <CheckCircle2 className="w-6 h-6" />
-              <span>Finalizar Lista</span>
-            </button>
-          </div>
-        )}
+          <RenderWhen isTrue={totalCount > 0}>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={handleCompleteList}
+                disabled={!checkedCount}
+                className="flex items-center gap-2 px-8 py-4 bg-[var(--color-blue)] text-white rounded-xl hover:opacity-90 font-semibold transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+              >
+                <CheckCircle2 className="w-6 h-6" />
+                <span>Finalizar Lista</span>
+              </button>
+            </div>
+          </RenderWhen>
+        </div>
       </div>
-    </div>
+
+      <AlertDialog
+        isOpen={isOpenAlert}
+        onClose={() => setIsOpenAlert(false)}
+        title={`Existe(m) ${totalCount - checkedCount} item(ns) não marcado(s)`}
+        description="Deseja finalizar a lista mesmo assim?"
+        variant="warning"
+        actions={[
+          {
+            label: "SIM",
+            onClick: onConfirm,
+            autoClose: true,
+            variant: "primary",
+          },
+          {
+            label: "NAO",
+            onClick: () => null,
+            autoClose: true,
+            variant: "danger",
+          },
+        ]}
+      />
+    </>
   );
 }

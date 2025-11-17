@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useAtomValue } from "jotai";
-import { categoriesAtom } from "@/lib/atoms";
 import { palletColors } from "@/app/utils";
 import CreateCategoryModal from "./components/CreateCategoryModal";
 import { Category } from "@/app/type";
+import { categoriesAtom } from "@/lib/atoms/categories";
 
 interface ModalParams {
   isModalOpen: boolean;

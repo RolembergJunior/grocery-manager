@@ -1,18 +1,23 @@
 "use client";
 
-import { Package, ChevronDown, ShoppingCart } from "lucide-react";
+import { Package, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
-import { productsAtom, categoriesAtom } from "@/lib/atoms";
+import { productsAtom } from "@/lib/atoms";
 import { useMemo, useState } from "react";
 import RenderWhen from "@/components/RenderWhen";
-import InventoryItemCard from "../InventoryItemCard";
+import { toast } from "sonner";
+import { updateOrCreate } from "@/services/products";
+import { useSetAtom } from "jotai";
+import { Product } from "@/app/type";
+import ListItemCard from "../ListItemCard";
 
 export default function InventoryListCard() {
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
   const products = useAtomValue(productsAtom);
-  const categories = useAtomValue(categoriesAtom);
+
+  const setProducts = useSetAtom(productsAtom);
 
   const itemsNeedingShopping = useMemo(() => {
     return products.filter((item) => item.statusCompra === 1);
@@ -24,6 +29,21 @@ export default function InventoryListCard() {
 
   function handleToggleExpand() {
     setIsExpanded(!isExpanded);
+  }
+
+  function handleSaveItem(item: Product) {
+    toast.promise(updateOrCreate(item), {
+      loading: "Salvando...",
+      success: () => {
+        setProducts((prevState) => {
+          const mapState = new Map(prevState.map((item) => [item.id, item]));
+          mapState.set(item.id, item);
+          return Array.from(mapState.values());
+        });
+        return "Alterações salvas com sucesso!";
+      },
+      error: "Erro ao salvar as alterações",
+    });
   }
 
   return (
@@ -86,7 +106,7 @@ export default function InventoryListCard() {
         >
           <div className="p-4 space-y-2">
             {itemsNeedingShopping.map((item) => (
-              <InventoryItemCard key={item.id} item={item} />
+              <ListItemCard key={item.id} item={item} onSave={handleSaveItem} />
             ))}
           </div>
         </RenderWhen>

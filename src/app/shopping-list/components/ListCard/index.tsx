@@ -6,15 +6,20 @@ import { List as ListIcon, Plus, ShoppingCart } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
 import { useRouter } from "next/navigation";
 import ListItemCard from "../ListItemCard";
+import { toast } from "sonner";
+import { useList } from "@/hooks/use-list";
+import { updateItem, deleteItem } from "@/services/list-manager";
 
 interface ListCardProps {
   list: List;
-  items: ListItem[];
   onAddItem?: () => void;
 }
 
-export default function ListCard({ list, items, onAddItem }: ListCardProps) {
+export default function ListCard({ list, onAddItem }: ListCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const { items } = useList(list.id);
+
   const router = useRouter();
 
   const checkedCount = items.filter((item) => item.checked).length;
@@ -26,6 +31,29 @@ export default function ListCard({ list, items, onAddItem }: ListCardProps) {
 
   function handleToggleExpand() {
     setIsExpanded(!isExpanded);
+  }
+
+  function handleSaveItem(item: ListItem) {
+    toast.promise(
+      updateItem(list.id, item.id, {
+        neededQuantity: item.neededQuantity,
+      }),
+      {
+        loading: "Salvando...",
+        success: "Alterações salvas com sucesso!",
+        error: "Erro ao salvar as alterações",
+      }
+    );
+  }
+
+  function handleDeleteItem(id: string) {
+    if (!confirm("Deseja realmente remover este item da lista?")) return;
+
+    toast.promise(deleteItem(list.id, id), {
+      loading: "Removendo...",
+      success: "Item removido da lista!",
+      error: "Erro ao remover item",
+    });
   }
 
   return (
@@ -94,7 +122,13 @@ export default function ListCard({ list, items, onAddItem }: ListCardProps) {
         >
           <div className="p-4 space-y-2">
             {items.map((item: ListItem) => (
-              <ListItemCard key={item.id} item={item} listId={list.id} />
+              <ListItemCard
+                key={item.id}
+                item={item}
+                hasDeleteButton
+                onSave={handleSaveItem}
+                onDelete={handleDeleteItem}
+              />
             ))}
           </div>
         </RenderWhen>

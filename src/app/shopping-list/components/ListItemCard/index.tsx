@@ -1,59 +1,32 @@
 "use client";
 
-import { ListItem } from "@/app/type";
+import { ListItem, Product } from "@/app/type";
 import { useState, useMemo } from "react";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
-import { toast } from "sonner";
-import { updateListItem, deleteListItem } from "@/services/list-items";
-import { useSetAtom } from "jotai";
-import { listItemsAtom } from "@/lib/atoms";
 
 interface ListItemCardProps {
   item: ListItem;
-  listId: string;
+  hasDeleteButton?: boolean;
+  onSave: (item: ListItem) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function ListItemCard({ item, listId }: ListItemCardProps) {
+export default function ListItemCard({
+  item,
+  hasDeleteButton = false,
+  onSave,
+  onDelete,
+}: ListItemCardProps) {
   const [newItem, setNewItem] = useState(item);
   const [isExpanded, setIsExpanded] = useState(false);
-  const setListItems = useSetAtom(listItemsAtom);
-
-  console.log(newItem, "newitem");
 
   const hasChanges = useMemo(() => {
     return (
       newItem.neededQuantity !== item.neededQuantity ||
-      newItem.observation !== item.observation ||
-      newItem.checked !== item.checked
+      newItem.observation !== item.observation
     );
   }, [newItem, item]);
-
-  function handleCheckItem() {
-    const newChecked = !newItem.checked;
-    setNewItem({ ...newItem, checked: newChecked });
-
-    toast.promise(
-      updateListItem(newItem.id, {
-        checked: newChecked,
-      }),
-      {
-        loading: "Atualizando...",
-        success: () => {
-          setListItems((prevState) => {
-            const mapState = new Map(prevState.map((item) => [item.id, item]));
-            mapState.set(newItem.id, { ...newItem, checked: newChecked });
-            return Array.from(mapState.values());
-          });
-          return "Item atualizado!";
-        },
-        error: () => {
-          setNewItem({ ...newItem, checked: item.checked });
-          return "Erro ao atualizar item";
-        },
-      }
-    );
-  }
 
   function handleChangeItemProp(field: keyof ListItem, value: string | number) {
     setNewItem({ ...newItem, [field]: value });
@@ -61,39 +34,6 @@ export default function ListItemCard({ item, listId }: ListItemCardProps) {
 
   function handleCancel() {
     setNewItem(item);
-  }
-
-  function handleSave() {
-    toast.promise(
-      updateListItem(newItem.id, {
-        neededQuantity: newItem.neededQuantity,
-      }),
-      {
-        loading: "Salvando...",
-        success: () => {
-          setListItems((prevState) => {
-            const mapState = new Map(prevState.map((item) => [item.id, item]));
-            mapState.set(newItem.id, newItem);
-            return Array.from(mapState.values());
-          });
-          return "Alterações salvas com sucesso!";
-        },
-        error: "Erro ao salvar as alterações",
-      }
-    );
-  }
-
-  function handleDelete() {
-    if (!confirm("Deseja realmente remover este item da lista?")) return;
-
-    toast.promise(deleteListItem(item.id), {
-      loading: "Removendo...",
-      success: () => {
-        setListItems((prevState) => prevState.filter((i) => i.id !== item.id));
-        return "Item removido da lista!";
-      },
-      error: "Erro ao remover item",
-    });
   }
 
   return (
@@ -119,19 +59,21 @@ export default function ListItemCard({ item, listId }: ListItemCardProps) {
                 {item.name}
               </h3>
               <span className="text-sm text-gray-500">
-                {item.neededQuantity} {item.unit}
+                Precisa: {item.neededQuantity} {item.unit}
               </span>
             </div>
           </button>
         </div>
 
-        <button
-          onClick={handleDelete}
-          className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200"
-          title="Remover item"
-        >
-          <Trash2 className="w-5 h-5" />
-        </button>
+        <RenderWhen isTrue={hasDeleteButton}>
+          <button
+            onClick={() => onDelete(item.id)}
+            className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200"
+            title="Remover item"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </RenderWhen>
       </div>
 
       <RenderWhen isTrue={isExpanded}>
@@ -179,7 +121,7 @@ export default function ListItemCard({ item, listId }: ListItemCardProps) {
 
           <div className="flex gap-3 mt-3">
             <button
-              onClick={handleSave}
+              onClick={() => onSave(newItem)}
               disabled={!hasChanges}
               className="flex-1 py-2.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 font-medium transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
             >

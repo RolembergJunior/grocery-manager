@@ -3,11 +3,11 @@
 import { Filter } from "lucide-react";
 import Modal from "../../Modal";
 import SelectComponent from "../../Select";
-import { Product } from "@/app/type";
+import { ListItem } from "@/app/type";
 import { useState } from "react";
 
 type FilterModalProps = {
-  products: Product[];
+  products: ListItem[];
   selectedFilters: { [filterKey: string]: string[] };
   onFilterChange: (filterKey: string, value: string[]) => void;
 };

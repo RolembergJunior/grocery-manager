@@ -2,15 +2,17 @@
 
 import { useState, useMemo } from "react";
 import { Plus, Package, ShoppingBag, ListPlus } from "lucide-react";
-import { useAtomValue, useSetAtom } from "jotai";
-import { productsAtom, categoriesAtom, listItemsAtom } from "@/lib/atoms";
+import { useAtomValue } from "jotai";
 import { Product } from "@/app/type";
 import { toast } from "sonner";
-import { createListItem } from "@/services/list-items";
 import RenderWhen from "@/components/RenderWhen";
 import Modal from "@/components/Modal";
 import FieldForm from "@/components/FieldForm";
 import { unitOptions } from "@/app/utils";
+import { useList } from "@/hooks/use-list";
+import { productsAtom } from "@/lib/atoms/products";
+import { categoriesAtom } from "@/lib/atoms/categories";
+import { addItemFromInventory, addItemManual } from "@/services/list-manager";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -36,8 +38,6 @@ export default function AddItemModal({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [neededQuantity, setNeededQuantity] = useState(1);
-
-  // New item form state
   const [newItemForm, setNewItemForm] = useState<NewItemForm>({
     name: "",
     category: "",
@@ -47,18 +47,18 @@ export default function AddItemModal({
 
   const products = useAtomValue(productsAtom);
   const categories = useAtomValue(categoriesAtom);
-  const listItems = useAtomValue(listItemsAtom);
-  const setListItems = useSetAtom(listItemsAtom);
+
+  const { items } = useList(listId!);
 
   const filteredProducts = useMemo(() => {
-    const existingItemIds = new Set(listItems.flatMap((item) => item.itemId));
+    const existingItemIds = new Set(items.flatMap((item) => item.itemId));
 
     return products.filter(
       (product) =>
         !existingItemIds.has(product.id) &&
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [products, listItems, searchTerm]);
+  }, [products, items, searchTerm]);
 
   function getCategoryName(categoryId: string) {
     return categories.find((category) => category.id === categoryId)?.name;
@@ -72,25 +72,9 @@ export default function AddItemModal({
   function handleAddItem() {
     if (!selectedProduct) return;
 
-    const params = {
-      listId,
-      itemId: [selectedProduct.id],
-      name: selectedProduct.name,
-      category: selectedProduct.category,
-      unit: selectedProduct.unit,
-      neededQuantity,
-      checked: false,
-      isRemoved: false,
-    };
-
-    toast.promise(createListItem(params), {
+    toast.promise(addItemFromInventory(listId, selectedProduct), {
       loading: "Adicionando item...",
-      success: (result) => {
-        if ("error" in result) {
-          throw new Error(result.error);
-        }
-
-        setListItems((prevState) => [...prevState, result]);
+      success: () => {
         handleClose();
         return "Item adicionado à lista!";
       },
@@ -109,31 +93,14 @@ export default function AddItemModal({
       return;
     }
 
-    toast.promise(
-      createListItem({
-        listId,
-        itemId: [],
-        neededQuantity: newItemForm.quantity,
-        name: newItemForm.name.trim(),
-        category: newItemForm.category,
-        unit: newItemForm.unit,
-        checked: false,
-        isRemoved: false,
-      }),
-      {
-        loading: "Criando item...",
-        success: (result) => {
-          if ("error" in result) {
-            throw new Error(result.error);
-          }
-
-          setListItems((prevState) => [...prevState, result]);
-          handleClose();
-          return "Item criado e adicionado à lista!";
-        },
-        error: "Erro ao criar item",
-      }
-    );
+    toast.promise(addItemManual(listId, newItemForm), {
+      loading: "Criando item...",
+      success: () => {
+        handleClose();
+        return "Item criado e adicionado à lista!";
+      },
+      error: "Erro ao criar item",
+    });
   }
 
   function handleClose() {

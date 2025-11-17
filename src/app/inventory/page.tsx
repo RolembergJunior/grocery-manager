@@ -5,8 +5,8 @@ import EmptyProducts from "@/app/inventory/components/EmptyProducts";
 import Controls from "@/components/Controls";
 import ProductList from "@/app/inventory/components/ProductList";
 import { useAtomValue } from "jotai";
-import { productsAtom } from "@/lib/atoms";
-import { categoriesAtom } from "@/lib/atoms";
+import { productsAtom } from "@/lib/atoms/products";
+import { categoriesAtom } from "@/lib/atoms/categories";
 
 export default function Inventory() {
   const products = useAtomValue(productsAtom);

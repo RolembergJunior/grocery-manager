@@ -102,6 +102,18 @@ export async function hardDeleteProduct(id: string): Promise<void> {
   await adminDb.collection(COLLECTIONS.PRODUCTS).doc(id).delete();
 }
 
+export async function updateManyProducts(products: Product[]): Promise<void> {
+  const batch = adminDb.batch();
+
+  products.forEach((product) => {
+    batch.update(adminDb.collection(COLLECTIONS.PRODUCTS).doc(product.id), {
+      ...product,
+    });
+  });
+
+  await batch.commit();
+}
+
 // ============================================
 // CATEGORIES CRUD
 // ============================================
@@ -238,7 +250,7 @@ export async function getListItemsByListId(
 ): Promise<ListItem[]> {
   let query = adminDb
     .collection(COLLECTIONS.LIST_ITEMS)
-    .where("list_id", "==", listId);
+    .where("listId", "==", listId);
 
   if (!includeRemoved) {
     query = query.where("isRemoved", "==", false);
@@ -282,15 +294,29 @@ export async function hardDeleteListItem(id: string): Promise<void> {
 }
 
 export async function hardDeleteListItemsById(id: string): Promise<void> {
-  await adminDb
+  const batch = adminDb.batch();
+
+  const snapshot = await adminDb
     .collection(COLLECTIONS.LIST_ITEMS)
-    .where("list_id", "==", id)
-    .get()
-    .then((snapshot) => {
-      snapshot.docs.forEach((doc) => {
-        doc.ref.delete();
-      });
-    });
+    .where("listId", "==", id)
+    .get();
+
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+
+  await batch.commit();
+}
+
+export async function batchUpdateItems(items: ListItem[]): Promise<void> {
+  const batch = adminDb.batch();
+
+  items.forEach((item) => {
+    const docRef = adminDb.collection(COLLECTIONS.LIST_ITEMS).doc(item.id);
+    batch.update(docRef, item);
+  });
+
+  await batch.commit();
 }
 
 // ============================================
@@ -300,14 +326,12 @@ export async function hardDeleteListItemsById(id: string): Promise<void> {
 /**
  * Batch update multiple products
  */
-export async function batchUpdateProducts(
-  updates: Array<{ id: string; data: Partial<Omit<Product, "id" | "userId">> }>
-): Promise<void> {
+export async function batchUpdateProducts(updates: Product[]): Promise<void> {
   const batch = adminDb.batch();
 
-  updates.forEach(({ id, data }) => {
-    const docRef = adminDb.collection(COLLECTIONS.PRODUCTS).doc(id);
-    batch.update(docRef, data);
+  updates.forEach((product) => {
+    const docRef = adminDb.collection(COLLECTIONS.PRODUCTS).doc(product.id);
+    batch.update(docRef, product);
   });
 
   await batch.commit();

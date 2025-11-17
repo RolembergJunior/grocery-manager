@@ -1,28 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import ListCard from "../ListCard";
 import AddItemModal from "../AddItemModal";
 import { List } from "@/app/type";
 import { useAtomValue } from "jotai";
-import { listItemsAtom, listsAtom } from "@/lib/atoms";
+import { listsAtom } from "@/lib/atoms";
 
 export default function UserListsSection() {
   const [selectedList, setSelectedList] = useState<List | null>(null);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 
   const lists = useAtomValue(listsAtom);
-  const listItems = useAtomValue(listItemsAtom);
-
-  const listsWithItems = useMemo(() => {
-    return lists.map((list) => ({
-      list,
-      items: listItems.filter(
-        (item) => item.listId === list.id && !item.isRemoved
-      ),
-    }));
-  }, [lists, listItems]);
 
   function handleAddItemToList(list: List) {
     setSelectedList(list);
@@ -34,7 +24,7 @@ export default function UserListsSection() {
     setSelectedList(null);
   }
 
-  if (listsWithItems.length === 0) {
+  if (lists.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
         <div className="max-w-md mx-auto">
@@ -61,11 +51,10 @@ export default function UserListsSection() {
       </div>
 
       <div className="space-y-4">
-        {listsWithItems.map(({ list, items }) => (
+        {lists.map((list) => (
           <ListCard
             key={list.id}
             list={list}
-            items={items}
             onAddItem={() => handleAddItemToList(list)}
           />
         ))}

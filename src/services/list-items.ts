@@ -29,13 +29,16 @@ export async function getListItems(listId?: string): Promise<ListItem[]> {
 
 interface CreateListItemProps {
   listId: string;
-  itemId: string[];
+  itemId: string | null;
   name: string;
   category: string;
   unit: string;
   neededQuantity: number;
+  boughtQuantity?: number;
+  observation?: string | null;
   checked: boolean;
   isRemoved: boolean;
+  fromList: "inventory" | "created";
 }
 
 export async function createListItem(
@@ -69,14 +72,8 @@ export async function createListItem(
 
 export async function updateListItem(
   id: string,
-  updates: {
-    itemId?: string[];
-    neededQuantity?: number;
-    boughtQuantity?: number;
-    checked?: boolean;
-    observation?: string;
-  }
-): Promise<void | { error: string }> {
+  updates: Partial<ListItem>
+): Promise<ListItem | { error: string }> {
   const session = await auth();
 
   if (!session?.user) {
@@ -98,6 +95,9 @@ export async function updateListItem(
   if (!res.ok) {
     throw new Error(`Failed to update list item: ${res.status}`);
   }
+
+  const data = (await res.json()) as { listItem: ListItem };
+  return data.listItem;
 }
 
 export async function deleteListItem(
@@ -149,3 +149,33 @@ export async function deleteItemsByListId(listId: string): Promise<void> {
     throw new Error(`Failed to delete list items: ${res.status}`);
   }
 }
+
+export async function updateMany(
+  listItems: ListItem[],
+  isCompleting = false
+): Promise<void | { error: string } | { ok: true }> {
+  const session = await auth();
+
+  if (!session?.user) return;
+
+  const res = await fetch(
+    `${process.env.NEXTAUTH_URL}/api/update-many-items?userId=${
+      session.user.id as string
+    }`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ listItems, isCompleting }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to update list items: ${res.status}`);
+  }
+
+  return { ok: true };
+}
+
+// Alias for updateMany to match the plan's naming convention
+export const batchUpdateItems = updateMany;

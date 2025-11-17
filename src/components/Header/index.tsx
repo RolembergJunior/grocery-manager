@@ -9,25 +9,18 @@ import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { Package, ShoppingCart, User, Store } from "lucide-react";
 import { useSetAtom } from "jotai";
-import {
-  isLoadingProductsAtom,
-  productsAtom,
-  fetchListsAtom,
-  fetchCategoriesAtom,
-  fetchListItemsAtom,
-} from "@/lib/atoms";
-import { toast } from "sonner";
 import MobileHeader from "./components/MobileHeader";
 import { isActive } from "./utils";
+import { fetchProductsAtom } from "@/lib/atoms/products";
+import { fetchListsAtom } from "@/lib/atoms/lists";
+import { fetchCategoriesAtom } from "@/lib/atoms/categories";
+import { fetchListItemsAtom } from "@/lib/atoms/list-items";
 
 export default function Header() {
   const { data: session } = useSession();
   const pathname = usePathname();
 
-  const setProducts = useSetAtom(productsAtom);
-
-  const setIsLoadingProducts = useSetAtom(isLoadingProductsAtom);
-
+  const fetchProducts = useSetAtom(fetchProductsAtom);
   const fetchLists = useSetAtom(fetchListsAtom);
   const fetchCategories = useSetAtom(fetchCategoriesAtom);
   const fetchListItems = useSetAtom(fetchListItemsAtom);
@@ -44,45 +37,12 @@ export default function Header() {
   useEffect(() => {
     const abortController = new AbortController();
 
-    async function initProducts() {
-      if (!session?.user) {
-        return;
-      }
-
-      setIsLoadingProducts(true);
-
-      try {
-        const userId = (session?.user as any)?.id || session?.user?.email;
-        const res = await fetch(`/api/products?userId=${userId}`, {
-          method: "GET",
-          credentials: "include",
-          signal: abortController.signal,
-        });
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch products");
-        }
-
-        const data = await res.json();
-
-        setProducts(data.products || []);
-      } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") {
-          return;
-        }
-
-        toast.error(
-          "Houve um erro ao tentar carregar os dados. Tente novamente mais tarde."
-        );
-      } finally {
-        setIsLoadingProducts(false);
-      }
+    if (session?.user) {
+      fetchProducts();
+      fetchLists();
+      fetchCategories();
+      fetchListItems();
     }
-
-    initProducts();
-    fetchLists();
-    fetchCategories();
-    fetchListItems();
 
     return () => {
       abortController.abort();

@@ -1,14 +1,13 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { Product } from "@/app/type";
-import AddItemButtonModal from "./AddItemModal";
+import { ListItem } from "@/app/type";
 import FilterButtonModal from "./FilterModal";
 import { useAtom } from "jotai";
 import { mainSearchAtom, mainFiltersAtom } from "@/lib/atoms";
 
 type ControlsProps = {
-  products: Product[];
+  products: ListItem[];
 };
 
 export default function Controls({ products }: ControlsProps) {

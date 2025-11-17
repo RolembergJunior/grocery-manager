@@ -10,7 +10,7 @@ import z from "zod";
 import { toast } from "sonner";
 import { validateIfExists } from "./utils";
 import { useAtom } from "jotai";
-import { categoriesAtom } from "@/lib/atoms";
+import { categoriesAtom } from "@/lib/atoms/categories";
 import FieldForm from "../../../FieldForm";
 import {
   createCategory,
@@ -38,6 +38,7 @@ export default function CreateCategoryModal({
   const [categoryName, setCategoryName] = useState("");
   const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [showToast, setShowToast] = useState(false);
 
   const [categories, setCategories] = useAtom(categoriesAtom);
 
