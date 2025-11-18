@@ -1,30 +1,26 @@
 "use server";
 
 import type { ListItem } from "@/app/type";
-import { auth } from "@/auth";
+import {
+  authenticatedFetchArray,
+  authenticatedFetch,
+  authenticatedFetchVoid,
+} from "@/lib/api-helper";
 
 export async function getListItems(listId?: string): Promise<ListItem[]> {
-  const session = await auth();
+  try {
+    const data = await authenticatedFetchArray("/api/list-items", {
+      method: "GET",
+      params: listId ? { listId } : undefined,
+    });
 
-  if (!session?.user) return [];
-
-  const url = listId
-    ? `${process.env.NEXTAUTH_URL}/api/list-items?userId=${
-        session.user.id as string
-      }&listId=${listId}`
-    : `${process.env.NEXTAUTH_URL}/api/list-items?userId=${
-        session.user.id as string
-      }`;
-
-  const res = await fetch(url, {
-    method: "GET",
-    credentials: "include",
-  });
-
-  if (!res.ok) return [];
-
-  const data = (await res.json()) as { listItems: ListItem[] };
-  return Array.isArray(data.listItems) ? data.listItems : [];
+    if (!data) return [];
+    const response = data as unknown as { listItems: ListItem[] };
+    return Array.isArray(response.listItems) ? response.listItems : [];
+  } catch (error) {
+    console.error("Error fetching list items:", error);
+    return [];
+  }
 }
 
 interface CreateListItemProps {
@@ -44,138 +40,54 @@ interface CreateListItemProps {
 export async function createListItem(
   newItem: CreateListItemProps
 ): Promise<ListItem | { error: string }> {
-  const session = await auth();
-
-  if (!session?.user) {
+  try {
+    const data = await authenticatedFetch<{ listItem: ListItem }>(
+      "/api/list-items",
+      {
+        method: "POST",
+        body: JSON.stringify(newItem),
+      }
+    );
+    return data.listItem;
+  } catch (error) {
     return { error: "Não autenticado" };
   }
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/list-items?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(newItem),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to create list item: ${res.status}`);
-  }
-
-  const data = (await res.json()) as { listItem: ListItem };
-  return data.listItem;
 }
 
 export async function updateListItem(
   id: string,
   updates: Partial<ListItem>
-): Promise<ListItem | { error: string }> {
-  const session = await auth();
-
-  if (!session?.user) {
-    return { error: "Não autenticado" };
-  }
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/list-items?userId=${
-      session.user.id as string
-    }`,
+): Promise<ListItem> {
+  const data = await authenticatedFetch<{ listItem: ListItem }>(
+    "/api/list-items",
     {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({ id, ...updates }),
     }
   );
-
-  if (!res.ok) {
-    throw new Error(`Failed to update list item: ${res.status}`);
-  }
-
-  const data = (await res.json()) as { listItem: ListItem };
   return data.listItem;
 }
 
-export async function deleteListItem(
-  id: string
-): Promise<void | { error: string }> {
-  const session = await auth();
-
-  if (!session?.user) {
-    return { error: "Não autenticado" };
-  }
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/list-items?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ id }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to delete list item: ${res.status}`);
-  }
+export async function deleteListItem(id: string): Promise<void> {
+  await authenticatedFetchVoid("/api/list-items", {
+    method: "DELETE",
+    body: JSON.stringify({ id }),
+  });
 }
 
 export async function deleteItemsByListId(listId: string): Promise<void> {
-  const session = await auth();
-
-  if (!session?.user) {
-    return;
-  }
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/delete-items-by-id?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ id: listId }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to delete list items: ${res.status}`);
-  }
+  await authenticatedFetchVoid("/api/delete-items-by-id", {
+    method: "DELETE",
+    body: JSON.stringify({ id: listId }),
+  });
 }
 
-export async function updateMany(
+export async function batchUpdateItems(
   listItems: ListItem[],
   isCompleting = false
-): Promise<void | { error: string } | { ok: true }> {
-  const session = await auth();
-
-  if (!session?.user) return;
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/update-many-items?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ listItems, isCompleting }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to update list items: ${res.status}`);
-  }
-
-  return { ok: true };
+): Promise<void> {
+  await authenticatedFetchVoid("/api/update-many-items", {
+    method: "PUT",
+    body: JSON.stringify({ listItems, isCompleting }),
+  });
 }
-
-// Alias for updateMany to match the plan's naming convention
-export const batchUpdateItems = updateMany;

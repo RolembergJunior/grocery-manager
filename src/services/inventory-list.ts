@@ -4,27 +4,39 @@ import type { ListItem, Product } from "@/app/type";
 import { auth } from "@/auth";
 
 /**
+ * Helper to build sync inventory URL with optional listId
+ */
+function buildSyncUrl(userId: string, listId?: string): string {
+  const url = new URL(`${process.env.NEXTAUTH_URL}/api/sync-inventory-list`);
+  url.searchParams.set("userId", userId);
+  if (listId) {
+    url.searchParams.set("listId", listId);
+  }
+  return url.toString();
+}
+
+/**
  * Sincroniza a lista de estoque com os produtos do inventário
  * Clona produtos que precisam ser comprados (statusCompra === 1) como ListItems
+ * @param products - Array de produtos para sincronizar
+ * @param listId - ID da lista específica (opcional). Se não fornecido, sincroniza lista geral
  */
-export async function syncInventoryList(
-  products: Product[]
+export async function syncInventoryListAPI(
+  products: Product[],
+  listId?: string
 ): Promise<ListItem[]> {
   const session = await auth();
 
   if (!session?.user) return [];
 
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/sync-inventory-list?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ products }),
-    }
-  );
+  const url = buildSyncUrl(session.user.id as string, listId);
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ products }),
+  });
 
   if (!res.ok) return [];
 
@@ -33,39 +45,20 @@ export async function syncInventoryList(
 }
 
 /**
- * Sincroniza uma lista específica com os produtos do inventário
+ * @deprecated Use syncInventoryListAPI instead
+ * Kept for backward compatibility
  */
-export async function syncInventoryListAPI(
-  listId: string,
+export async function syncInventoryList(
   products: Product[]
 ): Promise<ListItem[]> {
-  const session = await auth();
-
-  if (!session?.user) return [];
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/sync-inventory-list?userId=${
-      session.user.id as string
-    }&listId=${listId}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ products }),
-    }
-  );
-
-  if (!res.ok) return [];
-
-  const data = (await res.json()) as { listItems: ListItem[] };
-  return Array.isArray(data.listItems) ? data.listItems : [];
+  return syncInventoryListAPI(products);
 }
 
 /**
  * Atualiza os produtos do inventário baseado nos ListItems da lista de estoque
  * Sincroniza mudanças de volta para o inventário
  */
-export async function updateInventoryFromList(
+export async function updateInventoryFromListAPI(
   listItems: ListItem[]
 ): Promise<{ ok: boolean }> {
   const session = await auth();
@@ -92,6 +85,3 @@ export async function updateInventoryFromList(
 
   return { ok: true };
 }
-
-// Alias for updateInventoryFromList to match the plan's naming convention
-export const updateInventoryFromListAPI = updateInventoryFromList;

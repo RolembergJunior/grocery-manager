@@ -12,12 +12,9 @@ export const fetchListsAtom = atom(null, async (_get, set) => {
   set(isLoadingListsAtom, true);
   try {
     const lists = await getLists();
-
     set(listsAtom, lists);
-    set(isLoadingListsAtom, false);
   } catch (error) {
     console.error("Falha ao buscar listas:", error);
-    set(isLoadingListsAtom, false);
   } finally {
     set(isLoadingListsAtom, false);
   }

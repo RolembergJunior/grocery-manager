@@ -85,7 +85,6 @@ export default function ProductCard({
     field: keyof Product,
     value: string | number | null
   ) {
-    console.log(field, value);
     setNewItem({ ...newItem, [field]: value });
   }
 

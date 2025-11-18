@@ -1,25 +1,26 @@
 "use server";
 
 import type { List } from "@/app/type";
-import { auth } from "@/auth";
+import {
+  authenticatedFetchArray,
+  authenticatedFetch,
+  authenticatedFetchVoid,
+} from "@/lib/api-helper";
 
 export async function getLists(): Promise<List[]> {
-  const session = await auth();
-
-  if (!session?.user) return [];
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/lists?userId=${session.user.id as string}`,
-    {
+  try {
+    const data = await authenticatedFetchArray("/api/lists", {
       method: "GET",
-      credentials: "include",
-    }
-  );
+    });
 
-  if (!res.ok) return [];
+    if (!data) return [];
 
-  const data = (await res.json()) as { lists: List[] };
-  return Array.isArray(data.lists) ? data.lists : [];
+    const response = data as unknown as { lists: List[] };
+    return Array.isArray(response.lists) ? response.lists : [];
+  } catch (error) {
+    console.error("Error fetching lists:", error);
+    return [];
+  }
 }
 
 export async function createList(
@@ -27,27 +28,10 @@ export async function createList(
   description: string,
   itemId?: string[]
 ): Promise<List> {
-  const session = await auth();
-
-  if (!session?.user) {
-    throw new Error("Não autenticado");
-  }
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/lists?userId=${session.user.id as string}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ name, description, itemId }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to create list: ${res.status}`);
-  }
-
-  const data = (await res.json()) as { list: List };
+  const data = await authenticatedFetch<{ list: List }>("/api/lists", {
+    method: "POST",
+    body: JSON.stringify({ name, description, itemId }),
+  });
   return data.list;
 }
 
@@ -60,50 +44,16 @@ export async function updateList(
     itemId?: string[];
   }
 ): Promise<List> {
-  const session = await auth();
-
-  if (!session?.user) {
-    throw new Error("Não autenticado");
-  }
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/lists?userId=${session.user.id as string}`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ id, ...updates }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to update list: ${res.status}`);
-  }
-
-  const data = (await res.json()) as { list: List };
+  const data = await authenticatedFetch<{ list: List }>("/api/lists", {
+    method: "PUT",
+    body: JSON.stringify({ id, ...updates }),
+  });
   return data.list;
 }
 
-export async function deleteList(
-  id: string
-): Promise<void | { error: string }> {
-  const session = await auth();
-
-  if (!session?.user) {
-    return { error: "Não autenticado" };
-  }
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/lists?userId=${session.user.id as string}`,
-    {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ id }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to delete list: ${res.status}`);
-  }
+export async function deleteList(id: string): Promise<void> {
+  await authenticatedFetchVoid("/api/lists", {
+    method: "DELETE",
+    body: JSON.stringify({ id }),
+  });
 }

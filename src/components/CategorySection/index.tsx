@@ -1,31 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { palletColors } from "@/app/utils";
 import CreateCategoryModal from "./components/CreateCategoryModal";
 import { Category } from "@/app/type";
 import { categoriesAtom } from "@/lib/atoms/categories";
-
-interface ModalParams {
-  isModalOpen: boolean;
-  categoryToEdit: Category | null;
-}
+import { useModal } from "@/hooks/use-modal";
 
 export default function CategorySection() {
-  const [paramsModal, setParamsModal] = useState<ModalParams>({
-    isModalOpen: false,
-    categoryToEdit: null,
-  });
-
+  const { isOpen, editItem, openModal, closeModal } = useModal<Category>();
   const categories = useAtomValue(categoriesAtom);
-
-  function handleCloseModal() {
-    setParamsModal({
-      isModalOpen: false,
-      categoryToEdit: null,
-    });
-  }
 
   return (
     <>
@@ -35,9 +19,7 @@ export default function CategorySection() {
       <div className="relative mb-6">
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 px-4 scroll-smooth">
           <button
-            onClick={() =>
-              setParamsModal({ isModalOpen: true, categoryToEdit: null })
-            }
+            onClick={() => openModal()}
             className="border-2 border-dashed border-blue text-blue/40 rounded-3xl p-2 w-[7rem] aspect-square flex items-center justify-center shadow-sm hover:shadow-md hover:border-bluetext-blue/60 hover:bg-bluetext-blue/5 transition-all active:scale-95 group"
           >
             <span className="text-blue text-lg font-medium text-center group-hover:scale-105 transition-transform">
@@ -51,12 +33,7 @@ export default function CategorySection() {
                 palletColors[category.colorId as keyof typeof palletColors]
                   .bgClass
               } rounded-3xl aspect-square flex items-center justify-center p-2 w-[6rem] h-[6rem] shadow-md hover:scale-105 transition-transform active:scale-95`}
-              onClick={() =>
-                setParamsModal({
-                  isModalOpen: true,
-                  categoryToEdit: category,
-                })
-              }
+              onClick={() => openModal(category)}
             >
               <span
                 className={`${
@@ -71,7 +48,11 @@ export default function CategorySection() {
         </div>
       </div>
 
-      <CreateCategoryModal {...paramsModal} onCloseModal={handleCloseModal} />
+      <CreateCategoryModal
+        isModalOpen={isOpen}
+        categoryToEdit={editItem}
+        onCloseModal={closeModal}
+      />
     </>
   );
 }

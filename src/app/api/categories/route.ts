@@ -6,7 +6,7 @@ import {
   createCategory,
   updateCategory,
   softDeleteCategory,
-} from "@/lib/firestore-helpers";
+} from "@/lib/helpers/categories-helpers";
 
 export const runtime = "nodejs";
 

@@ -3,12 +3,10 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { ListItem } from "@/app/type";
-import { updateListItem } from "@/services/list-items";
 import { toast } from "sonner";
 import RenderWhen from "@/components/RenderWhen";
 import QuantityControl from "./QantityControl";
-import { listItemsAtom } from "@/lib/atoms";
-import { useSetAtom } from "jotai";
+import { updateItem } from "@/services/list-manager";
 
 interface NotebookItemProps {
   item: ListItem;
@@ -18,21 +16,12 @@ export default function NotebookItem({ item }: NotebookItemProps) {
   const [checked, setChecked] = useState(item.checked);
   const [showObservation, setShowObservation] = useState(false);
 
-  const setListItem = useSetAtom(listItemsAtom);
-
   async function handleCheckToggle() {
     const newChecked = !checked;
     setChecked(newChecked);
 
     try {
-      await updateListItem(item.id, { checked: newChecked });
-      setListItem((prevState) =>
-        prevState.map((listItem) =>
-          listItem.id === item.id
-            ? { ...listItem, checked: newChecked }
-            : listItem
-        )
-      );
+      await updateItem(item.listId, item.id, { checked: newChecked });
     } catch (error) {
       setChecked(!newChecked);
       toast.error("Erro ao atualizar item");

@@ -80,10 +80,6 @@ export async function updateItem(
 ): Promise<void> {
   const updated = await updateListItem(id, data);
 
-  if ("error" in updated) {
-    throw new Error(updated.error);
-  }
-
   const atom = listItemsByIdAtom(listId);
   store.set(atom, (prev: ListItem[]) =>
     prev.map((item: ListItem) => (item.id === id ? updated : item))
@@ -103,7 +99,7 @@ export async function syncWithInventory(
   listId: string,
   products: Product[]
 ): Promise<void> {
-  const items = await syncInventoryListAPI(listId, products);
+  const items = await syncInventoryListAPI(products, listId);
   const atom = listItemsByIdAtom(listId);
   store.set(atom, items);
 }

@@ -7,7 +7,8 @@ import {
   createListItem,
   updateListItem,
   softDeleteListItem,
-} from "@/lib/firestore-helpers";
+  getListItemById,
+} from "@/lib/helpers/list-items-helpers";
 
 export const runtime = "nodejs";
 
@@ -110,7 +111,8 @@ export async function PUT(req: NextRequest) {
     };
 
     await updateListItem(payload.id, updateData);
-    return NextResponse.json({ ok: true });
+    const getItem = await getListItemById(payload.id);
+    return NextResponse.json({ listItem: getItem });
   } catch (error) {
     console.error("Error updating list item:", error);
     return NextResponse.json(

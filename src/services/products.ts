@@ -1,105 +1,49 @@
 "use server";
 
 import type { Product } from "@/app/type";
-import { auth } from "@/auth";
+import {
+  authenticatedFetchArray,
+  authenticatedFetchVoid,
+  authenticatedFetch,
+} from "@/lib/api-helper";
 
 export async function subscribeProducts(): Promise<Product[]> {
-  const session = await auth();
-
-  if (!session?.user) return [];
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/products?userId=${
-      session.user.id as string
-    }`,
-    {
+  try {
+    const data = await authenticatedFetchArray("/api/products", {
       method: "GET",
-      credentials: "include",
-    }
-  );
+    });
 
-  if (!res.ok) return [];
+    // authenticatedFetchArray returns the raw response
+    // which should be { products: Product[] }
+    if (!data) return [];
 
-  const data = (await res.json()) as { products: Product[] };
-  const products = Array.isArray(data.products) ? data.products : [];
-  return products;
-}
-
-export async function saveProducts(
-  products: Product[]
-): Promise<void | { error: string }> {
-  const session = await auth();
-
-  if (!session?.user) return;
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/products?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ products }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to save: ${res.status}`);
+    const response = data as unknown as { products: Product[] };
+    return Array.isArray(response.products) ? response.products : [];
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
   }
 }
 
-export async function updateOrCreate(
-  item: Product
-): Promise<void | { error: string } | Product> {
-  const session = await auth();
-
-  if (!session?.user) return;
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/update-or-create?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(item),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to save: ${res.status}`);
-  }
-
-  const data = (await res.json()) as Product;
-
-  return data;
+export async function saveProducts(products: Product[]): Promise<void> {
+  await authenticatedFetchVoid("/api/products", {
+    method: "PUT",
+    body: JSON.stringify({ products }),
+  });
 }
 
-export async function deleteItem(
-  id: string
-): Promise<void | { error: string } | { ok: true }> {
-  const session = await auth();
+export async function updateOrCreate(item: Product): Promise<Product> {
+  return authenticatedFetch<Product>("/api/update-or-create", {
+    method: "PUT",
+    body: JSON.stringify(item),
+  });
+}
 
-  if (!session?.user) return;
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/products?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ id }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to delete: ${res.status}`);
-  }
-
+export async function deleteItem(id: string): Promise<{ ok: true }> {
+  await authenticatedFetchVoid("/api/products", {
+    method: "DELETE",
+    body: JSON.stringify({ id }),
+  });
   return { ok: true };
 }
 
@@ -109,52 +53,26 @@ export async function updateStatus({
 }: {
   id: string;
   statusCompra: number;
-}): Promise<void | { error: string } | { ok: true }> {
-  const session = await auth();
-
-  if (!session?.user) return;
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/update-status-compra?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ id, statusCompra }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to update item to status: ${res.status}`);
-  }
-
+}): Promise<{ ok: true }> {
+  await authenticatedFetchVoid("/api/update-status-compra", {
+    method: "PUT",
+    body: JSON.stringify({ id, statusCompra }),
+  });
   return { ok: true };
 }
 
-export async function updateMany(
-  products: Product[]
-): Promise<void | { error: string } | { ok: true }> {
-  const session = await auth();
+export async function updateMany(products: Product[]): Promise<{ ok: true }> {
+  await authenticatedFetchVoid("/api/update-many-products", {
+    method: "PUT",
+    body: JSON.stringify({ products }),
+  });
+  return { ok: true };
+}
 
-  if (!session?.user) return;
-
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/update-many-products?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ products }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to update products: ${res.status}`);
-  }
-
+export async function syncronizeInventory(): Promise<{ ok: true }> {
+  await authenticatedFetchVoid("/api/sync-inventory-list", {
+    method: "PUT",
+    body: JSON.stringify({}),
+  });
   return { ok: true };
 }

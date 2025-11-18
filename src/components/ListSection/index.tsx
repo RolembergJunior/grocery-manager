@@ -1,49 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { listsAtom } from "@/lib/atoms";
 import { List } from "@/app/type";
 import CreateListModal from "./components/CreateListModal";
-import Link from "next/link";
 import { toast } from "sonner";
-
-interface ModalParams {
-  isModalOpen: boolean;
-  listToEdit: List | null;
-}
+import { useModal } from "@/hooks/use-modal";
 
 export default function ListSection() {
-  const [paramsModal, setParamsModal] = useState<ModalParams>({
-    isModalOpen: false,
-    listToEdit: null,
-  });
-
+  const { isOpen, editItem, openModal, closeModal } = useModal<List>();
   const lists = useAtomValue(listsAtom);
-
-  function handleCloseCreateListModal() {
-    setParamsModal({
-      isModalOpen: false,
-      listToEdit: null,
-    });
-  }
 
   function handleOpenCreateListModal() {
     if (lists.length === 5) {
       return toast.error("Limite de listas atingido");
     }
-
-    setParamsModal({
-      isModalOpen: true,
-      listToEdit: null,
-    });
-  }
-
-  function handleOpenEditListModal(list: List) {
-    setParamsModal({
-      isModalOpen: true,
-      listToEdit: list,
-    });
+    openModal();
   }
 
   return (
@@ -66,7 +38,7 @@ export default function ListSection() {
             <div
               key={index}
               className="bg-[var(--color-list-card)] rounded-2xl p-4 flex flex-col justify-center items-center h-24 w-[140px] flex-shrink-0 shadow-sm hover:shadow-lg hover:bg-blue/5 transition-all duration-300 snap-start cursor-pointer active:scale-95 group"
-              onClick={() => handleOpenEditListModal(list)}
+              onClick={() => openModal(list)}
             >
               <p className="text-blue font-semibold text-center relative pb-1.5 group-hover:scale-105 transition-transform duration-300">
                 {list.name}
@@ -78,8 +50,9 @@ export default function ListSection() {
       </div>
 
       <CreateListModal
-        {...paramsModal}
-        onCloseModal={handleCloseCreateListModal}
+        isModalOpen={isOpen}
+        listToEdit={editItem}
+        onCloseModal={closeModal}
       />
     </>
   );

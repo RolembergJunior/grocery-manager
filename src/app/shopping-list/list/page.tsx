@@ -13,6 +13,7 @@ import RenderWhen from "@/components/RenderWhen";
 import AlertDialog from "@/components/AlertDialog";
 import { useList } from "@/hooks/use-list";
 import { completeList } from "@/services/list-manager";
+import { INVENTORY_LIST_ID } from "../components/InventoryListCard";
 
 export default function ShoppingListPage() {
   const router = useRouter();
@@ -27,6 +28,13 @@ export default function ShoppingListPage() {
   const { items } = useList(listId!);
 
   const currentList = useMemo(() => {
+    if (listId === INVENTORY_LIST_ID) {
+      return {
+        id: "1",
+        name: "Lista do Estoque",
+        description: "Lista gerada automaticamente com base no estoque",
+      };
+    }
     if (typeList === "quick-list") {
       return {
         id: "2",
@@ -41,7 +49,7 @@ export default function ShoppingListPage() {
   const currentItems = useMemo(() => {
     if (!listId || typeList === "quick-list") return [];
 
-    return items.filter((item) => item.listId === listId && !item.isRemoved);
+    return items.filter((item) => !item.isRemoved);
   }, [items, listId, typeList]);
 
   const { checkedCount, totalCount, progressPercentage } = useMemo(() => {

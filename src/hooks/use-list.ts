@@ -26,6 +26,6 @@ export function useList(listId: string, options?: UseListOptions) {
   }, [listId, autoLoad]);
 
   return {
-    items,
+    items: items.filter((i) => !i.isRemoved),
   };
 }

@@ -2,7 +2,7 @@ import QuickListCard from "./components/QuickListCard";
 import InventoryListCard from "./components/InventoryListCard";
 import UserListsSection from "./components/UserListsSection";
 
-export default function ShoppingListApp() {
+export default async function ShoppingListApp() {
   return (
     <div className="min-h-screen bg-cream px-4 py-6 pb-20">
       <div className="max-w-4xl mx-auto">

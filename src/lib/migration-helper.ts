@@ -1,6 +1,6 @@
 import "server-only";
 import { adminDb } from "./firebaseAdmin";
-import { updateProfile } from "./firestore-helpers";
+import { updateProfile } from "./helpers/profiles-helpers";
 
 export async function migrateAllUsers(userId: string) {
   try {

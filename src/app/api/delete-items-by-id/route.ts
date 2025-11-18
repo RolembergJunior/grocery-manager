@@ -1,6 +1,6 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
-import { hardDeleteListItemsById } from "@/lib/firestore-helpers";
+import { hardDeleteListItemsById } from "@/lib/helpers/list-items-helpers";
 
 export async function DELETE(req: NextRequest) {
   try {

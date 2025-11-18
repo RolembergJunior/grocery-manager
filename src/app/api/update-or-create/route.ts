@@ -1,6 +1,6 @@
 import { Product } from "@/app/type";
 import { NextRequest, NextResponse } from "next/server";
-import { createProduct, updateProduct } from "@/lib/firestore-helpers";
+import { createProduct, updateProduct } from "@/lib/helpers/products-helpers";
 
 export async function PUT(req: NextRequest) {
   try {

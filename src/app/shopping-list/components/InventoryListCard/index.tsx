@@ -2,47 +2,43 @@
 
 import { Package, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAtomValue } from "jotai";
-import { productsAtom } from "@/lib/atoms";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import RenderWhen from "@/components/RenderWhen";
 import { toast } from "sonner";
-import { updateOrCreate } from "@/services/products";
-import { useSetAtom } from "jotai";
-import { Product } from "@/app/type";
 import ListItemCard from "../ListItemCard";
+import { useList } from "@/hooks/use-list";
+import { deleteItem, updateItem } from "@/services/list-manager";
+import { ListItem } from "@/app/type";
+
+export const INVENTORY_LIST_ID = "inventory-list";
 
 export default function InventoryListCard() {
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
-  const products = useAtomValue(productsAtom);
 
-  const setProducts = useSetAtom(productsAtom);
-
-  const itemsNeedingShopping = useMemo(() => {
-    return products.filter((item) => item.statusCompra === 1);
-  }, [products]);
+  const { items } = useList(INVENTORY_LIST_ID, { autoLoad: true });
 
   function handleNavigateToInventoryList() {
-    router.push(`/shopping-list/list?type=inventory-based`);
+    router.push(`/shopping-list/list?id=${INVENTORY_LIST_ID}`);
   }
 
   function handleToggleExpand() {
     setIsExpanded(!isExpanded);
   }
 
-  function handleSaveItem(item: Product) {
-    toast.promise(updateOrCreate(item), {
+  function handleSaveItem(item: ListItem) {
+    toast.promise(updateItem(INVENTORY_LIST_ID, item.id, item), {
       loading: "Salvando...",
-      success: () => {
-        setProducts((prevState) => {
-          const mapState = new Map(prevState.map((item) => [item.id, item]));
-          mapState.set(item.id, item);
-          return Array.from(mapState.values());
-        });
-        return "Alterações salvas com sucesso!";
-      },
+      success: "Alterações salvas com sucesso!",
       error: "Erro ao salvar as alterações",
+    });
+  }
+
+  function handleDeleteInventoryItem(id: string) {
+    toast.promise(deleteItem(INVENTORY_LIST_ID, id), {
+      loading: "Removendo da lista...",
+      success: "Item removido com sucesso!",
+      error: "Erro ao remover o item",
     });
   }
 
@@ -68,8 +64,7 @@ export default function InventoryListCard() {
             </div>
 
             <div className="inline-flex self-start bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full font-medium text-sm">
-              {itemsNeedingShopping.length}{" "}
-              {itemsNeedingShopping.length === 1 ? "item" : "itens"}
+              {items.length} {items.length === 1 ? "item" : "itens"}
             </div>
           </div>
         </div>
@@ -94,7 +89,7 @@ export default function InventoryListCard() {
         }`}
       >
         <RenderWhen
-          isTrue={itemsNeedingShopping.length > 0}
+          isTrue={items.length > 0}
           elseElement={
             <div className="p-8 text-center text-[var(--color-text-gray)]">
               <p className="text-base">Nenhum item precisa ser reposto</p>
@@ -105,8 +100,14 @@ export default function InventoryListCard() {
           }
         >
           <div className="p-4 space-y-2">
-            {itemsNeedingShopping.map((item) => (
-              <ListItemCard key={item.id} item={item} onSave={handleSaveItem} />
+            {items.map((item) => (
+              <ListItemCard
+                key={item.id}
+                item={item}
+                onSave={handleSaveItem}
+                onDelete={handleDeleteInventoryItem}
+                hasDeleteButton
+              />
             ))}
           </div>
         </RenderWhen>

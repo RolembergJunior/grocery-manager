@@ -9,15 +9,6 @@ interface NotebookListProps {
 export default function NotebookList({ items }: NotebookListProps) {
   return (
     <div className="max-w-4xl mx-auto mt-2">
-      {/* 
-      <div className="absolute top-[14rem] left-0 right-0 h-12 flex items-center justify-center gap-4 z-50">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="flex flex-col items-center gap-1">
-            <div className="w-5 h-14 notebook-binding-ring rounded-full" />
-          </div>
-        ))}
-      </div> */}
-
       <div>
         <RenderWhen
           isTrue={!!items.length}

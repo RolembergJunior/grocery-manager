@@ -5,7 +5,7 @@ import type { Product } from "@/app/type";
 import {
   getProductsByUserId,
   softDeleteProduct,
-} from "@/lib/firestore-helpers";
+} from "@/lib/helpers/products-helpers";
 
 export const runtime = "nodejs";
 
@@ -65,7 +65,7 @@ export async function PUT(req: NextRequest) {
         userId: userId,
         reccurency: item.reccurency,
         createdAt: item.createdAt,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
       };
 
       if (item.id) {

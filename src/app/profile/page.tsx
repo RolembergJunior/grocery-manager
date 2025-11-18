@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 import {
   User,
@@ -34,7 +34,7 @@ export default function ProfilePage() {
     {
       icon: Settings,
       label: "Configurações",
-      onClick: () => console.log("Configurações"),
+      onClick: () => {},
       showArrow: true,
     },
     // {

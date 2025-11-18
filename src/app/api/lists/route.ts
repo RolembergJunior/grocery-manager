@@ -6,7 +6,7 @@ import {
   createList,
   updateList,
   softDeleteList,
-} from "@/lib/firestore-helpers";
+} from "@/lib/helpers/lists-helpers";
 
 export const runtime = "nodejs";
 

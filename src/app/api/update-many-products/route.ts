@@ -1,7 +1,7 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { Product } from "@/app/type";
-import { batchUpdateProducts } from "@/lib/firestore-helpers";
+import { batchUpdateProducts } from "@/lib/helpers/products-helpers";
 
 export async function PUT(req: NextRequest) {
   try {
