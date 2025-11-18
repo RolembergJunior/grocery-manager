@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 import AuthProvider from "@/components/AuthProvider";
+import LoadingFetch from "@/components/LoadingFetch";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
           <Toaster richColors position="top-center" />
           <main className="md:pb-0 md:pt-20">{children}</main>
           <Header />
+          <LoadingFetch />
         </AuthProvider>
       </body>
     </html>

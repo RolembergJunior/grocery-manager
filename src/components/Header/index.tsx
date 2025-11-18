@@ -15,10 +15,13 @@ import { fetchProductsAtom } from "@/lib/atoms/products";
 import { fetchListsAtom } from "@/lib/atoms/lists";
 import { fetchCategoriesAtom } from "@/lib/atoms/categories";
 import { fetchListItemsAtom } from "@/lib/atoms/list-items";
+import { loadingAtom, LoadingParams } from "@/lib/atoms/loading";
 
 export default function Header() {
   const { data: session } = useSession();
   const pathname = usePathname();
+
+  const setIsLoading = useSetAtom(loadingAtom);
 
   const fetchProducts = useSetAtom(fetchProductsAtom);
   const fetchLists = useSetAtom(fetchListsAtom);
@@ -38,16 +41,27 @@ export default function Header() {
     const abortController = new AbortController();
 
     if (session?.user) {
-      fetchProducts();
-      fetchLists();
-      fetchCategories();
-      fetchListItems();
+      initData();
     }
 
     return () => {
       abortController.abort();
     };
   }, [session?.user]);
+
+  async function initData() {
+    setIsLoading({ isOpen: true, message: "Carregando..." });
+    try {
+      await fetchProducts();
+      await fetchLists();
+      await fetchCategories();
+      await fetchListItems();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading({} as LoadingParams);
+    }
+  }
 
   return (
     <>

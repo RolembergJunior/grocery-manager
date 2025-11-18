@@ -8,11 +8,6 @@ interface UseModalResult<T> {
   setEditItem: (item: T | null) => void;
 }
 
-/**
- * Reusable hook for managing modal state
- * @param initialState - Optional initial state for the modal
- * @returns Modal state and control functions
- */
 export function useModal<T = unknown>(initialState?: {
   isOpen: boolean;
   editItem: T | null;
