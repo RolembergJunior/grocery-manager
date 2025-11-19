@@ -7,10 +7,12 @@ import AddItemModal from "../AddItemModal";
 import { List } from "@/app/type";
 import { useAtomValue } from "jotai";
 import { listsAtom } from "@/lib/atoms";
+import CreateListModal from "@/components/ListSection/components/CreateListModal";
 
 export default function UserListsSection() {
   const [selectedList, setSelectedList] = useState<List | null>(null);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  const [isCreateListModalOpen, setIsCreateListModalOpen] = useState(false);
 
   const lists = useAtomValue(listsAtom);
 
@@ -48,6 +50,14 @@ export default function UserListsSection() {
         <h2 className="text-[var(--color-text-gray)] text-sm font-semibold uppercase tracking-wide">
           MINHAS LISTAS PERSONALIZADAS
         </h2>
+
+        <button
+          onClick={() => setIsCreateListModalOpen(true)}
+          className="p-2 bg-blue rounded-full hover:bg-blue/80 transition-all duration-200 active:scale-95 shadow-md hover:shadow-lg"
+          title="Criar nova lista"
+        >
+          <Plus color="white" size={20} />
+        </button>
       </div>
 
       <div className="space-y-4">
@@ -67,6 +77,12 @@ export default function UserListsSection() {
           listId={selectedList.id}
         />
       )}
+
+      <CreateListModal
+        isModalOpen={isCreateListModalOpen}
+        listToEdit={null}
+        onCloseModal={() => setIsCreateListModalOpen(false)}
+      />
     </>
   );
 }

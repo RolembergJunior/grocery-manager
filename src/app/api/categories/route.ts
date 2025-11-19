@@ -5,8 +5,9 @@ import {
   getCategoriesByUserId,
   createCategory,
   updateCategory,
-  softDeleteCategory,
+  hardDeleteCategory,
 } from "@/lib/helpers/categories-helpers";
+import { hardDeleteProductsByCategory } from "@/lib/helpers/products-helpers";
 
 export const runtime = "nodejs";
 
@@ -129,7 +130,10 @@ export async function DELETE(req: NextRequest) {
     }
 
     const { id } = body as { id: string };
-    await softDeleteCategory(id);
+
+    await hardDeleteCategory(id);
+    await hardDeleteProductsByCategory(id);
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Error deleting category:", error);

@@ -2,13 +2,9 @@
 
 import { useAtomValue } from "jotai";
 import { palletColors } from "@/app/utils";
-import CreateCategoryModal from "./components/CreateCategoryModal";
-import { Category } from "@/app/type";
 import { categoriesAtom } from "@/lib/atoms/categories";
-import { useModal } from "@/hooks/use-modal";
 
 export default function CategorySection() {
-  const { isOpen, editItem, openModal, closeModal } = useModal<Category>();
   const categories = useAtomValue(categoriesAtom);
 
   return (
@@ -18,14 +14,6 @@ export default function CategorySection() {
       </h3>
       <div className="relative mb-6">
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 px-4 scroll-smooth">
-          <button
-            onClick={() => openModal()}
-            className="border-2 border-dashed border-blue text-blue/40 rounded-3xl p-2 w-[7rem] aspect-square flex items-center justify-center shadow-sm hover:shadow-md hover:border-bluetext-blue/60 hover:bg-bluetext-blue/5 transition-all active:scale-95 group"
-          >
-            <span className="text-blue text-lg font-medium text-center group-hover:scale-105 transition-transform">
-              + Criar categoria
-            </span>
-          </button>
           {categories.map((category, index) => (
             <button
               key={index}
@@ -33,7 +21,6 @@ export default function CategorySection() {
                 palletColors[category.colorId as keyof typeof palletColors]
                   .bgClass
               } rounded-3xl aspect-square flex items-center justify-center p-2 w-[6rem] h-[6rem] shadow-md hover:scale-105 transition-transform active:scale-95`}
-              onClick={() => openModal(category)}
             >
               <span
                 className={`${
@@ -47,12 +34,6 @@ export default function CategorySection() {
           ))}
         </div>
       </div>
-
-      <CreateCategoryModal
-        isModalOpen={isOpen}
-        categoryToEdit={editItem}
-        onCloseModal={closeModal}
-      />
     </>
   );
 }

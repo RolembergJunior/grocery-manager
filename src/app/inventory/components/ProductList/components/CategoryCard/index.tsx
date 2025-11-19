@@ -1,7 +1,7 @@
 "use client";
 
 import { Product, Category } from "@/app/type";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { ChevronDown } from "lucide-react";
 import { formatCategoryTitle } from "./utils";
 import ProductCard from "./components/ProductCard";
@@ -9,6 +9,12 @@ import EmptyState from "./components/EmptyState";
 import RenderWhen from "@/components/RenderWhen";
 import { palletColors } from "@/app/utils";
 import CreateItemButton from "./components/CreateItemButton";
+import AlertDialog from "@/components/AlertDialog";
+import CreateCategoryModal from "@/components/Controls/CreateCategoryModal";
+import { deleteCategory } from "@/services/categories";
+import { toast } from "sonner";
+import { useSetAtom } from "jotai";
+import { categoriesAtom } from "@/lib/atoms/categories";
 
 interface CategoryCardProps {
   category: Category;
@@ -22,6 +28,13 @@ export default function CategoryCard({
   totalItems,
 }: CategoryCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isActionDialogOpen, setIsActionDialogOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+
+  const setCategories = useSetAtom(categoriesAtom);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressRef = useRef(false);
 
   const statusCounts = items.reduce(
     (acc, item) => {
@@ -34,10 +47,54 @@ export default function CategoryCard({
     { comprar: 0, acabando: 0, tem: 0 }
   );
 
+  function handleLongPressStart() {
+    isLongPressRef.current = false;
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressRef.current = true;
+      setIsActionDialogOpen(true);
+    }, 500);
+  }
+
+  function handleLongPressEnd() {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }
+
+  function handleCardClick() {
+    if (!isLongPressRef.current) {
+      setIsOpen(!isOpen);
+    }
+    isLongPressRef.current = false;
+  }
+
+  function handleEdit() {
+    setIsEditModalOpen(true);
+  }
+
+  function handleDeleteClick() {
+    setIsDeleteAlertOpen(true);
+  }
+
+  function confirmDelete() {
+    toast.promise(deleteCategory(category.id), {
+      loading: "Excluindo categoria...",
+      success: () => {
+        setCategories((prev) => prev.filter((cat) => cat.id !== category.id));
+        return "Categoria excluída com sucesso!";
+      },
+      error: "Erro ao excluir categoria. Tente novamente.",
+    });
+  }
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all">
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all active:scale-95">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleCardClick}
+        onMouseLeave={handleLongPressEnd}
+        onTouchStart={handleLongPressStart}
+        onTouchEnd={handleLongPressEnd}
         className={`${
           palletColors[category.colorId as keyof typeof palletColors].bgClass
         } ${
@@ -118,6 +175,62 @@ export default function CategoryCard({
           </div>
         </RenderWhen>
       </div>
+
+      <AlertDialog
+        isOpen={isActionDialogOpen}
+        onClose={() => setIsActionDialogOpen(false)}
+        title="Ações da Categoria"
+        description={`O que você deseja fazer com a categoria "${category.name}"?`}
+        variant="info"
+        actions={[
+          {
+            label: "Editar",
+            onClick: handleEdit,
+            variant: "primary",
+            autoClose: true,
+          },
+          {
+            label: "Excluir",
+            onClick: handleDeleteClick,
+            variant: "danger",
+            autoClose: true,
+          },
+          {
+            label: "Cancelar",
+            onClick: () => null,
+            variant: "secondary",
+            autoClose: true,
+          },
+        ]}
+      />
+
+      <CreateCategoryModal
+        isModalOpen={isEditModalOpen}
+        categoryToEdit={category}
+        onCloseModal={() => setIsEditModalOpen(false)}
+      />
+
+      <AlertDialog
+        isOpen={isDeleteAlertOpen}
+        onClose={() => setIsDeleteAlertOpen(false)}
+        title="Excluir categoria?"
+        description={`Tem certeza que deseja excluir a categoria "${category.name}"? Esta ação não pode ser desfeita e todos os produtos desta categoria também serão afetados.`}
+        variant="danger"
+        actions={[
+          {
+            label: "Cancelar",
+            onClick: () => null,
+            variant: "secondary",
+            autoClose: true,
+          },
+          {
+            label: "Excluir",
+            onClick: confirmDelete,
+            variant: "danger",
+            autoClose: true,
+          },
+        ]}
+      />
     </div>
   );
 }

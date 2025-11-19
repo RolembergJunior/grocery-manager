@@ -1,16 +1,21 @@
 "use client";
 
-import { Search } from "lucide-react";
-import { ListItem } from "@/app/type";
+import { Plus, Search } from "lucide-react";
+import { Product } from "@/app/type";
 import FilterButtonModal from "./FilterModal";
 import { useAtom } from "jotai";
 import { mainSearchAtom, mainFiltersAtom } from "@/lib/atoms";
+import { useState } from "react";
+import CreateCategoryModal from "./CreateCategoryModal";
 
 type ControlsProps = {
-  products: ListItem[];
+  products: Product[];
 };
 
 export default function Controls({ products }: ControlsProps) {
+  const [isOpenCreateCategoryModal, setIsOpenCreateCategoryModal] =
+    useState(false);
+
   const [searchTerm, setSearchTerm] = useAtom(mainSearchAtom);
   const [selectedFilters, setSelectedFilters] = useAtom(mainFiltersAtom);
 
@@ -23,7 +28,7 @@ export default function Controls({ products }: ControlsProps) {
           placeholder="Buscar produtos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm focus:shadow-md text-gray-800 placeholder-gray-400 transition-all duration-200"
+          className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-gray-200 shadow-sm focus:shadow-md text-gray-800 placeholder-gray-400 transition-all duration-200"
         />
       </div>
 
@@ -38,7 +43,18 @@ export default function Controls({ products }: ControlsProps) {
         }}
       />
 
-      {/* <AddItemButtonModal /> */}
+      <button
+        className="bg-blue p-3 rounded-2xl"
+        onClick={() => setIsOpenCreateCategoryModal(true)}
+      >
+        <Plus color="white" />
+      </button>
+
+      <CreateCategoryModal
+        isModalOpen={isOpenCreateCategoryModal}
+        onCloseModal={() => setIsOpenCreateCategoryModal(false)}
+        categoryToEdit={null}
+      />
     </div>
   );
 }

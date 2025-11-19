@@ -60,3 +60,20 @@ export async function batchUpdateProducts(updates: Product[]): Promise<void> {
 
   await batch.commit();
 }
+
+export async function hardDeleteProductsByCategory(
+  categoryId: string
+): Promise<void> {
+  const batch = adminDb.batch();
+
+  const snapshot = await adminDb
+    .collection(COLLECTIONS.PRODUCTS)
+    .where("category", "==", categoryId)
+    .get();
+
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+
+  await batch.commit();
+}

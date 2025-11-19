@@ -43,3 +43,7 @@ export async function softDeleteCategory(id: string): Promise<void> {
     isRemoved: true,
   });
 }
+
+export async function hardDeleteCategory(id: string): Promise<void> {
+  await adminDb.collection(COLLECTIONS.CATEGORIES).doc(id).delete();
+}

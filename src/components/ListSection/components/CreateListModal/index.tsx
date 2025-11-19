@@ -39,11 +39,11 @@ export default function CreateListModal({
   const [lists, setLists] = useAtom(listsAtom);
 
   useEffect(() => {
-    if (listToEdit) {
+    if (listToEdit && isModalOpen) {
       setListName(listToEdit.name);
       setListDescription(listToEdit.description);
     }
-  }, [listToEdit]);
+  }, [listToEdit, isModalOpen]);
 
   function handleCloseModal() {
     setListName("");
