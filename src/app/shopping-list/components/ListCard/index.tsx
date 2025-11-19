@@ -9,6 +9,7 @@ import ListItemCard from "../ListItemCard";
 import { toast } from "sonner";
 import { useList } from "@/hooks/use-list";
 import { updateItem, deleteItem } from "@/services/list-manager";
+import AlertDialog from "@/components/AlertDialog";
 
 interface ListCardProps {
   list: List;
@@ -17,6 +18,8 @@ interface ListCardProps {
 
 export default function ListCard({ list, onAddItem }: ListCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const { items } = useList(list.id);
 
@@ -47,13 +50,20 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
   }
 
   function handleDeleteItem(id: string) {
-    if (!confirm("Deseja realmente remover este item da lista?")) return;
+    setItemToDelete(id);
+    setIsDeleteAlertOpen(true);
+  }
 
-    toast.promise(deleteItem(list.id, id), {
+  function confirmDeleteItem() {
+    if (!itemToDelete) return;
+
+    toast.promise(deleteItem(list.id, itemToDelete), {
       loading: "Removendo...",
       success: "Item removido da lista!",
       error: "Erro ao remover item",
     });
+
+    setItemToDelete(null);
   }
 
   return (
@@ -133,6 +143,31 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
           </div>
         </RenderWhen>
       </div>
+
+      <AlertDialog
+        isOpen={isDeleteAlertOpen}
+        onClose={() => {
+          setIsDeleteAlertOpen(false);
+          setItemToDelete(null);
+        }}
+        title="Remover item da lista?"
+        description="Deseja realmente remover este item da lista?"
+        variant="danger"
+        actions={[
+          {
+            label: "Cancelar",
+            onClick: () => null,
+            autoClose: true,
+            variant: "secondary",
+          },
+          {
+            label: "Remover",
+            onClick: confirmDeleteItem,
+            autoClose: true,
+            variant: "danger",
+          },
+        ]}
+      />
     </div>
   );
 }

@@ -9,11 +9,14 @@ import ListItemCard from "../ListItemCard";
 import { useList } from "@/hooks/use-list";
 import { deleteItem, updateItem } from "@/services/list-manager";
 import { ListItem } from "@/app/type";
+import AlertDialog from "@/components/AlertDialog";
 
 export const INVENTORY_LIST_ID = "inventory-list";
 
 export default function InventoryListCard() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const router = useRouter();
 
   const { items } = useList(INVENTORY_LIST_ID, { autoLoad: true });
@@ -35,11 +38,20 @@ export default function InventoryListCard() {
   }
 
   function handleDeleteInventoryItem(id: string) {
-    toast.promise(deleteItem(INVENTORY_LIST_ID, id), {
+    setItemToDelete(id);
+    setIsDeleteAlertOpen(true);
+  }
+
+  function confirmDeleteItem() {
+    if (!itemToDelete) return;
+
+    toast.promise(deleteItem(INVENTORY_LIST_ID, itemToDelete), {
       loading: "Removendo da lista...",
       success: "Item removido com sucesso!",
       error: "Erro ao remover o item",
     });
+
+    setItemToDelete(null);
   }
 
   return (
@@ -112,6 +124,31 @@ export default function InventoryListCard() {
           </div>
         </RenderWhen>
       </div>
+
+      <AlertDialog
+        isOpen={isDeleteAlertOpen}
+        onClose={() => {
+          setIsDeleteAlertOpen(false);
+          setItemToDelete(null);
+        }}
+        title="Remover item da lista?"
+        description="Deseja realmente remover este item da lista do estoque?"
+        variant="danger"
+        actions={[
+          {
+            label: "Cancelar",
+            onClick: () => null,
+            autoClose: true,
+            variant: "secondary",
+          },
+          {
+            label: "Remover",
+            onClick: confirmDeleteItem,
+            autoClose: true,
+            variant: "danger",
+          },
+        ]}
+      />
     </div>
   );
 }

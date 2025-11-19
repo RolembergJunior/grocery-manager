@@ -18,6 +18,7 @@ import {
   updateCategory,
 } from "@/services/categories";
 import { Category } from "@/app/type";
+import AlertDialog from "@/components/AlertDialog";
 
 interface CreateCategoryModalProps {
   isModalOpen: boolean;
@@ -39,6 +40,7 @@ export default function CreateCategoryModal({
   const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showToast, setShowToast] = useState(false);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
 
   const [categories, setCategories] = useAtom(categoriesAtom);
 
@@ -141,12 +143,11 @@ export default function CreateCategoryModal({
 
   function handleDeleteList() {
     if (!categoryToEdit) return;
+    setIsDeleteAlertOpen(true);
+  }
 
-    const confirmDelete = window.confirm(
-      `Tem certeza que deseja excluir a categoria "${categoryToEdit.name}"?`
-    );
-
-    if (!confirmDelete) return;
+  function confirmDeleteCategory() {
+    if (!categoryToEdit) return;
 
     toast.promise(deleteCategory(categoryToEdit.id), {
       loading: "Excluindo categoria...",
@@ -254,6 +255,28 @@ export default function CreateCategoryModal({
           </button>
         </div>
       </form>
+
+      <AlertDialog
+        isOpen={isDeleteAlertOpen}
+        onClose={() => setIsDeleteAlertOpen(false)}
+        title="Excluir categoria?"
+        description={`Tem certeza que deseja excluir a categoria "${categoryToEdit?.name}"? Esta ação não pode ser desfeita.`}
+        variant="danger"
+        actions={[
+          {
+            label: "Cancelar",
+            onClick: () => null,
+            autoClose: true,
+            variant: "secondary",
+          },
+          {
+            label: "Excluir",
+            onClick: confirmDeleteCategory,
+            autoClose: true,
+            variant: "danger",
+          },
+        ]}
+      />
     </Modal>
   );
 }

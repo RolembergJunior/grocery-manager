@@ -13,6 +13,7 @@ import { List } from "@/app/type";
 import { schema } from "./schema";
 import z from "zod";
 import { deleteItemsByListId } from "@/services/list-items";
+import AlertDialog from "@/components/AlertDialog";
 
 interface CreateListModalProps {
   isModalOpen: boolean;
@@ -33,6 +34,7 @@ export default function CreateListModal({
   const [listName, setListName] = useState("");
   const [listDescription, setListDescription] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
 
   const [lists, setLists] = useAtom(listsAtom);
 
@@ -141,12 +143,11 @@ export default function CreateListModal({
 
   function handleDeleteList() {
     if (!listToEdit) return;
+    setIsDeleteAlertOpen(true);
+  }
 
-    const confirmDelete = window.confirm(
-      `Tem certeza que deseja excluir a lista "${listToEdit.name}"?`
-    );
-
-    if (!confirmDelete) return;
+  function confirmDeleteList() {
+    if (!listToEdit) return;
 
     toast.promise(
       async () => {
@@ -244,6 +245,28 @@ export default function CreateListModal({
           </button>
         </div>
       </form>
+
+      <AlertDialog
+        isOpen={isDeleteAlertOpen}
+        onClose={() => setIsDeleteAlertOpen(false)}
+        title="Excluir lista?"
+        description={`Tem certeza que deseja excluir a lista "${listToEdit?.name}"? Esta ação não pode ser desfeita.`}
+        variant="danger"
+        actions={[
+          {
+            label: "Cancelar",
+            onClick: () => null,
+            autoClose: true,
+            variant: "secondary",
+          },
+          {
+            label: "Excluir",
+            onClick: confirmDeleteList,
+            autoClose: true,
+            variant: "danger",
+          },
+        ]}
+      />
     </Modal>
   );
 }
