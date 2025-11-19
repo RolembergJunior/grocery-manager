@@ -74,7 +74,6 @@ export default function NotebookItem({ item }: NotebookItemProps) {
           />
         </div>
 
-        {/* <RenderWhen isTrue={!!item.observation}> */}
         <div className="mt-3 pt-3 border-t border-gray-100">
           <button
             onClick={() => setShowObservation(!showObservation)}
@@ -86,20 +85,20 @@ export default function NotebookItem({ item }: NotebookItemProps) {
                 showObservation ? "rotate-180" : ""
               }`}
             />
-            {!showObservation && (
+
+            <RenderWhen isTrue={!!item.observation}>
               <span className="ml-auto text-gray-400 truncate max-w-[200px]">
                 {item.observation}
               </span>
-            )}
+            </RenderWhen>
           </button>
 
           <RenderWhen isTrue={showObservation}>
             <div className="mt-2 px-3 py-2 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-md">
-              {item.observation}
+              {item.observation || "Sem observação"}
             </div>
           </RenderWhen>
         </div>
-        {/* </RenderWhen> */}
       </div>
     </div>
   );

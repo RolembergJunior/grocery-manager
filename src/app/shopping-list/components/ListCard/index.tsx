@@ -40,6 +40,7 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
     toast.promise(
       updateItem(list.id, item.id, {
         neededQuantity: item.neededQuantity,
+        observation: item.observation,
       }),
       {
         loading: "Salvando...",

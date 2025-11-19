@@ -25,7 +25,7 @@ type ViewMode = "inventory" | "new";
 interface NewItemForm {
   name: string;
   category: string;
-  quantity: number;
+  neededQuantity: number;
   unit: string;
 }
 
@@ -41,7 +41,7 @@ export default function AddItemModal({
   const [newItemForm, setNewItemForm] = useState<NewItemForm>({
     name: "",
     category: "",
-    quantity: 1,
+    neededQuantity: 1,
     unit: "und",
   });
 
@@ -111,7 +111,7 @@ export default function AddItemModal({
     setNewItemForm({
       name: "",
       category: "",
-      quantity: 1,
+      neededQuantity: 1,
       unit: "unidade",
     });
     onClose();
@@ -188,11 +188,11 @@ export default function AddItemModal({
                 <FieldForm
                   type="number"
                   label="Quantidade"
-                  value={newItemForm.quantity}
+                  value={newItemForm.neededQuantity}
                   onChange={(value) =>
                     setNewItemForm({
                       ...newItemForm,
-                      quantity: value as number,
+                      neededQuantity: value as number,
                     })
                   }
                   min={0}
