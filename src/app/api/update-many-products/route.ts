@@ -15,20 +15,20 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => null);
-    if (!body || typeof body !== "object" || !("id" in body)) {
+    if (!body || typeof body !== "object" || !("products" in body)) {
       return NextResponse.json({ error: "Invalid body" }, { status: 400 });
     }
 
-    const payload = body as Product[];
+    const { products } = body as { products: Product[] };
 
-    if (!payload.length) {
+    if (!products.length) {
       return NextResponse.json(
         { error: "It's necessary to send a product list" },
         { status: 400 }
       );
     }
 
-    await batchUpdateProducts(payload);
+    await batchUpdateProducts(products);
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Error updating products:", error);

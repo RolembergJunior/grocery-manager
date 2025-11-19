@@ -5,13 +5,11 @@ import {
   batchUpdateItems,
   deleteListItem,
 } from "@/services/list-items";
-import {
-  syncInventoryListAPI,
-  updateInventoryFromListAPI,
-} from "@/services/inventory-list";
+import { syncInventoryListAPI } from "@/services/inventory-list";
 import { listItemsByIdAtom, productsAtom } from "@/lib/atoms";
 import type { Product, ListItem } from "@/app/type";
 import { getDefaultStore } from "jotai";
+import { updateMany } from "./products";
 
 const store = getDefaultStore();
 
@@ -107,27 +105,47 @@ export async function syncWithInventory(
 export async function completeList(listId: string): Promise<void> {
   const atom = listItemsByIdAtom(listId);
   const items = store.get(atom) as ListItem[];
-  const reset = items.map((i: ListItem) => ({
-    ...i,
-    checked: false,
-    updatedAt: new Date().toISOString(),
-  }));
+  const reset = items.map((i: ListItem) => {
+    if (i.checked) {
+      return {
+        ...i,
+        checked: false,
+        isRemoved: !!i.itemId && !!i.checked,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    return i;
+  });
 
   await batchUpdateItems(reset);
   store.set(atom, reset);
 
-  await updateInventoryFromListAPI(items);
-
   const products = store.get(productsAtom);
-  const updatedProducts = products.map((p: Product) => {
-    const li = items.find((i: ListItem) => i.itemId === p.id && i.checked);
-    if (!li) return p;
+  const updatedProductsListToSetAtom = products.map((p: Product) => {
+    const isProductChecked = items.some(
+      (i: ListItem) => i.itemId === p.id && i.checked
+    );
+    if (!isProductChecked) return p;
 
     return {
       ...p,
-      statusCompra: 2,
+      statusCompra: 3,
+      updatedAt: new Date().toISOString(),
     };
   });
 
-  store.set(productsAtom, updatedProducts);
+  const updateProductsToSave = items
+    .filter((p: ListItem) => p.checked && p.itemId)
+    .map((p: ListItem) => {
+      return {
+        id: p.itemId,
+        statusCompra: 3,
+        updatedAt: new Date().toISOString(),
+      };
+    });
+
+  await updateMany(updateProductsToSave);
+
+  store.set(productsAtom, updatedProductsListToSetAtom);
 }

@@ -77,7 +77,7 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
 
         <div className="flex items-center gap-2">
           <RenderWhen isTrue={!!onAddItem}>
-            <button
+            <div
               onClick={(e) => {
                 e.stopPropagation();
                 onAddItem?.();
@@ -86,10 +86,10 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
               title="Adicionar item à lista"
             >
               <Plus className="w-5 h-5" />
-            </button>
+            </div>
           </RenderWhen>
 
-          <button
+          <div
             onClick={(e) => {
               e.stopPropagation();
               handleNavigateToList();
@@ -98,7 +98,7 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
             title="Iniciar lista"
           >
             <ShoppingCart className="w-5 h-5" />
-          </button>
+          </div>
         </div>
       </button>
 

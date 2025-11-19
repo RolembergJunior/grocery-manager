@@ -69,7 +69,7 @@ export default function InventoryListCard() {
           </div>
         </div>
 
-        <button
+        <div
           onClick={(e) => {
             e.stopPropagation();
             handleNavigateToInventoryList();
@@ -78,7 +78,7 @@ export default function InventoryListCard() {
           title="Iniciar lista do estoque"
         >
           <ShoppingCart className="w-5 h-5" />
-        </button>
+        </div>
       </button>
 
       <div
