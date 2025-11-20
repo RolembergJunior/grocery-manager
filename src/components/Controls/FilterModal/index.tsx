@@ -55,7 +55,7 @@ export default function FilterButtonModal({
             <button
               type="button"
               onClick={() => null}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:from-blue-800 active:to-indigo-800 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+              className="flex-1 bg-blue hover:bg-blue/90 active:bg-blue/80 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
             >
               Filtrar
             </button>

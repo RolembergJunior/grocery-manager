@@ -89,7 +89,7 @@ export default function CategoryCard({
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all active:scale-95">
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all">
       <button
         onClick={handleCardClick}
         onMouseLeave={handleLongPressEnd}
@@ -102,7 +102,7 @@ export default function CategoryCard({
         } ${
           palletColors[category.colorId as keyof typeof palletColors]
             .borderClass
-        } w-full p-2 flex flex-col gap-2 items-center justify-between transition-all cursor-pointer`}
+        } w-full p-2 flex flex-col gap-2 items-center justify-between transition-all cursor-pointer active:scale-95`}
       >
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-4">

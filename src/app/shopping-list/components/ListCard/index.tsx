@@ -126,13 +126,13 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden transition-all hover:shadow-md active:scale-95">
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden transition-all hover:shadow-md">
       <button
         onClick={handleCardClick}
         onMouseLeave={handleLongPressEnd}
         onTouchStart={handleLongPressStart}
         onTouchEnd={handleLongPressEnd}
-        className="bg-[var(--color-blue)] w-full p-6 flex items-center justify-between transition-all cursor-pointer hover:opacity-90"
+        className="bg-[var(--color-blue)] w-full p-6 flex items-center justify-between transition-all cursor-pointer hover:opacity-90 active:scale-95"
       >
         <div className="flex items-center gap-4 flex-1">
           <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">

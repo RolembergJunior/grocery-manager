@@ -27,10 +27,10 @@ export async function GET(req: NextRequest) {
 
     let listItems: ListItem[];
 
+    listItems = await getListItemsByUserId(userId, false);
+
     if (listId) {
-      listItems = await getListItemsByListId(listId, false);
-    } else {
-      listItems = await getListItemsByUserId(userId, false);
+      listItems = listItems.filter((item) => item.listId === listId);
     }
 
     return NextResponse.json({ listItems });

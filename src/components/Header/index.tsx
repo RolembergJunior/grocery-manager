@@ -57,7 +57,7 @@ export default function Header() {
       await fetchCategories();
       await fetchListItems();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsLoading({} as LoadingParams);
     }
