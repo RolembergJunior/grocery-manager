@@ -39,14 +39,14 @@ export default function Controls({
         />
       </div>
 
-      <FilterButtonModal
+      {/* <FilterButtonModal
         categories={categories}
         selectedFilters={selectedCategories}
         selectedStatus={selectedStatus}
         onFilterChange={(filterKey: string, value: string[]) => {
           onChangeFilter(filterKey, value);
         }}
-      />
+      /> */}
 
       <button
         className="bg-blue p-3 rounded-2xl"
