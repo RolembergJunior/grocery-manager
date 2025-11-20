@@ -14,10 +14,11 @@ import { updateMany } from "./products";
 const store = getDefaultStore();
 
 export async function loadList(listId: string): Promise<void> {
-  const items = await getListItems(listId);
-  const atom = listItemsByIdAtom(listId);
+  const products = store.get(productsAtom);
+  const updatedItems = await syncInventoryListAPI(products, listId);
 
-  store.set(atom, items);
+  const atom = listItemsByIdAtom(listId);
+  store.set(atom, updatedItems);
 }
 
 export async function addItemFromInventory(

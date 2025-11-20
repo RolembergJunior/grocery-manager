@@ -7,11 +7,16 @@ import {
   authenticatedFetchVoid,
 } from "@/lib/api-helper";
 
-export async function getListItems(listId?: string): Promise<ListItem[]> {
+export async function getListItems(
+  listId?: string,
+  includeRemoved?: boolean
+): Promise<ListItem[]> {
   try {
     const data = await authenticatedFetchArray("/api/list-items", {
       method: "GET",
-      params: listId ? { listId } : undefined,
+      params: listId
+        ? { listId, includeRemoved: includeRemoved || false }
+        : undefined,
     });
 
     if (!data) return [];
@@ -23,22 +28,8 @@ export async function getListItems(listId?: string): Promise<ListItem[]> {
   }
 }
 
-interface CreateListItemProps {
-  listId: string;
-  itemId: string | null;
-  name: string;
-  category: string;
-  unit: string;
-  neededQuantity: number;
-  boughtQuantity?: number;
-  observation?: string | null;
-  checked: boolean;
-  isRemoved: boolean;
-  fromList: "inventory" | "created";
-}
-
 export async function createListItem(
-  newItem: CreateListItemProps
+  newItem: Partial<Omit<ListItem, "id">>
 ): Promise<ListItem | { error: string }> {
   try {
     const data = await authenticatedFetch<{ listItem: ListItem }>(
@@ -82,8 +73,17 @@ export async function deleteItemsByListId(listId: string): Promise<void> {
   });
 }
 
+export async function batchCreateItems(
+  listItems: Partial<Omit<ListItem, "id">>[]
+): Promise<void> {
+  await authenticatedFetchVoid("/api/create-many-items", {
+    method: "POST",
+    body: JSON.stringify({ listItems }),
+  });
+}
+
 export async function batchUpdateItems(
-  listItems: ListItem[],
+  listItems: Partial<Omit<ListItem, "id" | "userId" | "createdAt">>[],
   isCompleting = false
 ): Promise<void> {
   await authenticatedFetchVoid("/api/update-many-items", {

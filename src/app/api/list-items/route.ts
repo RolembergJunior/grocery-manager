@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     const listId = searchParams.get("listId");
+    const includeRemoved = searchParams.get("includeRemoved") || false;
 
     if (!userId) {
       return NextResponse.json(
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
 
     let listItems: ListItem[];
 
-    listItems = await getListItemsByUserId(userId, false);
+    listItems = await getListItemsByUserId(userId, !!includeRemoved);
 
     if (listId) {
       listItems = listItems.filter((item) => item.listId === listId);

@@ -13,8 +13,6 @@ export async function subscribeProducts(): Promise<Product[]> {
       method: "GET",
     });
 
-    // authenticatedFetchArray returns the raw response
-    // which should be { products: Product[] }
     if (!data) return [];
 
     const response = data as unknown as { products: Product[] };

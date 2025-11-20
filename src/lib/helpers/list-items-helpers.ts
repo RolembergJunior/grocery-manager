@@ -104,6 +104,23 @@ export async function hardDeleteListItemsById(id: string): Promise<void> {
   await batch.commit();
 }
 
+export async function batchCreateItems(items: ListItem[]): Promise<void> {
+  const batch = adminDb.batch();
+
+  items.forEach((item) => {
+    const docRef = adminDb.collection(COLLECTIONS.LIST_ITEMS).doc();
+
+    const updatedItem = {
+      ...item,
+      id: docRef.id,
+    };
+
+    batch.set(docRef, updatedItem);
+  });
+
+  await batch.commit();
+}
+
 export async function batchUpdateItems(items: ListItem[]): Promise<void> {
   const batch = adminDb.batch();
 

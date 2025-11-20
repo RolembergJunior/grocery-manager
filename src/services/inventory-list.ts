@@ -1,70 +1,70 @@
 "use server";
 
-import type { ListItem, Product } from "@/app/type";
-import { auth } from "@/auth";
-
-function buildSyncUrl(userId: string, listId?: string): string {
-  const url = new URL(`${process.env.NEXTAUTH_URL}/api/sync-inventory-list`);
-  url.searchParams.set("userId", userId);
-  if (listId) {
-    url.searchParams.set("listId", listId);
-  }
-  return url.toString();
-}
+import { STATUSPRODUCT, type ListItem, type Product } from "@/app/type";
+import { batchCreateItems, batchUpdateItems, getListItems } from "./list-items";
 
 export async function syncInventoryListAPI(
   products: Product[],
-  listId?: string
+  listId: string
 ): Promise<ListItem[]> {
-  const session = await auth();
+  const listItems = await getListItems(listId, true);
 
-  if (!session?.user) return [];
+  if (listId === "inventory-list") {
+    const listItemsToCreate: Partial<Omit<ListItem, "id">>[] = [];
+    const listItemsToUpdate: Partial<
+      Omit<ListItem, "id" | "userId" | "createdAt">
+    >[] = [];
 
-  const url = buildSyncUrl(session.user.id as string, listId);
+    products.forEach((product) => {
+      const existItem = listItems.find((i) => i.itemId === product.id);
+      if (
+        existItem &&
+        product.statusCompra === STATUSPRODUCT.NEED_SHOPPING &&
+        existItem.isRemoved
+      ) {
+        listItemsToUpdate.push({
+          ...existItem,
+          name: product.name,
+          category: product.category,
+          unit: product.unit,
+          isRemoved: false,
+          updatedAt: new Date().toISOString(),
+        });
+      } else if (
+        existItem &&
+        product.statusCompra !== STATUSPRODUCT.NEED_SHOPPING &&
+        !existItem.isRemoved
+      ) {
+        listItemsToUpdate.push({
+          ...existItem,
+          name: product.name,
+          category: product.category,
+          unit: product.unit,
+          isRemoved: true,
+          updatedAt: new Date().toISOString(),
+        });
+      } else if (!existItem) {
+        listItemsToCreate.push({
+          name: product.name,
+          itemId: product.id,
+          listId: listId,
+          fromList: "inventory",
+          category: product.category,
+          unit: product.unit,
+          neededQuantity: product.neededQuantity || 0,
+          boughtQuantity: 0,
+          checked: false,
+          isRemoved: product.statusCompra !== STATUSPRODUCT.NEED_SHOPPING,
+          userId: product.userId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    });
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ products }),
-  });
-
-  if (!res.ok) return [];
-
-  const data = (await res.json()) as { listItems: ListItem[] };
-  return Array.isArray(data.listItems) ? data.listItems : [];
-}
-
-export async function syncInventoryList(
-  products: Product[]
-): Promise<ListItem[]> {
-  return syncInventoryListAPI(products);
-}
-
-export async function updateInventoryFromListAPI(
-  listItems: ListItem[]
-): Promise<{ ok: boolean }> {
-  const session = await auth();
-
-  if (!session?.user) {
-    throw new Error("Não autenticado");
+    if (listItemsToUpdate.length) await batchUpdateItems(listItemsToUpdate);
+    if (listItemsToCreate.length) await batchCreateItems(listItemsToCreate);
   }
 
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/update-inventory-from-list?userId=${
-      session.user.id as string
-    }`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ listItems }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to update inventory: ${res.status}`);
-  }
-
-  return { ok: true };
+  return await getListItems(listId);
 }
