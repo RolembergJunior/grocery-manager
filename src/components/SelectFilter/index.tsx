@@ -1,6 +1,6 @@
 "use client";
 
-import Select from "../Select";
+import Select from "../MultiSelect";
 
 type SelectFilterProps = {
   value: string;

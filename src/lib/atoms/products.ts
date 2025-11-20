@@ -22,9 +22,3 @@ export const fetchProductsAtom = atom(null, async (_get, set) => {
     set(isLoadingProductsAtom, false);
   }
 });
-
-export const mainSearchAtom = atom("");
-export const mainFiltersAtom = atom({
-  category: "",
-  unit: "",
-});

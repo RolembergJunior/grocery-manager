@@ -1,23 +1,30 @@
 "use client";
 
 import { Plus, Search } from "lucide-react";
-import { Product } from "@/app/type";
+import { Category } from "@/app/type";
 import FilterButtonModal from "./FilterModal";
-import { useAtom } from "jotai";
-import { mainSearchAtom, mainFiltersAtom } from "@/lib/atoms";
 import { useState } from "react";
 import CreateCategoryModal from "./CreateCategoryModal";
 
 type ControlsProps = {
-  products: Product[];
+  categories: Category[];
+  searchTerm: string;
+  selectedCategories: string[];
+  selectedStatus: string[];
+  onChangeFilter: (filterKey: string, value: string[]) => void;
+  onChangeSearchTerm: (value: string) => void;
 };
 
-export default function Controls({ products }: ControlsProps) {
+export default function Controls({
+  categories,
+  searchTerm,
+  selectedCategories,
+  selectedStatus,
+  onChangeFilter,
+  onChangeSearchTerm,
+}: ControlsProps) {
   const [isOpenCreateCategoryModal, setIsOpenCreateCategoryModal] =
     useState(false);
-
-  const [searchTerm, setSearchTerm] = useAtom(mainSearchAtom);
-  const [selectedFilters, setSelectedFilters] = useAtom(mainFiltersAtom);
 
   return (
     <div className="flex justify-between items-center my-4 w-full gap-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm">
@@ -27,19 +34,17 @@ export default function Controls({ products }: ControlsProps) {
           type="text"
           placeholder="Buscar produtos..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => onChangeSearchTerm(e.target.value)}
           className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-gray-200 shadow-sm focus:shadow-md text-gray-800 placeholder-gray-400 transition-all duration-200"
         />
       </div>
 
       <FilterButtonModal
-        products={products}
-        selectedFilters={selectedFilters}
+        categories={categories}
+        selectedFilters={selectedCategories}
+        selectedStatus={selectedStatus}
         onFilterChange={(filterKey: string, value: string[]) => {
-          setSelectedFilters({
-            ...selectedFilters,
-            [filterKey]: value,
-          });
+          onChangeFilter(filterKey, value);
         }}
       />
 

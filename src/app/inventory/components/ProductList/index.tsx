@@ -1,12 +1,10 @@
 "use client";
 
 import { Category, Product } from "../../../type";
-import { getItemsByCategory, getCategoryStats, filterItems } from "./utils";
+import { getItemsByCategory, getCategoryStats } from "./utils";
 import RenderWhen from "../../../../components/RenderWhen";
 import { useMemo } from "react";
 import CategoryCard from "./components/CategoryCard";
-import { useAtomValue } from "jotai";
-import { mainSearchAtom, mainFiltersAtom } from "@/lib/atoms";
 
 interface ProductListProps {
   products: Product[];
@@ -23,29 +21,21 @@ export default function ProductList({
   products,
   categories,
 }: ProductListProps) {
-  const searchTerm = useAtomValue(mainSearchAtom);
-  const selectedFilter = useAtomValue(mainFiltersAtom);
-
   const filteredProductsByCategory = useMemo(() => {
     return categories.reduce((acc, category) => {
       const itemsByCategory = getItemsByCategory(products, category.id);
-      const filteredItems = filterItems(
-        itemsByCategory,
-        searchTerm,
-        selectedFilter
-      );
 
-      const { totalItems } = getCategoryStats(filteredItems);
+      const { totalItems } = getCategoryStats(itemsByCategory);
 
       acc.push({
         category,
-        items: filteredItems,
+        items: itemsByCategory.sort((a, b) => a.name.localeCompare(b.name)),
         totalItems,
       });
 
       return acc;
     }, [] as FilteredCategoryProps[]);
-  }, [products.length, categories.length, searchTerm, selectedFilter]);
+  }, [products.length, categories.length]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2 h-full overflow-y-auto">

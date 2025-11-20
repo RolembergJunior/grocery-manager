@@ -2,7 +2,7 @@
 
 import { Filter } from "lucide-react";
 import Modal from "@/components/Modal";
-import SelectComponent from "@/components/Select";
+import SelectComponent from "@/components/MultiSelect";
 import RenderWhen from "@/components/RenderWhen";
 import { OptionsType } from "@/app/type";
 import { useState } from "react";

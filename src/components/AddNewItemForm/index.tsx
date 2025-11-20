@@ -59,7 +59,14 @@ export default function AddNewItemForm({ category }: { category: Category }) {
 
     saveData();
 
-    setFormData({} as FormData);
+    setFormData({
+      name: "",
+      category: category.id,
+      currentQuantity: null,
+      neededQuantity: null,
+      unit: "",
+      statusCompra: null,
+    });
     setErrors({});
   }
 
