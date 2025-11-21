@@ -5,15 +5,16 @@ import { useAtomValue } from "jotai";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import { listsAtom } from "@/lib/atoms";
+import { listsAtom, categoriesAtom } from "@/lib/atoms";
 import NotebookList from "./components/NotebookList";
 import ProgressList from "./components/ProgressList";
-import Controls from "@/components/Controls";
 import RenderWhen from "@/components/RenderWhen";
 import AlertDialog from "@/components/AlertDialog";
 import { useList } from "@/hooks/use-list";
 import { completeList } from "@/services/list-manager";
 import { INVENTORY_LIST_ID } from "../components/InventoryListCard";
+import Controls from "./components/Controls";
+import { ListItem } from "@/app/type";
 
 export default function ShoppingListPage() {
   const router = useRouter();
@@ -22,8 +23,11 @@ export default function ShoppingListPage() {
   const typeList = searchParams.get("type");
 
   const [isOpenAlert, setIsOpenAlert] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState<{ [key: string]: string[] }>({});
 
   const lists = useAtomValue(listsAtom);
+  const categories = useAtomValue(categoriesAtom);
 
   const { items } = useList(listId!);
 
@@ -49,8 +53,26 @@ export default function ShoppingListPage() {
   const currentItems = useMemo(() => {
     if (!listId || typeList === "quick-list") return [];
 
-    return items.filter((item) => !item.isRemoved);
-  }, [items, listId, typeList]);
+    let filtered = items.filter((item) => !item.isRemoved);
+
+    return filtered.filter((item) => {
+      const matchesSearch = searchTerm
+        ? item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        : true;
+
+      const matchesSelectFilter = Object.entries(filters).length
+        ? Object.entries(filters).every(([key, value]) =>
+            value.length
+              ? value.includes(item[key as keyof ListItem] as string)
+              : true
+          )
+        : true;
+
+      return matchesSearch && matchesSelectFilter;
+    });
+  }, [items, listId, typeList, searchTerm, JSON.stringify(filters)]);
+
+  console.log(currentItems, "currentItems");
 
   const { checkedCount, totalCount, progressPercentage } = useMemo(() => {
     const checked = currentItems.filter((item) => item.checked).length;
@@ -87,6 +109,10 @@ export default function ShoppingListPage() {
       },
       error: "Erro ao tentar finalizar lista. Tente novamente mais tarde!",
     });
+  }
+
+  function handleFilterChange(filterKey: string, value: string[]) {
+    setFilters({ ...filters, [filterKey]: value });
   }
 
   if (!currentList) {
@@ -128,7 +154,15 @@ export default function ShoppingListPage() {
             {currentList.name}
           </h1>
 
-          <Controls products={currentItems} />
+          <Controls
+            categories={categories}
+            searchTerm={searchTerm}
+            selectedCategories={filters?.category || []}
+            selectedChecked={filters?.checked || []}
+            selectedFromList={filters?.fromList || []}
+            onChangeFilter={handleFilterChange}
+            onChangeSearchTerm={setSearchTerm}
+          />
 
           <ProgressList
             checkedCount={checkedCount}

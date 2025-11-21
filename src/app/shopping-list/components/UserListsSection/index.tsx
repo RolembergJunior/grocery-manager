@@ -48,12 +48,6 @@ export default function UserListsSection() {
         elseElement={
           <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
             <div className="max-w-md mx-auto">
-              {/* <div
-                className="w-16 h-16 bg-[var(--color-list-card)] rounded-full flex items-center justify-center mx-auto mb-4 active:scale-95"
-                title="Criar nova lista"
-              >
-                <Plus className="w-8 h-8 text-[var(--color-blue)]" />
-              </div> */}
               <h3 className="text-lg font-semibold text-[var(--color-text-dark)] mb-2">
                 Nenhuma lista personalizada
               </h3>
