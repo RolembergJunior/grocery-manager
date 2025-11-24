@@ -2,7 +2,7 @@ import { JSX } from "react";
 
 export enum STATUSPRODUCT {
   NEED_SHOPPING = 1,
-  IN_SHOPPING = 2,
+  ALMOST_EMPTY = 2,
   COMPLETED = 3,
 }
 export interface OptionsType {

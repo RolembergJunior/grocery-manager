@@ -1,6 +1,10 @@
 import HeaderPage from "@/components/HeaderPage";
 import CategorySection from "@/components/CategorySection";
 import ListSection from "@/components/ListSection";
+import PrioritiesSection from "@/components/PrioritiesSection";
+import RecurrenciesSection from "@/components/RecurrenciesSection";
+import ReviewStockSection from "@/components/ReviewStockSection";
+import RecentActivitySection from "@/components/RecentActivitySection";
 
 export default function GroceryHome() {
   return (
@@ -14,6 +18,14 @@ export default function GroceryHome() {
         <div className="bg-[var(--color-stats-card)] rounded-2xl h-20 shadow-sm"></div>
         <div className="bg-[var(--color-stats-card)] rounded-2xl h-20 shadow-sm"></div>
       </div> */}
+
+      <PrioritiesSection />
+
+      <RecurrenciesSection />
+
+      <RecentActivitySection />
+
+      <ReviewStockSection />
 
       <CategorySection />
 

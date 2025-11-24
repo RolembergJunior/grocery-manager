@@ -17,14 +17,6 @@ export default function HeaderPage({ hasNameApp }: { hasNameApp?: boolean }) {
           </h1>
         </div>
       </RenderWhen>
-
-      <div className="bg-[var(--color-header-blue)] rounded-3xl p-6 mb-6 relative shadow-md">
-        <h2 className="text-white text-2xl font-semibold mb-1">Casa Divó</h2>
-        <p className="text-white/80 text-sm">
-          Organize seus produtos por categoria e nunca esqueça o que precisa
-          comprar!
-        </p>
-      </div>
     </>
   );
 }

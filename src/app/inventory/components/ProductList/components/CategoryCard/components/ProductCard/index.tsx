@@ -3,7 +3,6 @@
 import { Product } from "@/app/type";
 import { useMemo, useState } from "react";
 import ProductDetails from "./components/ProductDetails";
-import QuantityInputs from "./components/QuantityInputs";
 import DeleteButton from "./components/DeleteButton";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
@@ -32,24 +31,12 @@ export default function ProductCard({
 
   const hasChanges = useMemo(() => {
     return (
-      // newItem.currentQuantity !== item.currentQuantity ||
-      // newItem.neededQuantity !== item.neededQuantity ||
       newItem.observation !== item.observation ||
       newItem.statusCompra !== item.statusCompra ||
       newItem.unit !== item.unit ||
       newItem.reccurency !== item.reccurency
     );
   }, [newItem, item]);
-
-  // function handleChangeQuantity(field: keyof Item, value: string) {
-  //   const formatedValue = parseFloat(value);
-
-  //   if (formatedValue < 0) {
-  //     return toast.error("Não é possível salvar um valor negativo");
-  //   }
-
-  //   setNewItem({ ...newItem, [field]: formatedValue });
-  // }
 
   function handleProductStatus(status: number) {
     setNewItem({ ...newItem, statusCompra: status });
@@ -99,7 +86,10 @@ export default function ProductCard({
         setProducts((prevState) => {
           const mapState = new Map(prevState.map((item) => [item.id, item]));
 
-          mapState.set(newItem.id, newItem);
+          mapState.set(newItem.id, {
+            ...newItem,
+            updatedAt: new Date().toISOString(),
+          });
 
           return Array.from(mapState.values());
         });
