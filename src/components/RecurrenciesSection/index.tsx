@@ -4,8 +4,8 @@ import { useAtomValue } from "jotai";
 import { productsAtom } from "@/lib/atoms/products";
 import { Calendar, AlertTriangle, Sparkles } from "lucide-react";
 import { useMemo } from "react";
-import { type Product } from "@/app/type";
 import RenderWhen from "../RenderWhen";
+import { RecurrencyCard } from "./components/RecurrencyCard";
 
 export default function RecurrenciesSection() {
   const products = useAtomValue(productsAtom);
@@ -99,65 +99,5 @@ export default function RecurrenciesSection() {
         </div>
       </div>
     </>
-  );
-}
-
-interface RecurrencyCardProps {
-  title: string;
-  count: number;
-  items: Product[];
-  icon: React.ReactNode;
-  colorClass: string;
-  textColorClass: string;
-  showDays?: boolean;
-}
-
-function RecurrencyCard({
-  title,
-  count,
-  items,
-  icon,
-  colorClass,
-  textColorClass,
-  showDays = false,
-}: RecurrencyCardProps) {
-  return (
-    <div
-      className={`${colorClass} rounded-2xl p-4 flex flex-col min-w-[200px] max-w-[200px] flex-shrink-0 shadow-md hover:shadow-lg transition-all duration-300 snap-start cursor-pointer active:scale-95 group`}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <div className={`${textColorClass} flex items-center gap-2`}>
-          {icon}
-          <span className="font-semibold text-sm">{title}</span>
-        </div>
-        <span
-          className={`${textColorClass} text-xs bg-white/20 px-2 py-1 rounded-full font-medium`}
-        >
-          {count}
-        </span>
-      </div>
-      <div className="space-y-1.5">
-        {items.slice(0, 3).map((item) => (
-          <div
-            key={item.id}
-            className={`${textColorClass} text-xs bg-white/10 px-2 py-1.5 rounded-lg group-hover:bg-white/20 transition-colors`}
-          >
-            <div className="truncate">{item.name}</div>
-            {showDays && item.reccurency && (
-              <div className="text-[10px] opacity-75 mt-0.5">
-                A cada {item.reccurency} dias
-              </div>
-            )}
-          </div>
-        ))}
-        {count > 3 && (
-          <div
-            className={`${textColorClass} text-xs text-center opacity-75 pt-1`}
-          >
-            +{count - 3} mais
-          </div>
-        )}
-      </div>
-    </div>
   );
 }

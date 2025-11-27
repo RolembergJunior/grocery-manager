@@ -21,13 +21,13 @@ export default function GroceryHome() {
 
       <PrioritiesSection />
 
+      <CategorySection />
+
       <RecurrenciesSection />
 
       <RecentActivitySection />
 
       <ReviewStockSection />
-
-      <CategorySection />
 
       <ListSection />
     </div>
