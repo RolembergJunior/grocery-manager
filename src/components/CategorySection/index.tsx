@@ -3,9 +3,16 @@
 import { useAtomValue } from "jotai";
 import { palletColors } from "@/app/utils";
 import { categoriesAtom } from "@/lib/atoms/categories";
+import { useRouter } from "next/navigation";
 
 export default function CategorySection() {
   const categories = useAtomValue(categoriesAtom);
+
+  const router = useRouter();
+
+  function redirectToInventoryPage(categoryId: string) {
+    router.push(`inventory?filter=true&category=${categoryId}`);
+  }
 
   return (
     <>
@@ -17,6 +24,7 @@ export default function CategorySection() {
           {categories.map((category, index) => (
             <button
               key={index}
+              onClick={() => redirectToInventoryPage(category.id)}
               className={`${
                 palletColors[category.colorId as keyof typeof palletColors]
                   .bgClass

@@ -88,7 +88,7 @@ export default function RecurrencyCalendar({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4">
+    <div className="bg-white rounded-xl border border-gray-200 p-4 ">
       <Calendar
         mode="single"
         selected={selectedDate || undefined}
@@ -109,7 +109,7 @@ export default function RecurrencyCalendar({
               <button
                 {...props}
                 className={`
-                          relative flex flex-col items-center justify-center w-8 h-full rounded-lg text-sm font-medium transition-all
+                          relative flex flex-col items-center justify-center w-full h-full rounded-lg text-sm font-medium transition-all
                           ${
                             hasItems
                               ? dateInfo.isPast

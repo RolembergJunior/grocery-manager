@@ -134,7 +134,6 @@ export default function PriorityProductsModal({
       iconTitle={icon}
       title={title}
       size="lg"
-      height="lg"
     >
       <div className="space-y-5">
         {groupedByCategory.map(([category, products]) => (

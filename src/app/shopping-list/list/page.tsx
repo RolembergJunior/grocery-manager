@@ -72,8 +72,6 @@ export default function ShoppingListPage() {
     });
   }, [items, listId, typeList, searchTerm, JSON.stringify(filters)]);
 
-  console.log(currentItems, "currentItems");
-
   const { checkedCount, totalCount, progressPercentage } = useMemo(() => {
     const checked = currentItems.filter((item) => item.checked).length;
     const total = currentItems.length;

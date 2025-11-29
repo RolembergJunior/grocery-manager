@@ -2,9 +2,16 @@
 
 import { useAtomValue } from "jotai";
 import { listsAtom } from "@/lib/atoms";
+import { useRouter } from "next/navigation";
 
 export default function ListSection() {
   const lists = useAtomValue(listsAtom);
+
+  const router = useRouter();
+
+  function redirectToListPage(listId: string) {
+    router.push(`shopping-list/list?id=${listId}`);
+  }
 
   return (
     <>
@@ -17,6 +24,7 @@ export default function ListSection() {
             <div
               key={index}
               className="bg-[var(--color-list-card)] rounded-2xl p-4 flex flex-col justify-center items-center h-24 w-[140px] flex-shrink-0 shadow-sm hover:shadow-lg hover:bg-blue/5 transition-all duration-300 snap-start cursor-pointer active:scale-95 group"
+              onClick={() => redirectToListPage(list.id)}
             >
               <p className="text-blue font-semibold text-center relative pb-1.5 group-hover:scale-105 transition-transform duration-300">
                 {list.name}

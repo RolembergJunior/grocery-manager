@@ -7,8 +7,9 @@ import ProductList from "@/app/inventory/components/ProductList";
 import { useAtomValue } from "jotai";
 import { productsAtom } from "@/lib/atoms/products";
 import { categoriesAtom } from "@/lib/atoms/categories";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Product } from "../type";
+import { useSearchParams } from "next/navigation";
 
 export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,6 +17,16 @@ export default function Inventory() {
 
   const products = useAtomValue(productsAtom);
   const categories = useAtomValue(categoriesAtom);
+
+  const searchParams = useSearchParams();
+  const filter = searchParams.get("filter");
+  const category = searchParams.get("category");
+
+  useEffect(() => {
+    if (filter && category) {
+      setFilters({ ...filters, category: [category] });
+    }
+  }, [filter, category]);
 
   const filteredCategories = useMemo(() => {
     if (!filters.category || filters.category.length === 0) {
