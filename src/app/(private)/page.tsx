@@ -27,7 +27,7 @@ export default function GroceryHome() {
 
       {/* <RecentActivitySection /> */}
 
-      <ReviewStockSection />
+      {/* <ReviewStockSection /> */}
 
       <ListSection />
     </div>

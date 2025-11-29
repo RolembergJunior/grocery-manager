@@ -20,27 +20,36 @@ export default function CategorySection() {
         Categorias
       </h3>
       <div className="relative mb-6">
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 px-4 scroll-smooth">
-          {categories.map((category, index) => (
-            <button
-              key={index}
-              onClick={() => redirectToInventoryPage(category.id)}
-              className={`${
-                palletColors[category.colorId as keyof typeof palletColors]
-                  .bgClass
-              } rounded-3xl aspect-square flex items-center justify-center p-2 w-[6rem] h-[6rem] shadow-md hover:scale-105 transition-transform active:scale-95`}
-            >
-              <span
+        {categories.length === 0 ? (
+          <div className="flex items-center justify-center py-8 px-4">
+            <p className="text-[var(--color-text-gray)]/60 text-sm text-center">
+              Nenhuma categoria criada. Crie categorias para organizar melhor
+              seus produtos.
+            </p>
+          </div>
+        ) : (
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 px-4 scroll-smooth">
+            {categories.map((category, index) => (
+              <button
+                key={index}
+                onClick={() => redirectToInventoryPage(category.id)}
                 className={`${
                   palletColors[category.colorId as keyof typeof palletColors]
-                    .textClass
-                } text-lg font-medium text-center`}
+                    .bgClass
+                } rounded-3xl aspect-square flex items-center justify-center p-2 w-[6rem] h-[6rem] shadow-md hover:scale-105 transition-transform active:scale-95`}
               >
-                {category.name}
-              </span>
-            </button>
-          ))}
-        </div>
+                <span
+                  className={`${
+                    palletColors[category.colorId as keyof typeof palletColors]
+                      .textClass
+                  } text-lg font-medium text-center`}
+                >
+                  {category.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

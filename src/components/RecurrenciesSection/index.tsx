@@ -52,51 +52,59 @@ export default function RecurrenciesSection() {
     recurrencies.overdue.length > 0 ||
     recurrencies.recentlyActivated.length > 0;
 
-  if (!hasAnyRecurrency) return null;
-
   return (
     <>
       <h3 className="text-[var(--color-text-gray)] text-lg font-medium mb-3">
         Recorrências Ativas
       </h3>
       <div className="relative mb-6">
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 px-4 scroll-smooth">
-          <RenderWhen isTrue={!!recurrencies.upcoming.length}>
-            <RecurrencyCard
-              title="Próximas"
-              count={recurrencies.upcoming.length}
-              items={recurrencies.upcoming}
-              icon={<Calendar className="w-5 h-5" />}
-              colorClass="bg-[#6B9BD1]"
-              textColorClass="text-white"
-              showDays
-            />
-          </RenderWhen>
+        <RenderWhen isTrue={!hasAnyRecurrency}>
+          <div className="flex items-center justify-center py-8 px-4">
+            <p className="text-[var(--color-text-gray)]/60 text-sm text-center">
+              Nenhuma recorrência ativa. Configure recorrências nos seus
+              produtos para acompanhar compras regulares.
+            </p>
+          </div>
+        </RenderWhen>
+        <RenderWhen isTrue={hasAnyRecurrency}>
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 px-4 scroll-smooth">
+            <RenderWhen isTrue={!!recurrencies.upcoming.length}>
+              <RecurrencyCard
+                title="Próximas"
+                count={recurrencies.upcoming.length}
+                items={recurrencies.upcoming}
+                icon={<Calendar className="w-5 h-5" />}
+                colorClass="bg-[#6B9BD1]"
+                textColorClass="text-white"
+                showDays
+              />
+            </RenderWhen>
 
-          <RenderWhen isTrue={!!recurrencies.overdue.length}>
-            <RecurrencyCard
-              title="Atrasadas"
-              count={recurrencies.overdue.length}
-              items={recurrencies.overdue}
-              icon={<AlertTriangle className="w-5 h-5" />}
-              colorClass="bg-[#F47E3E]"
-              textColorClass="text-white"
-              showDays
-            />
-          </RenderWhen>
+            <RenderWhen isTrue={!!recurrencies.overdue.length}>
+              <RecurrencyCard
+                title="Atrasadas"
+                count={recurrencies.overdue.length}
+                items={recurrencies.overdue}
+                icon={<AlertTriangle className="w-5 h-5" />}
+                colorClass="bg-[#F47E3E]"
+                textColorClass="text-white"
+                showDays
+              />
+            </RenderWhen>
 
-          <RenderWhen isTrue={!!recurrencies.recentlyActivated.length}>
-            <RecurrencyCard
-              title="Recém-ativadas"
-              count={recurrencies.recentlyActivated.length}
-              items={recurrencies.recentlyActivated}
-              icon={<Sparkles className="w-5 h-5" />}
-              colorClass="bg-[#C4C857]"
-              textColorClass="text-[#655C23]"
-              showDays
-            />
-          </RenderWhen>
-        </div>
+            <RenderWhen isTrue={!!recurrencies.recentlyActivated.length}>
+              <RecurrencyCard
+                title="Recém-ativadas"
+                count={recurrencies.recentlyActivated.length}
+                items={recurrencies.recentlyActivated}
+                icon={<Sparkles className="w-5 h-5" />}
+                colorClass="bg-[#C4C857]"
+                textColorClass="text-[#655C23]"
+                showDays
+              />
+            </RenderWhen>
+          </div>
+        </RenderWhen>
       </div>
     </>
   );

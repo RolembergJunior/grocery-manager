@@ -1,7 +1,7 @@
 "use client";
 
 import { Product, Category } from "@/app/type";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { formatCategoryTitle } from "./utils";
 import ProductCard from "./components/ProductCard";

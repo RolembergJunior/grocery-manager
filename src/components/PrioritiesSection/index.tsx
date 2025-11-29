@@ -35,12 +35,11 @@ export default function PrioritiesSection() {
     };
   }, [products]);
 
-  const hasAnyPriority =
+  const hasAnyPriority = Boolean(
     priorities.urgent.length ||
-    priorities.lowStock.length ||
-    priorities.recent.length;
-
-  if (!hasAnyPriority) return null;
+      priorities.lowStock.length ||
+      priorities.recent.length
+  );
 
   return (
     <>
@@ -48,40 +47,50 @@ export default function PrioritiesSection() {
         Prioridades do Momento
       </h3>
       <div className="relative mb-6">
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 px-4 scroll-smooth">
-          <RenderWhen isTrue={!!priorities.urgent.length}>
-            <PriorityCard
-              title="Sem estoque"
-              count={priorities.urgent.length}
-              items={priorities.urgent}
-              icon={<AlertCircle className="w-5 h-5" />}
-              colorClass="bg-[#F47E3E]"
-              textColorClass="text-white"
-            />
-          </RenderWhen>
+        <RenderWhen isTrue={!hasAnyPriority}>
+          <div className="flex items-center justify-center py-8 px-4">
+            <p className="text-[var(--color-text-gray)]/60 text-sm text-center">
+              Nenhuma prioridade no momento. Adicione produtos ao seu inventário
+              para ver as prioridades.
+            </p>
+          </div>
+        </RenderWhen>
+        <RenderWhen isTrue={hasAnyPriority}>
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 px-4 scroll-smooth">
+            <RenderWhen isTrue={!!priorities.urgent.length}>
+              <PriorityCard
+                title="Sem estoque"
+                count={priorities.urgent.length}
+                items={priorities.urgent}
+                icon={<AlertCircle className="w-5 h-5" />}
+                colorClass="bg-[#F47E3E]"
+                textColorClass="text-white"
+              />
+            </RenderWhen>
 
-          <RenderWhen isTrue={!!priorities.lowStock.length}>
-            <PriorityCard
-              title="Estoque Baixo"
-              count={priorities.lowStock.length}
-              items={priorities.lowStock}
-              icon={<TrendingDown className="w-5 h-5" />}
-              colorClass="bg-[#E66BA0]"
-              textColorClass="text-white"
-            />
-          </RenderWhen>
+            <RenderWhen isTrue={!!priorities.lowStock.length}>
+              <PriorityCard
+                title="Estoque Baixo"
+                count={priorities.lowStock.length}
+                items={priorities.lowStock}
+                icon={<TrendingDown className="w-5 h-5" />}
+                colorClass="bg-[#E66BA0]"
+                textColorClass="text-white"
+              />
+            </RenderWhen>
 
-          <RenderWhen isTrue={!!priorities.recent.length}>
-            <PriorityCard
-              title="Recentes"
-              count={priorities.recent.length}
-              items={priorities.recent}
-              icon={<Clock className="w-5 h-5" />}
-              colorClass="bg-[#6B9BD1]"
-              textColorClass="text-white"
-            />
-          </RenderWhen>
-        </div>
+            <RenderWhen isTrue={!!priorities.recent.length}>
+              <PriorityCard
+                title="Recentes"
+                count={priorities.recent.length}
+                items={priorities.recent}
+                icon={<Clock className="w-5 h-5" />}
+                colorClass="bg-[#6B9BD1]"
+                textColorClass="text-white"
+              />
+            </RenderWhen>
+          </div>
+        </RenderWhen>
       </div>
     </>
   );

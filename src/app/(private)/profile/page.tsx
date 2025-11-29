@@ -2,22 +2,10 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import {
-  User,
-  ChevronRight,
-  BarChart3,
-  Settings,
-  FileText,
-  LogOut,
-  X,
-  Camera,
-} from "lucide-react";
+import { User, ChevronRight, Settings, FileText, LogOut } from "lucide-react";
 import { signOutAction } from "@/app/actions/manageAuth";
 import RenderWhen from "@/components/RenderWhen";
 import HeaderPage from "@/components/HeaderPage";
-import Modal from "@/components/Modal";
-import FieldForm from "@/components/FieldForm";
-import { toast } from "sonner";
 import AccountModal from "./components/AccoutModal";
 
 export default function ProfilePage() {
@@ -37,12 +25,6 @@ export default function ProfilePage() {
       onClick: () => {},
       showArrow: true,
     },
-    // {
-    //   icon: BarChart3,
-    //   label: "Estatísticas",
-    //   onClick: () => console.log("Estatísticas"),
-    //   showArrow: true,
-    // },
   ];
 
   return (

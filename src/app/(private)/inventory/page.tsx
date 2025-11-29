@@ -1,15 +1,15 @@
 "use client";
 
 import RenderWhen from "@/components/RenderWhen";
-import EmptyProducts from "@/app/inventory/components/EmptyProducts";
+import EmptyProducts from "@/app/(private)/inventory/components/EmptyProducts";
 import Controls from "@/components/Controls";
-import ProductList from "@/app/inventory/components/ProductList";
+import ProductList from "@/app/(private)/inventory/components/ProductList";
 import { useAtomValue } from "jotai";
 import { productsAtom } from "@/lib/atoms/products";
 import { categoriesAtom } from "@/lib/atoms/categories";
 import { useEffect, useMemo, useState } from "react";
-import { Product } from "../type";
 import { useSearchParams } from "next/navigation";
+import { Product } from "@/app/type";
 
 export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");

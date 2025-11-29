@@ -1,10 +1,10 @@
 "use client";
 
-import { Category, Product } from "../../../type";
 import { getItemsByCategory, getCategoryStats } from "./utils";
-import RenderWhen from "../../../../components/RenderWhen";
 import { useMemo } from "react";
 import CategoryCard from "./components/CategoryCard";
+import { Product, Category } from "@/app/type";
+import RenderWhen from "@/components/RenderWhen";
 
 interface ProductListProps {
   products: Product[];

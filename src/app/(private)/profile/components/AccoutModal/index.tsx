@@ -3,11 +3,12 @@
 import FieldForm from "@/components/FieldForm";
 import Modal from "@/components/Modal";
 import RenderWhen from "@/components/RenderWhen";
-import { Camera, User } from "lucide-react";
+import { User, UserPen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { schema } from "./schema";
 import z from "zod";
+import { Button } from "@/components/ui/button";
 
 interface AccountModalProps {
   isModalOpen: boolean;
@@ -82,25 +83,6 @@ export default function AccountModal({
     });
   }
 
-  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Imagem deve ter no máximo 5MB");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({
-          ...formData,
-          profileImage: reader.result as string,
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
@@ -131,6 +113,8 @@ export default function AccountModal({
       isOpen={isModalOpen}
       onClose={handleCloseModal}
       title="Dados da conta"
+      height="xl"
+      iconTitle={<UserPen />}
     >
       <form onSubmit={handleSave} className="space-y-4">
         <div className="flex justify-center mb-6">
@@ -147,19 +131,6 @@ export default function AccountModal({
                 />
               </RenderWhen>
             </div>
-            <label
-              htmlFor="profile-image"
-              className="absolute bottom-2 right-2 w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-            >
-              <Camera className="w-5 h-5 text-gray-600" />
-              <input
-                id="profile-image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            </label>
           </div>
         </div>
 
@@ -195,12 +166,9 @@ export default function AccountModal({
         />
 
         <div className="pt-4">
-          <button
-            type="submit"
-            className="w-full p-3 bg-blue text-white rounded-full hover:bg-blue/70 transition-colors duration-200 font-medium shadow-md"
-          >
+          <Button type="submit" className="w-full text-lg">
             Salvar
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

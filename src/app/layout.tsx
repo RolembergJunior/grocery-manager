@@ -1,4 +1,3 @@
-import Header from "@/components/Header";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -34,8 +33,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Toaster richColors position="top-center" />
-          <main className="md:pb-0 md:pt-20">{children}</main>
-          <Header />
+          {children}
           <LoadingFetch />
         </AuthProvider>
       </body>
