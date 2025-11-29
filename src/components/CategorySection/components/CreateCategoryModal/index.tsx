@@ -19,6 +19,7 @@ import {
 } from "@/services/categories";
 import { Category } from "@/app/type";
 import AlertDialog from "@/components/AlertDialog";
+import { Button } from "@/components/ui/button";
 
 interface CreateCategoryModalProps {
   isModalOpen: boolean;
@@ -183,13 +184,14 @@ export default function CreateCategoryModal({
       iconTitle={<Palette className="w-6 h-6 text-blue" />}
       rightHeaderContent={
         <RenderWhen isTrue={!!categoryToEdit}>
-          <button
+          <Button
             type="button"
             onClick={handleDeleteList}
-            className="inline-flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors duration-200"
+            variant="danger"
+            size="icon-lg"
           >
             <Trash2 className="w-4 h-4" />
-          </button>
+          </Button>
         </RenderWhen>
       }
     >

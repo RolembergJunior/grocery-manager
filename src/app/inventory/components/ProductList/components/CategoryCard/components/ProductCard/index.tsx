@@ -12,6 +12,7 @@ import { updateOrCreate, updateStatus } from "@/services/products";
 import { palletColors } from "@/app/utils";
 import { useSetAtom } from "jotai";
 import { productsAtom } from "@/lib/atoms";
+import { Button } from "@/components/ui/button";
 
 interface ProductCardProps {
   item: Product;
@@ -151,23 +152,20 @@ export default function ProductCard({
           />
 
           <div className="flex gap-3 mt-3">
-            <button
+            <Button
               onClick={handleSave}
               disabled={!hasChanges}
-              className={`flex-1 py-2.5 rounded-lg ${
+              className={`flex-1 ${
                 palletColors[colorId as keyof typeof palletColors].bgClass
               } ${
                 palletColors[colorId as keyof typeof palletColors].textClass
-              } hover:bg-gray-50 text-gray-700 font-medium transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300`}
+              } `}
             >
               Salvar
-            </button>
-            <button
-              onClick={handleCancel}
-              className="px-6 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium transition-all duration-200"
-            >
+            </Button>
+            <Button onClick={handleCancel} variant="outline" className="flex-1">
               Cancelar
-            </button>
+            </Button>
           </div>
         </div>
       </RenderWhen>

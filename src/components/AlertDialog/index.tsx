@@ -4,13 +4,14 @@ import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle, CheckCircle, Info, XCircle, X } from "lucide-react";
 import RenderWhen from "../RenderWhen";
+import { Button } from "../ui/button";
 
 export type AlertVariant = "info" | "success" | "warning" | "danger";
 
 export interface AlertAction {
   label: string;
   onClick: () => void;
-  variant?: "primary" | "secondary" | "danger";
+  variant?: "default" | "secondary" | "danger";
   autoClose?: boolean;
 }
 
@@ -52,14 +53,6 @@ const variantConfig = {
     iconBg: "bg-red-100",
     borderColor: "border-red-200",
   },
-};
-
-const actionVariantClasses = {
-  primary: "bg-blue text-white hover:bg-blue/70 focus:ring-blue/30 font-medium",
-  secondary:
-    "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-300 font-medium",
-  danger:
-    "bg-white text-red-500 border border-red-500 hover:bg-red-600 focus:ring-red-300 font-medium",
 };
 
 export default function AlertDialog({
@@ -165,21 +158,18 @@ export default function AlertDialog({
           <div className="px-6 pb-6">
             <div
               className={`flex gap-3 ${
-                actions.length > 2 ? "flex-col" : "flex-row"
+                actions.length > 2 ? "flex-col" : "flex-row justify-end"
               }`}
             >
               {actions.map((action, index) => (
-                <button
+                <Button
                   key={index}
                   onClick={() => handleActionClick(action)}
-                  className={`
-                    flex-1 px-4 py-3 rounded-xl transition-all duration-200
-                    focus:outline-none focus:ring-2 focus:ring-offset-2
-                    ${actionVariantClasses[action.variant || "primary"]}
-                  `}
+                  variant={action.variant}
+                  size={"lg"}
                 >
                   {action.label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

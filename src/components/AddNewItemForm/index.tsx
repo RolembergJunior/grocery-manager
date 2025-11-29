@@ -13,6 +13,7 @@ import { AlertCircle } from "lucide-react";
 import { z } from "zod";
 import { validateIfExists } from "./utils";
 import FieldForm from "../FieldForm";
+import { Button } from "../ui/button";
 
 export default function AddNewItemForm({ category }: { category: Category }) {
   const [formData, setFormData] = useState<FormData>({
@@ -166,14 +167,15 @@ export default function AddNewItemForm({ category }: { category: Category }) {
         />
 
         <div className="flex gap-4 pt-4 border-t border-gray-100">
-          <button
+          <Button
             type="button"
             onClick={handleAddItem}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:from-blue-800 active:to-indigo-800 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+            variant="default"
+            size="lg"
+            className="w-full text-lg"
           >
-            <span className="text-lg">+</span>
             Adicionar Produto
-          </button>
+          </Button>
         </div>
       </div>
     </div>

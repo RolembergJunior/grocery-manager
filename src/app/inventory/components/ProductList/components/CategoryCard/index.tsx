@@ -186,7 +186,7 @@ export default function CategoryCard({
           {
             label: "Editar",
             onClick: handleEdit,
-            variant: "primary",
+            variant: "default",
             autoClose: true,
           },
           {

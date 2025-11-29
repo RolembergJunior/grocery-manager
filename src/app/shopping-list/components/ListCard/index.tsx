@@ -241,7 +241,7 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
           {
             label: "Editar",
             onClick: handleEdit,
-            variant: "primary",
+            variant: "default",
             autoClose: true,
           },
           {
