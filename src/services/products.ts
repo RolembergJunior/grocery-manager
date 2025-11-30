@@ -9,14 +9,16 @@ import {
 
 export async function subscribeProducts(): Promise<Product[]> {
   try {
-    const data = await authenticatedFetchArray("/api/products", {
-      method: "GET",
-    });
+    const data = await authenticatedFetch<{ products: Product[] }>(
+      "/api/products",
+      {
+        method: "GET",
+      }
+    );
 
     if (!data) return [];
 
-    const response = data as unknown as { products: Product[] };
-    return Array.isArray(response.products) ? response.products : [];
+    return data.products;
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];

@@ -1,3 +1,5 @@
+"use client";
+
 import HeaderPage from "@/components/HeaderPage";
 import CategorySection from "@/components/CategorySection";
 import ListSection from "@/components/ListSection";
@@ -5,31 +7,36 @@ import PrioritiesSection from "@/components/PrioritiesSection";
 import RecurrenciesSection from "@/components/RecurrenciesSection";
 import ReviewStockSection from "@/components/ReviewStockSection";
 import RecentActivitySection from "@/components/RecentActivitySection";
+import FreeTierBanner from "@/components/FreeTierBanner";
+import { useSubscription } from "@/hooks/use-subscription";
+import RenderWhen from "@/components/RenderWhen";
 
 export default function GroceryHome() {
+  const { isActive, isPremium, isPro, isFree, isTrial } = useSubscription();
+
   return (
     <div className="min-h-dvh md:screen p-4 pb-20">
       <HeaderPage hasNameApp />
 
-      {/* <h3 className="text-[var(--color-text-gray)] text-lg font-medium mb-3">
-        Estatísticas
-      </h3>
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="bg-[var(--color-stats-card)] rounded-2xl h-20 shadow-sm"></div>
-        <div className="bg-[var(--color-stats-card)] rounded-2xl h-20 shadow-sm"></div>
-      </div> */}
+      <RenderWhen isTrue={isTrial}>
+        <FreeTierBanner />
+      </RenderWhen>
 
-      <PrioritiesSection />
+      <RenderWhen isTrue={(isPro || isPremium || isTrial) && isActive}>
+        <PrioritiesSection />
+      </RenderWhen>
 
       <CategorySection />
 
-      <RecurrenciesSection />
+      <RenderWhen isTrue={(isPro || isPremium || isTrial) && isActive}>
+        <RecurrenciesSection />
+
+        <ListSection />
+      </RenderWhen>
 
       {/* <RecentActivitySection /> */}
 
       {/* <ReviewStockSection /> */}
-
-      <ListSection />
     </div>
   );
 }

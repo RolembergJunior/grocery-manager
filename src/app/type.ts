@@ -22,8 +22,12 @@ export interface Profile {
   email: string;
   nameApp: string;
   imagePath: string;
-  createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
-  updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  subscriptionStatus: "free" | "premium" | "trial" | "pro";
+  subscriptionTier?: "monthly" | "yearly";
+  subscriptionStartDate?: string;
+  subscriptionEndDate?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Product {
@@ -39,8 +43,8 @@ export interface Product {
   userId: string;
   reccurency: number | null;
   checked?: boolean;
-  createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
-  updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Category {
@@ -55,19 +59,19 @@ export interface List {
   id: string;
   name: string;
   description: string;
-  resetAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  resetAt: string;
   isRemoved: boolean;
   userId: string;
   itemId: string[];
-  createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
-  updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ListItem {
   id: string;
   name: string;
   listId: string;
-  itemId: string | null; // ID do produto do inventário (quando fromList === "inventory")
+  itemId: string | null;
   category: string;
   neededQuantity: number;
   boughtQuantity: number;
@@ -75,8 +79,8 @@ export interface ListItem {
   observation: string | null;
   checked: boolean;
   isRemoved: boolean;
-  fromList: "inventory" | "created"; // Origem do item: inventário ou criado manualmente
+  fromList: "inventory" | "created";
   userId: string;
-  createdAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
-  updatedAt: string; // ISO 8601: "YYYY-MM-DDTHH:mm:ss.sssZ"
+  createdAt: string;
+  updatedAt: string;
 }

@@ -16,6 +16,7 @@ import { fetchListsAtom } from "@/lib/atoms/lists";
 import { fetchCategoriesAtom } from "@/lib/atoms/categories";
 import { fetchListItemsAtom } from "@/lib/atoms/list-items";
 import { loadingAtom, LoadingParams } from "@/lib/atoms/loading";
+import { fetchProfileData } from "@/lib/atoms/profile";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -23,6 +24,7 @@ export default function Header() {
 
   const setIsLoading = useSetAtom(loadingAtom);
 
+  const fetchProfile = useSetAtom(fetchProfileData);
   const fetchProducts = useSetAtom(fetchProductsAtom);
   const fetchLists = useSetAtom(fetchListsAtom);
   const fetchCategories = useSetAtom(fetchCategoriesAtom);
@@ -52,6 +54,7 @@ export default function Header() {
   async function initData() {
     setIsLoading({ isOpen: true, message: "Carregando..." });
     try {
+      await fetchProfile();
       await fetchProducts();
       await fetchLists();
       await fetchCategories();

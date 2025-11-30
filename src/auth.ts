@@ -3,6 +3,7 @@ import NextAuth from "next-auth";
 import { FirestoreAdapter } from "@auth/firebase-adapter";
 import { cert } from "firebase-admin/app";
 import Google from "next-auth/providers/google";
+import { adminDb } from "./lib/firebaseAdmin";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],
@@ -30,6 +31,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         (session.user as any).id = token.sub;
       }
       return session;
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      await adminDb
+        .collection("users")
+        .doc(user.id!)
+        .update({
+          subscriptionStatus: "free",
+          subscriptionTier: null,
+          subscriptionStartDate: null,
+          subscriptionEndDate: null,
+          nameApp: user.name || "",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
     },
   },
 });

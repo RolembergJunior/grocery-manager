@@ -147,7 +147,7 @@ export default function CategoryCard({
 
             <div className="w-[1px] h-[1rem] bg-white/50" />
 
-            <CreateItemButton category={category} />
+            <CreateItemButton category={category} items={items} />
           </div>
         </div>
       </button>

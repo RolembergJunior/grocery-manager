@@ -29,9 +29,15 @@ export default function PrioritiesSection() {
     });
 
     return {
-      urgent: urgentItems.slice(0, 5),
-      lowStock: lowStockItems.slice(0, 5),
-      recent: recentItems.slice(0, 5),
+      urgent: urgentItems
+        .slice(0, 5)
+        .sort((a, b) => a.name.localeCompare(b.name)),
+      lowStock: lowStockItems
+        .slice(0, 5)
+        .sort((a, b) => a.name.localeCompare(b.name)),
+      recent: recentItems
+        .slice(0, 5)
+        .sort((a, b) => a.name.localeCompare(b.name)),
     };
   }, [products]);
 

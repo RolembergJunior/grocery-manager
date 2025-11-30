@@ -10,3 +10,12 @@ export async function updateProfile(
   const updateData = withTimestamps(data, true);
   await adminDb.collection(COLLECTIONS.PROFILES).doc(userId).update(updateData);
 }
+
+export async function getProfile(userId: string): Promise<Profile> {
+  const snapshot = await adminDb
+    .collection(COLLECTIONS.PROFILES)
+    .doc(userId)
+    .get();
+
+  return snapshot.data() as Profile;
+}

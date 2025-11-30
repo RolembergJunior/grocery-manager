@@ -5,6 +5,8 @@ import { Category } from "@/app/type";
 import FilterButtonModal from "./FilterModal";
 import { useState } from "react";
 import CreateCategoryModal from "./CreateCategoryModal";
+import { useSubscription } from "@/hooks/use-subscription";
+import { toast } from "sonner";
 
 type ControlsProps = {
   categories: Category[];
@@ -25,6 +27,17 @@ export default function Controls({
 }: ControlsProps) {
   const [isOpenCreateCategoryModal, setIsOpenCreateCategoryModal] =
     useState(false);
+
+  const { isFree } = useSubscription();
+
+  function handleOpenCreateCategoryModal() {
+    if (isFree && categories.length >= 5) {
+      return toast.warning(
+        "Seu plano não permite criar mais que 5 categorias! Faça upgrade do seu plano atual para conseguir mais categorias."
+      );
+    }
+    setIsOpenCreateCategoryModal(true);
+  }
 
   return (
     <div className="flex justify-between items-center my-4 w-full gap-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm">
@@ -50,7 +63,7 @@ export default function Controls({
 
       <button
         className="bg-blue p-3 rounded-2xl"
-        onClick={() => setIsOpenCreateCategoryModal(true)}
+        onClick={handleOpenCreateCategoryModal}
       >
         <Plus color="white" />
       </button>

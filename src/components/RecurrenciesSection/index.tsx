@@ -41,9 +41,13 @@ export default function RecurrenciesSection() {
     });
 
     return {
-      upcoming: upcoming.slice(0, 5),
-      overdue: overdue.slice(0, 5),
-      recentlyActivated: recentlyActivated.slice(0, 5),
+      upcoming: upcoming
+        .slice(0, 5)
+        .sort((a, b) => a.name.localeCompare(b.name)),
+      overdue: overdue.slice(0, 5).sort((a, b) => a.name.localeCompare(b.name)),
+      recentlyActivated: recentlyActivated
+        .slice(0, 5)
+        .sort((a, b) => a.name.localeCompare(b.name)),
     };
   }, [products]);
 

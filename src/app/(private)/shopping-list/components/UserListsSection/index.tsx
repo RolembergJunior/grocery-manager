@@ -9,6 +9,8 @@ import { useAtomValue } from "jotai";
 import { listsAtom } from "@/lib/atoms";
 import CreateListModal from "@/components/ListSection/components/CreateListModal";
 import RenderWhen from "@/components/RenderWhen";
+import { useSubscription } from "@/hooks/use-subscription";
+import { toast } from "sonner";
 
 export default function UserListsSection() {
   const [selectedList, setSelectedList] = useState<List | null>(null);
@@ -16,6 +18,8 @@ export default function UserListsSection() {
   const [isCreateListModalOpen, setIsCreateListModalOpen] = useState(false);
 
   const lists = useAtomValue(listsAtom);
+
+  const { isFree, isPro } = useSubscription();
 
   function handleAddItemToList(list: List) {
     setSelectedList(list);
@@ -27,6 +31,21 @@ export default function UserListsSection() {
     setSelectedList(null);
   }
 
+  function handleOpenCreateListModal() {
+    if (isFree) {
+      return toast.warning(
+        "Seu plano não permite criar listas! Faça upgrade do seu plano atual para conseguir mais listas."
+      );
+    }
+
+    if (isPro && lists.length >= 5) {
+      return toast.warning(
+        "Seu plano não permite criar mais de 5 listas! Faça upgrade do seu plano atual para conseguir mais listas."
+      );
+    }
+    setIsCreateListModalOpen(true);
+  }
+
   return (
     <>
       <div className="flex items-center justify-between mb-3 px-1">
@@ -35,7 +54,7 @@ export default function UserListsSection() {
         </h2>
 
         <button
-          onClick={() => setIsCreateListModalOpen(true)}
+          onClick={handleOpenCreateListModal}
           className="p-2 bg-blue rounded-full hover:bg-blue/80 transition-all duration-200 active:scale-95"
           title="Criar nova lista"
         >
