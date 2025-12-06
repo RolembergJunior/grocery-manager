@@ -2,20 +2,41 @@
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { toast } from "sonner";
 import Modal from "@/components/Modal";
-import { productsAtom } from "@/lib/atoms";
+import { listItemsAtom, listItemsByIdAtom, productsAtom } from "@/lib/atoms";
 import { deleteItem } from "@/services/products";
+import { ListItem } from "@/app/type";
 
 interface DeleteButtonProps {
-  itemId: number;
+  itemId: string;
 }
 
 export default function DeleteButton({ itemId }: DeleteButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
   const setProducts = useSetAtom(productsAtom);
+  const listItems = useAtomValue(listItemsAtom);
+
+  const store = useStore();
+
+  function updateListItems() {
+    const separatedArrayByListId = listItems.reduce((acc, item) => {
+      if (item.itemId !== itemId) {
+        if (!acc[item.listId]) {
+          acc[item.listId] = [];
+        }
+        acc[item.listId].push(item);
+      }
+      return acc;
+    }, {} as Record<string, ListItem[]>);
+
+    Object.entries(separatedArrayByListId).forEach(([listId, items]) => {
+      store.set(listItemsByIdAtom(listId), items);
+    });
+  }
 
   async function handleConfirmDelete() {
     setIsDeleting(true);
@@ -26,6 +47,8 @@ export default function DeleteButton({ itemId }: DeleteButtonProps) {
         setProducts((prevProducts) =>
           prevProducts.filter((product) => product.id !== itemId)
         );
+
+        updateListItems();
         return "Item excluído com sucesso!";
       },
       error: (error) => {

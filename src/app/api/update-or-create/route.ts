@@ -1,6 +1,10 @@
 import { Product } from "@/app/type";
 import { NextRequest, NextResponse } from "next/server";
-import { createProduct, updateProduct } from "@/lib/helpers/products-helpers";
+import {
+  createProduct,
+  getProduct,
+  updateProduct,
+} from "@/lib/helpers/products-helpers";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -23,9 +27,11 @@ export async function PUT(req: NextRequest) {
     const now = new Date().toISOString();
 
     if (payload.id) {
+      const refferecedProduct = await getProduct(payload.id);
+
       const updatedProduct: Product = {
+        ...refferecedProduct,
         ...payload,
-        userId: userId,
         updatedAt: now,
       };
 

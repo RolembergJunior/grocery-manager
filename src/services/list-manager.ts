@@ -1,9 +1,9 @@
 import {
-  getListItems,
   createListItem,
   updateListItem,
   batchUpdateItems,
   deleteListItem,
+  getListItems,
 } from "@/services/list-items";
 import { syncInventoryListAPI } from "@/services/inventory-list";
 import { listItemsByIdAtom, productsAtom } from "@/lib/atoms";
@@ -14,8 +14,7 @@ import { updateMany } from "./products";
 const store = getDefaultStore();
 
 export async function loadList(listId: string): Promise<void> {
-  const products = store.get(productsAtom);
-  const updatedItems = await syncInventoryListAPI(products, listId);
+  const updatedItems = await getListItems(listId);
 
   const atom = listItemsByIdAtom(listId);
   store.set(atom, updatedItems);

@@ -43,7 +43,7 @@ export default function ProductCard({
     setNewItem({ ...newItem, statusCompra: status });
 
     toast.promise(
-      updateStatus({
+      updateOrCreate({
         id: newItem.id,
         statusCompra: status,
       }),

@@ -29,6 +29,8 @@ export const fetchListItemsAtom = atom(
         }
       });
 
+      set(listItemsAtom, listItems);
+
       Object.entries(listitemsMap).forEach(([listId, listItems]) => {
         set(listItemsByIdAtom(listId), listItems);
       });

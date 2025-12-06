@@ -5,7 +5,7 @@ import { useState } from "react";
 import { FormData, FormErrors } from "./type";
 import { addItemFormSchema } from "./schema";
 import { toast } from "sonner";
-import { saveProducts, updateOrCreate } from "@/services/products";
+import { updateOrCreate } from "@/services/products";
 import { productsAtom } from "@/lib/atoms";
 import { useAtom } from "jotai";
 import { buyStatusOptions, unitOptions } from "@/app/utils";
@@ -21,7 +21,7 @@ export default function AddNewItemForm({ category }: { category: Category }) {
     category: category.id,
     currentQuantity: null,
     neededQuantity: null,
-    unit: "",
+    unit: unitOptions[0].value,
     statusCompra: null,
   });
 
@@ -65,7 +65,7 @@ export default function AddNewItemForm({ category }: { category: Category }) {
       category: category.id,
       currentQuantity: null,
       neededQuantity: null,
-      unit: "",
+      unit: unitOptions[0].value,
       statusCompra: null,
     });
     setErrors({});
@@ -125,26 +125,6 @@ export default function AddNewItemForm({ category }: { category: Category }) {
           onChange={() => null}
           disabled
         />
-
-        {/* <FieldForm
-          type="number"
-          label="Quantidade atual"
-          value={formData.currentQuantity}
-          onChange={(value) => handleChangeInput("currentQuantity", value)}
-          error={errors.currentQuantity}
-          required
-          min={0}
-        />
-
-        <FieldForm
-          type="number"
-          label="Precisa comprar"
-          value={formData.neededQuantity}
-          onChange={(value) => handleChangeInput("neededQuantity", value)}
-          error={errors.neededQuantity}
-          required
-          min={0}
-        /> */}
 
         <FieldForm
           type="select"

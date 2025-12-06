@@ -35,7 +35,7 @@ export default function ProductList({
 
       return acc;
     }, [] as FilteredCategoryProps[]);
-  }, [products.length, categories.length]);
+  }, [products, categories]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2 h-full overflow-y-auto">

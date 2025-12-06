@@ -4,6 +4,7 @@ import { ListItem, Product } from "@/app/type";
 import { useState, useMemo } from "react";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
+import { getUnitName } from "@/app/utils";
 
 interface ListItemCardProps {
   item: ListItem;
@@ -59,7 +60,7 @@ export default function ListItemCard({
                 {item.name}
               </h3>
               <span className="text-sm text-gray-500">
-                Precisa: {item.neededQuantity} {item.unit}
+                Precisa: {item.neededQuantity} {getUnitName(item.unit)}
               </span>
             </div>
           </button>

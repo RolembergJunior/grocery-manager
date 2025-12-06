@@ -20,6 +20,7 @@ export default function FieldForm(props: FieldFormProps) {
     required = false,
     className = "",
     disabled = false,
+    defaultValue,
   } = props;
 
   const baseInputClasses = `w-full p-3 border ${
@@ -69,6 +70,9 @@ export default function FieldForm(props: FieldFormProps) {
             min={props.min}
             max={props.max}
             disabled={disabled}
+            defaultValue={
+              defaultValue as string | number | readonly string[] | undefined
+            }
           />
         );
 
@@ -78,12 +82,16 @@ export default function FieldForm(props: FieldFormProps) {
             value={value as string}
             onValueChange={handleSelectChange}
             disabled={disabled}
+            defaultValue={defaultValue as string | undefined}
           >
             <SelectTrigger
               className={`w-full ${baseInputClasses} ${
                 error ? "border-red-500" : "border-gray-200"
               }`}
               size=""
+              // defaultValue={
+              //   defaultValue as string | number | readonly string[] | undefined
+              // }
             >
               <SelectValue placeholder={props.placeholder} />
             </SelectTrigger>
@@ -110,6 +118,7 @@ export default function FieldForm(props: FieldFormProps) {
             placeholder={props.placeholder}
             maxLength={props.maxLength}
             rows={props.rows}
+            defaultValue={defaultValue as string}
           />
         );
 

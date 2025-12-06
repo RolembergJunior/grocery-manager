@@ -13,6 +13,7 @@ import { useList } from "@/hooks/use-list";
 import { productsAtom } from "@/lib/atoms/products";
 import { categoriesAtom } from "@/lib/atoms/categories";
 import { addItemFromInventory, addItemManual } from "@/services/list-manager";
+import { Button } from "@/components/ui/button";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -42,7 +43,7 @@ export default function AddItemModal({
     name: "",
     category: "",
     neededQuantity: 1,
-    unit: "und",
+    unit: unitOptions[0].value,
   });
 
   const products = useAtomValue(productsAtom);
@@ -130,7 +131,6 @@ export default function AddItemModal({
       iconTitle={<ShoppingBag className="w-6 h-6" />}
     >
       <div className="space-y-4">
-        {/* Toggle between inventory and new item */}
         <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
           <button
             onClick={() => setViewMode("inventory")}
@@ -315,13 +315,10 @@ export default function AddItemModal({
         </RenderWhen>
 
         <div className="flex gap-3 pt-4 mt-4 border-t border-gray-200">
-          <button
-            onClick={handleClose}
-            className="flex-1 p-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-all duration-200"
-          >
+          <Button onClick={handleClose} className="flex-1" variant="outline">
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={
               viewMode === "inventory" ? handleAddItem : handleAddNewItem
             }
@@ -330,10 +327,10 @@ export default function AddItemModal({
                 ? !selectedProduct
                 : !newItemForm.name.trim() || !newItemForm.category
             }
-            className="flex-1 p-3 bg-[var(--color-blue)] text-white rounded-lg hover:opacity-90 font-medium transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="flex-1 "
           >
             {viewMode === "inventory" ? "Adicionar Item" : "Criar e Adicionar"}
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

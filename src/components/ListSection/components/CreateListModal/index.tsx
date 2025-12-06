@@ -14,6 +14,7 @@ import { schema } from "./schema";
 import z from "zod";
 import { deleteItemsByListId } from "@/services/list-items";
 import AlertDialog from "@/components/AlertDialog";
+import { Button } from "@/components/ui/button";
 
 interface CreateListModalProps {
   isModalOpen: boolean;
@@ -212,37 +213,19 @@ export default function CreateListModal({
           rows={3}
         />
 
-        <RenderWhen isTrue={!!listName}>
-          <div className="p-4 bg-gray-50 rounded-xl">
-            <p className="text-sm font-medium text-gray-600 mb-2">Prévia:</p>
-            <div className="bg-[var(--color-list-card)] rounded-2xl p-4 flex flex-col justify-center items-center min-h-24 shadow-md">
-              <p className="text-blue font-medium border-b border-blue pb-1">
-                {listName || "Nome da Lista"}
-              </p>
-              <RenderWhen isTrue={!!listDescription}>
-                <p className="text-xs text-gray-500 mt-2 text-center line-clamp-2">
-                  {listDescription}
-                </p>
-              </RenderWhen>
-            </div>
-          </div>
-        </RenderWhen>
-
         <div className="flex gap-3 pt-4">
-          <button
-            type="submit"
-            className="flex-1 p-3 bg-blue text-white rounded-xl hover:bg-blue/70 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <Button type="submit" className="flex-1">
             {listToEdit ? "Editar Lista" : "Criar Lista"}
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
             onClick={handleCloseModal}
-            className="flex-1 p-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200 font-medium"
+            className="flex-1 p-3"
+            variant="outline"
           >
             Cancelar
-          </button>
+          </Button>
         </div>
       </form>
 

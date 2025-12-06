@@ -139,10 +139,6 @@ export default function CategoryCard({
                   <span>{statusCounts.tem}</span>
                 </div>
               </RenderWhen>
-
-              {/* <div className="w-8 h-8 text-black/50 bg-white rounded-full flex items-center justify-center font-bold ">
-                {totalItems}
-              </div> */}
             </div>
 
             <div className="w-[1px] h-[1rem] bg-white/50" />

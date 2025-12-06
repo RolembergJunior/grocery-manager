@@ -1,11 +1,8 @@
 "use server";
 
 import type { Product } from "@/app/type";
-import {
-  authenticatedFetchArray,
-  authenticatedFetchVoid,
-  authenticatedFetch,
-} from "@/lib/api-helper";
+import { authenticatedFetchVoid, authenticatedFetch } from "@/lib/api-helper";
+import { syncInventoryListAPI } from "./inventory-list";
 
 export async function subscribeProducts(): Promise<Product[]> {
   try {
@@ -25,18 +22,18 @@ export async function subscribeProducts(): Promise<Product[]> {
   }
 }
 
-export async function saveProducts(products: Product[]): Promise<void> {
-  await authenticatedFetchVoid("/api/products", {
-    method: "PUT",
-    body: JSON.stringify({ products }),
-  });
-}
-
 export async function updateOrCreate(item: Product): Promise<Product> {
-  return authenticatedFetch<Product>("/api/update-or-create", {
-    method: "PUT",
-    body: JSON.stringify(item),
-  });
+  const updatedProduct = await authenticatedFetch<Product>(
+    "/api/update-or-create",
+    {
+      method: "PUT",
+      body: JSON.stringify(item),
+    }
+  );
+
+  await syncInventoryListAPI([updatedProduct], "inventory-list");
+
+  return updatedProduct;
 }
 
 export async function deleteItem(id: string): Promise<{ ok: true }> {
@@ -65,14 +62,6 @@ export async function updateMany(products: Product[]): Promise<{ ok: true }> {
   await authenticatedFetchVoid("/api/update-many-products", {
     method: "PUT",
     body: JSON.stringify({ products }),
-  });
-  return { ok: true };
-}
-
-export async function syncronizeInventory(): Promise<{ ok: true }> {
-  await authenticatedFetchVoid("/api/sync-inventory-list", {
-    method: "PUT",
-    body: JSON.stringify({}),
   });
   return { ok: true };
 }

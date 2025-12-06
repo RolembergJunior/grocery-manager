@@ -50,6 +50,25 @@ export async function softDeleteProduct(id: string): Promise<void> {
   });
 }
 
+export async function hardDeleteProduct(itemId: string) {
+  await adminDb.collection(COLLECTIONS.PRODUCTS).doc(itemId).delete();
+
+  const snapshot = adminDb
+    .collection(COLLECTIONS.LIST_ITEMS)
+    .where("itemId", "==", itemId);
+
+  const updates = (await snapshot.get()).docs;
+
+  const batch = adminDb.batch();
+
+  updates.forEach((itemList) => {
+    const docRef = adminDb.collection(COLLECTIONS.LIST_ITEMS).doc(itemList.id);
+    batch.delete(docRef);
+  });
+
+  await batch.commit();
+}
+
 export async function batchUpdateProducts(updates: Product[]): Promise<void> {
   const batch = adminDb.batch();
 

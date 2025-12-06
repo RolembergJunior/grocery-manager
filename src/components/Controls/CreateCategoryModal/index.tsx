@@ -19,6 +19,7 @@ import AlertDialog from "@/components/AlertDialog";
 import Modal from "@/components/Modal";
 import RenderWhen from "@/components/RenderWhen";
 import FieldForm from "@/components/FieldForm";
+import { Button } from "@/components/ui/button";
 
 interface CreateCategoryModalProps {
   isModalOpen: boolean;
@@ -221,37 +222,19 @@ export default function CreateCategoryModal({
           options={colorOptions}
         />
 
-        <RenderWhen isTrue={!!selectedColorId}>
-          <div className="p-4 bg-gray-50 rounded-xl">
-            <p className="text-sm font-medium text-gray-600 mb-2">Prévia:</p>
-            <div
-              className={`rounded-2xl p-4 flex items-center justify-center h-20 shadow-md ${
-                palletColors[selectedColorId as keyof typeof palletColors]
-                  ?.bgClass
-              }`}
-            >
-              <span className="text-white text-lg font-medium">
-                {categoryName || "Nome da Categoria"}
-              </span>
-            </div>
-          </div>
-        </RenderWhen>
-
         <div className="flex gap-3 pt-4">
-          <button
-            type="submit"
-            className="flex-1 p-3 bg-blue text-white rounded-xl hover:bg-blue/70 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <Button type="submit" className="flex-1">
             {categoryToEdit ? "Atualizar Categoria" : "Criar Categoria"}
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={handleCloseModal}
-            className="flex-1 p-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200 font-medium"
+            className="flex-1"
           >
             Cancelar
-          </button>
+          </Button>
         </div>
       </form>
 

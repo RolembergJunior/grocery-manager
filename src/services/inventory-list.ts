@@ -17,33 +17,16 @@ export async function syncInventoryListAPI(
 
     products.forEach((product) => {
       const existItem = listItems.find((i) => i.itemId === product.id);
-      if (
-        existItem &&
-        product.statusCompra === STATUSPRODUCT.NEED_SHOPPING &&
-        existItem.isRemoved
-      ) {
+      if (existItem) {
         listItemsToUpdate.push({
           ...existItem,
           name: product.name,
           category: product.category,
           unit: product.unit,
-          isRemoved: false,
+          isRemoved: product.statusCompra !== STATUSPRODUCT.NEED_SHOPPING,
           updatedAt: new Date().toISOString(),
         });
-      } else if (
-        existItem &&
-        product.statusCompra !== STATUSPRODUCT.NEED_SHOPPING &&
-        !existItem.isRemoved
-      ) {
-        listItemsToUpdate.push({
-          ...existItem,
-          name: product.name,
-          category: product.category,
-          unit: product.unit,
-          isRemoved: true,
-          updatedAt: new Date().toISOString(),
-        });
-      } else if (!existItem) {
+      } else {
         listItemsToCreate.push({
           name: product.name,
           itemId: product.id,

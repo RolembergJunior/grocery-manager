@@ -4,7 +4,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import type { Product } from "@/app/type";
 import {
   getProductsByUserId,
-  softDeleteProduct,
+  hardDeleteProduct,
 } from "@/lib/helpers/products-helpers";
 
 export const runtime = "nodejs";
@@ -106,7 +106,7 @@ export async function DELETE(req: NextRequest) {
 
     const { id } = body as { id: string };
 
-    await softDeleteProduct(id);
+    await hardDeleteProduct(id);
 
     return NextResponse.json({ ok: true });
   } catch (error) {
