@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import AuthProvider from "@/components/AuthProvider";
 import LoadingFetch from "@/components/LoadingFetch";
-import { GoogleAnalytics } from "@/components/GoogleAnalycts";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <GoogleAnalytics />
+          <Analytics />
           <Toaster richColors position="top-center" />
           {children}
           <LoadingFetch />
