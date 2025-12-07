@@ -7,6 +7,12 @@ import { signOutAction } from "@/app/actions/manageAuth";
 import RenderWhen from "@/components/RenderWhen";
 import HeaderPage from "@/components/HeaderPage";
 import AccountModal from "./components/AccoutModal";
+// import { Metadata } from "next";
+
+const metadata = {
+  title: "Grocery Manager - Perfil",
+  description: "Grocery Manager - A plataforma de gestão de listas de compras",
+};
 
 export default function ProfilePage() {
   const { data: session, update } = useSession();
@@ -17,12 +23,6 @@ export default function ProfilePage() {
       icon: FileText,
       label: "Dados da conta",
       onClick: () => setIsAccountModalOpen(true),
-      showArrow: true,
-    },
-    {
-      icon: Settings,
-      label: "Configurações",
-      onClick: () => {},
       showArrow: true,
     },
   ];

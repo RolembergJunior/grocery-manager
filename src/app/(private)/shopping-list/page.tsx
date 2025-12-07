@@ -1,6 +1,12 @@
 import QuickListCard from "./components/QuickListCard";
 import InventoryListCard from "./components/InventoryListCard";
 import UserListsSection from "./components/UserListsSection";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Grocery Manager - Listas de Compras",
+  description: "Grocery Manager - A plataforma de gestão de listas de compras",
+};
 
 export default async function ShoppingListApp() {
   return (

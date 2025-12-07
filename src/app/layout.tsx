@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 
 import AuthProvider from "@/components/AuthProvider";
 import LoadingFetch from "@/components/LoadingFetch";
+import { GoogleAnalytics } from "nextjs-google-analytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
+          <GoogleAnalytics trackPageViews />
           <Toaster richColors position="top-center" />
           {children}
           <LoadingFetch />
