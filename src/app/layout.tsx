@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-
 import AuthProvider from "@/components/AuthProvider";
 import LoadingFetch from "@/components/LoadingFetch";
-import { GoogleAnalytics } from "nextjs-google-analytics";
+import { GoogleAnalytics } from "@/components/GoogleAnalycts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <GoogleAnalytics trackPageViews />
+          <GoogleAnalytics />
           <Toaster richColors position="top-center" />
           {children}
           <LoadingFetch />
