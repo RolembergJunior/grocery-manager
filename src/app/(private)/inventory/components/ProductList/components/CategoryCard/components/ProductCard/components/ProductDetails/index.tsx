@@ -1,4 +1,4 @@
-import { Product } from "@/app/type";
+import { Product, RecurrencyConfig } from "@/app/type";
 import {
   Select,
   SelectContent,
@@ -6,31 +6,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { unitOptions } from "@/app/utils";
-import { Calendar, FileText, Package } from "lucide-react";
+import { getRecurrencyDescription, unitOptions } from "@/app/utils";
+import { FileText, Package, Calendar, Clock } from "lucide-react";
+import { useState } from "react";
+import RecurrencyModal from "@/components/RecurrencyModal";
 
 interface ProductDetailsProps {
   observation: string;
   unit: string;
   recurrency: number | null;
-  onChange: (field: keyof Product, value: string | number | null) => void;
+  recurrencyConfig: RecurrencyConfig | null;
+  onChange: (field: keyof Product, value: any) => void;
 }
-
-const recurrencyOptions = [
-  { value: null, label: "Sem recorrência" },
-  { value: 7, label: "Semanal (7 dias)" },
-  { value: 14, label: "Quinzenal (14 dias)" },
-  { value: 30, label: "Mensal (30 dias)" },
-  { value: 60, label: "Bimestral (60 dias)" },
-  { value: 90, label: "Trimestral (90 dias)" },
-];
 
 export default function ProductDetails({
   observation,
   unit,
   recurrency,
+  recurrencyConfig,
   onChange,
 }: ProductDetailsProps) {
+  const [isRecurrencyModalOpen, setIsRecurrencyModalOpen] = useState(false);
+
   return (
     <div className="space-y-4">
       <div className="w-full">
@@ -47,59 +44,62 @@ export default function ProductDetails({
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="w-full">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-            <Package className="w-4 h-4" />
-            Unidade de Medida
-          </label>
-          <Select
-            value={unit}
-            onValueChange={(value) => onChange("unit", value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecione a unidade" />
-            </SelectTrigger>
-            <SelectContent>
-              {unitOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="w-full">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-            <Calendar className="w-4 h-4" />
-            Recorrência de Compra
-          </label>
-          <Select
-            value={recurrency?.toString() || "null"}
-            onValueChange={(value) =>
-              onChange("reccurency", value === "null" ? null : parseInt(value))
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Sem recorrência" />
-            </SelectTrigger>
-            <SelectContent>
-              {recurrencyOptions.map((option) => (
-                <SelectItem
-                  key={option.value?.toString() || "null"}
-                  value={option.value?.toString() || "null"}
-                >
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-gray-500 mt-1">
-            Define com que frequência você compra este item
-          </p>
-        </div>
+      <div className="w-full">
+        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+          <Package className="w-4 h-4" />
+          Unidade de Medida
+        </label>
+        <Select value={unit} onValueChange={(value) => onChange("unit", value)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Selecione a unidade" />
+          </SelectTrigger>
+          <SelectContent>
+            {unitOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
+      <div className="w-full">
+        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+          <Calendar className="w-4 h-4" />
+          Recorrência de Compra
+        </label>
+        <button
+          onClick={() => setIsRecurrencyModalOpen(true)}
+          className="w-full flex items-center justify-between p-3 border border-gray-300 rounded-lg text-left hover:bg-gray-50 transition-colors group"
+        >
+          <div className="flex items-center gap-2 flex-1">
+            <Clock className="w-4 h-4 text-gray-500" />
+            <span
+              className={`text-sm ${
+                recurrencyConfig ? "text-gray-900 font-medium" : "text-gray-500"
+              }`}
+            >
+              {getRecurrencyDescription({
+                recurrency,
+                recurrencyConfig,
+              } as Product)}
+            </span>
+          </div>
+          <div className="text-xs text-blue-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            Configurar
+          </div>
+        </button>
+        <p className="text-xs text-gray-500 mt-1">
+          Define com que frequência você compra este item
+        </p>
+      </div>
+
+      <RecurrencyModal
+        isOpen={isRecurrencyModalOpen}
+        onClose={() => setIsRecurrencyModalOpen(false)}
+        value={recurrencyConfig}
+        onSave={(config) => onChange("reccurencyConfig", config)}
+      />
     </div>
   );
 }

@@ -1,4 +1,14 @@
-import { Product } from "./type";
+import {
+  addDays,
+  addWeeks,
+  addMonths,
+  setDate,
+  getDay,
+  getDaysInMonth,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
+import { Product, RecurrencyConfig } from "./type";
 
 export const categoryOptions = [
   { value: "fridge", label: "Geladeira" },
@@ -189,4 +199,189 @@ export function getUnitName(unit: string): string {
   return (
     unitOptions.find((c) => c.value === unit?.toLowerCase())?.label || unit
   );
+}
+
+export function findNextWeekday(daysOfWeek: number[], interval: number): Date {
+  const dateNow = new Date();
+
+  if (!daysOfWeek || daysOfWeek.length === 0) {
+    return addWeeks(dateNow, interval);
+  }
+
+  const sortedDays = [...daysOfWeek].sort((a, b) => a - b);
+  const currentDay = getDay(dateNow);
+
+  const nextDayThisWeek = sortedDays.find((day) => day > currentDay);
+
+  if (nextDayThisWeek !== undefined) {
+    const daysUntil = nextDayThisWeek - currentDay;
+
+    return addDays(dateNow, daysUntil);
+  }
+
+  const daysUntilNextWeek = 7 - currentDay + sortedDays[0];
+  const nextDate = addDays(dateNow, daysUntilNextWeek);
+
+  if (interval > 1) {
+    return addWeeks(nextDate, interval - 1);
+  }
+
+  return nextDate;
+}
+
+export function findNextDayOfMonth(dayOfMonth: number, interval: number): Date {
+  const dateNow = new Date();
+  const currentMonth = dateNow.getMonth();
+  const currentYear = dateNow.getFullYear();
+
+  let nextDate = new Date(currentYear, currentMonth, dayOfMonth);
+
+  if (nextDate <= dateNow) {
+    nextDate = addMonths(nextDate, interval);
+  }
+
+  const daysInTargetMonth = getDaysInMonth(nextDate);
+  if (dayOfMonth > daysInTargetMonth) {
+    nextDate = endOfMonth(nextDate);
+  }
+
+  return nextDate;
+}
+
+export function findNextWeekdayOfMonth(
+  weekOfMonth: number,
+  dayOfWeek: number,
+  interval: number
+): Date {
+  const dateNow = new Date();
+
+  const findNthWeekdayOfMonth = (
+    date: Date,
+    nth: number,
+    weekday: number
+  ): Date => {
+    const firstDay = startOfMonth(date);
+    const firstWeekday = getDay(firstDay);
+
+    let daysUntilWeekday = (weekday - firstWeekday + 7) % 7;
+
+    if (nth === -1) {
+      const lastDay = endOfMonth(date);
+      const lastWeekday = getDay(lastDay);
+      const daysBack = (lastWeekday - weekday + 7) % 7;
+      return addDays(lastDay, -daysBack);
+    }
+
+    const targetDate = addDays(firstDay, daysUntilWeekday + (nth - 1) * 7);
+
+    if (targetDate.getMonth() !== date.getMonth()) {
+      return findNthWeekdayOfMonth(date, -1, weekday);
+    }
+
+    return targetDate;
+  };
+
+  let currentMonth = new Date(dateNow);
+  let nextDate = findNthWeekdayOfMonth(currentMonth, weekOfMonth, dayOfWeek);
+
+  if (nextDate <= dateNow) {
+    currentMonth = addMonths(currentMonth, interval);
+    nextDate = findNthWeekdayOfMonth(currentMonth, weekOfMonth, dayOfWeek);
+  }
+
+  return nextDate;
+}
+
+export function calculateNextOccurrence(
+  config: RecurrencyConfig,
+  lastUpdate: Date
+): Date {
+  switch (config.type) {
+    case "daily":
+      return addDays(lastUpdate, config.interval);
+
+    case "weekly":
+      return findNextWeekday(config.daysOfWeek!, config.interval);
+
+    case "monthly":
+      if (config.monthlyType === "day_of_month") {
+        return findNextDayOfMonth(config.dayOfMonth!, config.interval);
+      }
+
+      return findNextWeekdayOfMonth(
+        config.weekOfMonth!,
+        config.dayOfWeek!,
+        config.interval
+      );
+
+    default:
+      return addDays(lastUpdate, config.interval);
+  }
+}
+
+export function getNextRecurrence(product: Product): Date {
+  if (product.reccurencyConfig) {
+    return calculateNextOccurrence(
+      product.reccurencyConfig,
+      new Date(product.updatedAt)
+    );
+  }
+
+  if (product.reccurency) {
+    return addDays(new Date(product.updatedAt), product.reccurency);
+  }
+
+  return new Date();
+}
+
+export function getRecurrencyDescription(product: Product) {
+  if (product.reccurencyConfig) {
+    const {
+      type,
+      interval,
+      daysOfWeek,
+      monthlyType,
+      dayOfMonth,
+      weekOfMonth,
+      dayOfWeek,
+    } = product.reccurencyConfig;
+
+    if (type === "daily") {
+      return `A cada ${interval} ${interval === 1 ? "dia" : "dias"}`;
+    }
+    if (type === "weekly" && daysOfWeek) {
+      const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+      const days = daysOfWeek.map((d) => weekdays[d]).join(", ");
+      return `Toda${interval > 1 ? `s ${interval} semanas em` : ""} ${days}`;
+    }
+    if (type === "monthly") {
+      if (monthlyType === "day_of_month") {
+        return `Todo dia ${dayOfMonth} do mês`;
+      }
+      const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+      const positions = [
+        "",
+        "Primeira",
+        "Segunda",
+        "Terceira",
+        "Quarta",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Última",
+      ];
+      const position = weekOfMonth === -1 ? "Última" : positions[weekOfMonth!];
+      return `${position} ${weekdays[dayOfWeek!]} do mês`;
+    }
+  }
+
+  if (product.reccurency) {
+    return `A cada ${product.reccurency} ${
+      product.reccurency === 1 ? "dia" : "dias"
+    }`;
+  }
+
+  return "Sem recorrência";
 }

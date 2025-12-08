@@ -9,10 +9,11 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { productsAtom } from "@/lib/atoms/products";
 import { categoriesAtom } from "@/lib/atoms/categories";
 import { getCategoryName } from "@/lib/utils";
-import { X, SkipForward, Filter, Calendar, Trash } from "lucide-react";
+import { X, Filter, Calendar, Trash, SkipForward } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
 import RecurrencyCalendar from "./components/RecurrencyCalendar";
 import { formatDate, getDaysUntil } from "./utils";
+import { getNextRecurrence, getRecurrencyDescription } from "@/app/utils";
 
 interface RecurrencyModalProps {
   isOpen: boolean;
@@ -38,10 +39,7 @@ export default function RecurrencyModal({
     if (!selectedDate) return items;
 
     return items.filter((product) => {
-      const updatedAt = new Date(product.updatedAt);
-      const nextRecurrence = new Date(
-        updatedAt.getTime() + product.reccurency! * 24 * 60 * 60 * 1000
-      );
+      const nextRecurrence = getNextRecurrence(product);
 
       return (
         nextRecurrence.getFullYear() === selectedDate.getFullYear() &&
@@ -70,10 +68,7 @@ export default function RecurrencyModal({
     const dates: Date[] = [];
 
     items.forEach((product) => {
-      const updatedAt = new Date(product.updatedAt);
-      const nextRecurrence = new Date(
-        updatedAt.getTime() + product.reccurency! * 24 * 60 * 60 * 1000
-      );
+      const nextRecurrence = getNextRecurrence(product);
       dates.push(nextRecurrence);
     });
 
@@ -85,10 +80,7 @@ export default function RecurrencyModal({
     const now = new Date();
 
     items.forEach((product) => {
-      const updatedAt = new Date(product.updatedAt);
-      const nextRecurrence = new Date(
-        updatedAt.getTime() + product.reccurency! * 24 * 60 * 60 * 1000
-      );
+      const nextRecurrence = getNextRecurrence(product);
       events.push({
         date: nextRecurrence,
         product,
@@ -102,60 +94,69 @@ export default function RecurrencyModal({
   async function handleCancelRecurrency(product: Product) {
     setUpdatingItems((prev) => new Set(prev).add(product.id));
 
-    toast.promise(updateOrCreate({ ...product, reccurency: null }), {
-      loading: "Cancelando recorrência...",
-      success: () => {
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.id === product.id ? { ...p, reccurency: null } : p
-          )
-        );
-        setUpdatingItems((prev) => {
-          const next = new Set(prev);
-          next.delete(product.id);
-          return next;
-        });
-        return "Recorrência cancelada!";
-      },
-      error: () => {
-        setUpdatingItems((prev) => {
-          const next = new Set(prev);
-          next.delete(product.id);
-          return next;
-        });
-        return "Erro ao cancelar recorrência";
-      },
-    });
+    toast.promise(
+      updateOrCreate({
+        ...product,
+        reccurency: null,
+        reccurencyConfig: null,
+      }),
+      {
+        loading: "Cancelando recorrência...",
+        success: () => {
+          setProducts((prev) =>
+            prev.map((p) =>
+              p.id === product.id
+                ? { ...p, reccurency: null, reccurencyConfig: null }
+                : p
+            )
+          );
+          setUpdatingItems((prev) => {
+            const next = new Set(prev);
+            next.delete(product.id);
+            return next;
+          });
+          return "Recorrência cancelada!";
+        },
+        error: () => {
+          setUpdatingItems((prev) => {
+            const next = new Set(prev);
+            next.delete(product.id);
+            return next;
+          });
+          return "Erro ao cancelar recorrência";
+        },
+      }
+    );
   }
 
-  async function handleSkipToNext(product: Product) {
-    setUpdatingItems((prev) => new Set(prev).add(product.id));
+  // async function handleSkipToNext(product: Product) {
+  //   setUpdatingItems((prev) => new Set(prev).add(product.id));
 
-    const now = new Date().toISOString();
+  //   const now = new Date().toISOString();
 
-    toast.promise(updateOrCreate({ ...product, updatedAt: now }), {
-      loading: "Atualizando recorrência...",
-      success: () => {
-        setProducts((prev) =>
-          prev.map((p) => (p.id === product.id ? { ...p, updatedAt: now } : p))
-        );
-        setUpdatingItems((prev) => {
-          const next = new Set(prev);
-          next.delete(product.id);
-          return next;
-        });
-        return "Recorrência atualizada!";
-      },
-      error: () => {
-        setUpdatingItems((prev) => {
-          const next = new Set(prev);
-          next.delete(product.id);
-          return next;
-        });
-        return "Erro ao atualizar recorrência";
-      },
-    });
-  }
+  //   toast.promise(updateOrCreate({ ...product, updatedAt: now }), {
+  //     loading: "Atualizando recorrência...",
+  //     success: () => {
+  //       setProducts((prev) =>
+  //         prev.map((p) => (p.id === product.id ? { ...p, updatedAt: now } : p))
+  //       );
+  //       setUpdatingItems((prev) => {
+  //         const next = new Set(prev);
+  //         next.delete(product.id);
+  //         return next;
+  //       });
+  //       return "Recorrência atualizada!";
+  //     },
+  //     error: () => {
+  //       setUpdatingItems((prev) => {
+  //         const next = new Set(prev);
+  //         next.delete(product.id);
+  //         return next;
+  //       });
+  //       return "Erro ao atualizar recorrência";
+  //     },
+  //   });
+  // }
 
   return (
     <Modal
@@ -277,12 +278,7 @@ export default function RecurrencyModal({
                 <div className="space-y-2">
                   {products.map((product) => {
                     const isUpdating = updatingItems.has(product.id);
-                    const updatedAt = new Date(product.updatedAt);
-
-                    const nextRecurrence = new Date(
-                      updatedAt.getTime() +
-                        (product.reccurency || 0) * 24 * 60 * 60 * 1000
-                    );
+                    const nextRecurrence = getNextRecurrence(product);
                     const daysUntil = getDaysUntil(nextRecurrence);
 
                     return (
@@ -298,12 +294,8 @@ export default function RecurrencyModal({
 
                             <span className="text-gray-400">•</span>
 
-                            <span className="text-sm ">
-                              a cada{" "}
-                              <span className="text-sm ">
-                                {product.reccurency}
-                              </span>{" "}
-                              dias
+                            <span className="text-sm text-gray-600">
+                              {getRecurrencyDescription(product)}
                             </span>
                           </div>
 
@@ -324,7 +316,7 @@ export default function RecurrencyModal({
                             disabled={isUpdating}
                             className={`
                             flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200
-                            bg-blue-500 text-white hover:bg-blue-600 shadow-sm hover:shadow-md
+                            bg-blue text-white hover:bg-blue/90 shadow-sm hover:shadow-md
                             ${
                               isUpdating
                                 ? "opacity-50 cursor-not-allowed"

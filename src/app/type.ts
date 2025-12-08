@@ -42,9 +42,31 @@ export interface Product {
   isRemoved: number;
   userId: string;
   reccurency: number | null;
+  reccurencyConfig: RecurrencyConfig | null;
   checked?: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface RecurrencyConfig {
+  type: "daily" | "weekly" | "monthly" | "yearly";
+  interval: number; // e.g., every 2 weeks, every 3 months
+
+  // For weekly recurrence
+  daysOfWeek?: number[]; // [0-6] where 0=Sunday, 1=Monday, etc.
+
+  // For monthly recurrence
+  monthlyType?: "day_of_month" | "day_of_week";
+  dayOfMonth?: number; // 1-31 for "first day", "15th day", etc.
+  weekOfMonth?: number; // 1-5 for "first week", "second week", etc.
+  dayOfWeek?: number; // 0-6 for "Monday of first week", etc.
+
+  // Start date for calculation
+  startDate: string;
+  endDate: string;
+
+  // Next occurrence (calculated)
+  nextOccurrence?: string;
 }
 
 export interface Category {

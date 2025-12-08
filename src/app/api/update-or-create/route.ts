@@ -44,6 +44,7 @@ export async function PUT(req: NextRequest) {
         userId: userId,
         isRemoved: 0,
         reccurency: null,
+        reccurencyConfig: null,
         createdAt: now,
         updatedAt: now,
       };

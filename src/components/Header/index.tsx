@@ -17,6 +17,7 @@ import { fetchCategoriesAtom } from "@/lib/atoms/categories";
 import { fetchListItemsAtom } from "@/lib/atoms/list-items";
 import { loadingAtom, LoadingParams } from "@/lib/atoms/loading";
 import { fetchProfileData } from "@/lib/atoms/profile";
+import { migrateRecurrency } from "@/services/migration";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -54,6 +55,19 @@ export default function Header() {
   async function initData() {
     setIsLoading({ isOpen: true, message: "Carregando..." });
     try {
+      // Run migration silently in the background
+      migrateRecurrency()
+        .then((result) => {
+          if (result.migratedCount > 0) {
+            console.log(
+              `✅ Migrated ${result.migratedCount} products to new recurrency system`
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Migration failed:", error);
+        });
+
       await fetchProfile();
       await fetchProducts();
       await fetchLists();

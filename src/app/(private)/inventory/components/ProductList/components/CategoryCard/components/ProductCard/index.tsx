@@ -35,7 +35,9 @@ export default function ProductCard({
       newItem.observation !== item.observation ||
       newItem.statusCompra !== item.statusCompra ||
       newItem.unit !== item.unit ||
-      newItem.reccurency !== item.reccurency
+      newItem.reccurency !== item.reccurency ||
+      JSON.stringify(newItem.reccurencyConfig) !==
+        JSON.stringify(item.reccurencyConfig)
     );
   }, [newItem, item]);
 
@@ -148,6 +150,7 @@ export default function ProductCard({
             observation={newItem.observation || ""}
             unit={newItem.unit}
             recurrency={newItem.reccurency}
+            recurrencyConfig={newItem.reccurencyConfig}
             onChange={handleChangeItemProp}
           />
 

@@ -6,6 +6,7 @@ import { Calendar, AlertTriangle, Sparkles } from "lucide-react";
 import { useMemo } from "react";
 import RenderWhen from "../RenderWhen";
 import { RecurrencyCard } from "./components/RecurrencyCard";
+import { getNextRecurrence } from "@/app/utils";
 
 export default function RecurrenciesSection() {
   const products = useAtomValue(productsAtom);
@@ -16,22 +17,16 @@ export default function RecurrenciesSection() {
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
     const recurrentProducts = products.filter(
-      (p) => p.reccurency && p.reccurency > 0
+      (p) => (p.reccurency && p.reccurency > 0) || p.reccurencyConfig
     );
 
     const upcoming = recurrentProducts.filter((p) => {
-      const updatedAt = new Date(p.updatedAt);
-      const nextRecurrence = new Date(
-        updatedAt.getTime() + (p.reccurency || 0) * 24 * 60 * 60 * 1000
-      );
+      const nextRecurrence = getNextRecurrence(p);
       return nextRecurrence <= sevenDaysFromNow && nextRecurrence > now;
     });
 
     const overdue = recurrentProducts.filter((p) => {
-      const updatedAt = new Date(p.updatedAt);
-      const nextRecurrence = new Date(
-        updatedAt.getTime() + (p.reccurency || 0) * 24 * 60 * 60 * 1000
-      );
+      const nextRecurrence = getNextRecurrence(p);
       return nextRecurrence < now;
     });
 
