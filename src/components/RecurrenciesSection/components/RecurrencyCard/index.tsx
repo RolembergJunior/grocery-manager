@@ -50,11 +50,6 @@ export function RecurrencyCard({
               className={`${textColorClass} text-xs bg-white/10 px-2 py-1.5 rounded-lg group-hover:bg-white/20 transition-colors`}
             >
               <div className="truncate">{item.name}</div>
-              {showDays && item.reccurency && (
-                <div className="text-[10px] opacity-75 mt-0.5">
-                  A cada {item.reccurency} dias
-                </div>
-              )}
             </div>
           ))}
 

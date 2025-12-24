@@ -8,7 +8,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
 import StatusSelect from "./components/StatusSelect";
 import { toast } from "sonner";
-import { updateOrCreate, updateStatus } from "@/services/products";
+import { updateOrCreate } from "@/services/products";
 import { palletColors } from "@/app/utils";
 import { useSetAtom } from "jotai";
 import { productsAtom } from "@/lib/atoms";
@@ -35,9 +35,8 @@ export default function ProductCard({
       newItem.observation !== item.observation ||
       newItem.statusCompra !== item.statusCompra ||
       newItem.unit !== item.unit ||
-      newItem.reccurency !== item.reccurency ||
-      JSON.stringify(newItem.reccurencyConfig) !==
-        JSON.stringify(item.reccurencyConfig)
+      JSON.stringify(newItem.recurrencyConfig) !==
+        JSON.stringify(item.recurrencyConfig)
     );
   }, [newItem, item]);
 
@@ -149,8 +148,7 @@ export default function ProductCard({
           <ProductDetails
             observation={newItem.observation || ""}
             unit={newItem.unit}
-            recurrency={newItem.reccurency}
-            recurrencyConfig={newItem.reccurencyConfig}
+            recurrencyConfig={newItem.recurrencyConfig}
             onChange={handleChangeItemProp}
           />
 

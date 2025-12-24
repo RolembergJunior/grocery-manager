@@ -41,8 +41,7 @@ export interface Product {
   statusCompra: STATUSPRODUCT;
   isRemoved: number;
   userId: string;
-  reccurency: number | null;
-  reccurencyConfig: RecurrencyConfig | null;
+  recurrencyConfig: RecurrencyConfig | null;
   checked?: boolean;
   createdAt: string;
   updatedAt: string;

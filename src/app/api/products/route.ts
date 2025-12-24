@@ -63,7 +63,7 @@ export async function PUT(req: NextRequest) {
         observation: item.observation || "",
         isRemoved: item.isRemoved || 0,
         userId: userId,
-        reccurency: item.reccurency,
+        recurrencyConfig: item.recurrencyConfig,
         createdAt: item.createdAt,
         updatedAt: new Date().toISOString(),
       };

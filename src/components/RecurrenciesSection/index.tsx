@@ -16,9 +16,7 @@ export default function RecurrenciesSection() {
     const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    const recurrentProducts = products.filter(
-      (p) => (p.reccurency && p.reccurency > 0) || p.reccurencyConfig
-    );
+    const recurrentProducts = products.filter((p) => p.recurrencyConfig);
 
     const upcoming = recurrentProducts.filter((p) => {
       const nextRecurrence = getNextRecurrence(p);

@@ -14,7 +14,7 @@ import RecurrencyModal from "@/components/RecurrencyModal";
 interface ProductDetailsProps {
   observation: string;
   unit: string;
-  recurrency: number | null;
+
   recurrencyConfig: RecurrencyConfig | null;
   onChange: (field: keyof Product, value: any) => void;
 }
@@ -22,7 +22,7 @@ interface ProductDetailsProps {
 export default function ProductDetails({
   observation,
   unit,
-  recurrency,
+
   recurrencyConfig,
   onChange,
 }: ProductDetailsProps) {
@@ -80,7 +80,6 @@ export default function ProductDetails({
               }`}
             >
               {getRecurrencyDescription({
-                recurrency,
                 recurrencyConfig,
               } as Product)}
             </span>
@@ -98,7 +97,7 @@ export default function ProductDetails({
         isOpen={isRecurrencyModalOpen}
         onClose={() => setIsRecurrencyModalOpen(false)}
         value={recurrencyConfig}
-        onSave={(config) => onChange("reccurencyConfig", config)}
+        onSave={(config) => onChange("recurrencyConfig", config)}
       />
     </div>
   );

@@ -320,22 +320,18 @@ export function calculateNextOccurrence(
 }
 
 export function getNextRecurrence(product: Product): Date {
-  if (product.reccurencyConfig) {
+  if (product.recurrencyConfig) {
     return calculateNextOccurrence(
-      product.reccurencyConfig,
+      product.recurrencyConfig,
       new Date(product.updatedAt)
     );
-  }
-
-  if (product.reccurency) {
-    return addDays(new Date(product.updatedAt), product.reccurency);
   }
 
   return new Date();
 }
 
 export function getRecurrencyDescription(product: Product) {
-  if (product.reccurencyConfig) {
+  if (product.recurrencyConfig) {
     const {
       type,
       interval,
@@ -344,7 +340,7 @@ export function getRecurrencyDescription(product: Product) {
       dayOfMonth,
       weekOfMonth,
       dayOfWeek,
-    } = product.reccurencyConfig;
+    } = product.recurrencyConfig;
 
     if (type === "daily") {
       return `A cada ${interval} ${interval === 1 ? "dia" : "dias"}`;
@@ -375,12 +371,6 @@ export function getRecurrencyDescription(product: Product) {
       const position = weekOfMonth === -1 ? "Última" : positions[weekOfMonth!];
       return `${position} ${weekdays[dayOfWeek!]} do mês`;
     }
-  }
-
-  if (product.reccurency) {
-    return `A cada ${product.reccurency} ${
-      product.reccurency === 1 ? "dia" : "dias"
-    }`;
   }
 
   return "Sem recorrência";

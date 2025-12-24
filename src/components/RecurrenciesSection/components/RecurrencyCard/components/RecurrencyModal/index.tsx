@@ -97,17 +97,14 @@ export default function RecurrencyModal({
     toast.promise(
       updateOrCreate({
         ...product,
-        reccurency: null,
-        reccurencyConfig: null,
+        recurrencyConfig: null,
       }),
       {
         loading: "Cancelando recorrência...",
         success: () => {
           setProducts((prev) =>
             prev.map((p) =>
-              p.id === product.id
-                ? { ...p, reccurency: null, reccurencyConfig: null }
-                : p
+              p.id === product.id ? { ...p, recurrencyConfig: null } : p
             )
           );
           setUpdatingItems((prev) => {

@@ -12,7 +12,7 @@ export default function ReviewStockSection() {
 
   const reviewItems = useMemo(() => {
     const frequentWithoutRecurrency = products.filter((p) => {
-      const hasNoRecurrency = !p.reccurency || p.reccurency === 0;
+      const hasNoRecurrency = !p.recurrencyConfig;
       const updatedAt = new Date(p.updatedAt);
       const createdAt = new Date(p.createdAt);
       const daysSinceCreation =
