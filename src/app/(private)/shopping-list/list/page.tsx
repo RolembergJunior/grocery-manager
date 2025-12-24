@@ -153,6 +153,7 @@ export default function ShoppingListPage() {
           </h1>
 
           <Controls
+            items={currentItems}
             categories={categories}
             searchTerm={searchTerm}
             selectedCategories={filters?.category || []}
@@ -168,7 +169,7 @@ export default function ShoppingListPage() {
             progressPercentage={progressPercentage}
           />
 
-          <NotebookList items={currentItems} />
+          <NotebookList categories={categories} items={currentItems} />
 
           <RenderWhen isTrue={totalCount > 0}>
             <div className="mt-6 flex justify-end">
@@ -196,10 +197,10 @@ export default function ShoppingListPage() {
             label: "SIM",
             onClick: onConfirm,
             autoClose: true,
-            variant: "primary",
+            variant: "default",
           },
           {
-            label: "NAO",
+            label: "NÃO",
             onClick: () => null,
             autoClose: true,
             variant: "danger",

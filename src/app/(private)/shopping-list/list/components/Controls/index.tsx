@@ -1,10 +1,13 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { Category } from "@/app/type";
+import { Category, ListItem, OptionsType } from "@/app/type";
 import FilterButtonModal from "./FilterModal";
+import { useMemo } from "react";
+import { getCategoryName } from "@/lib/utils";
 
 type ControlsProps = {
+  items: ListItem[];
   categories: Category[];
   searchTerm: string;
   selectedCategories: string[];
@@ -15,6 +18,7 @@ type ControlsProps = {
 };
 
 export default function Controls({
+  items,
   categories,
   searchTerm,
   selectedCategories,
@@ -23,6 +27,36 @@ export default function Controls({
   onChangeFilter,
   onChangeSearchTerm,
 }: ControlsProps) {
+  const normalizedCategories = useMemo(() => {
+    const categoryArray: OptionsType[] = [];
+
+    items.forEach((item) => {
+      const refferedCategory = categories.find(
+        (category) => category.id === item.category
+      );
+      const existsCategory = categoryArray.find(
+        (category) => category.value === item.category
+      );
+
+      if (!existsCategory) {
+        if (refferedCategory) {
+          categoryArray.push({
+            value: refferedCategory.id,
+            label: refferedCategory.name,
+          });
+        } else {
+          categoryArray.push({ value: item.category, label: item.category });
+        }
+      }
+    });
+
+    return categoryArray.sort((a, b) => {
+      if (a.value === "Sem categoria") return 1;
+      if (b.value === "Sem categoria") return -1;
+      return a.value!.toString().localeCompare(b.value!.toString());
+    });
+  }, [items]);
+
   return (
     <div className="flex justify-between items-center my-4 w-full gap-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm">
       <div className="relative w-full">
@@ -37,7 +71,7 @@ export default function Controls({
       </div>
 
       <FilterButtonModal
-        categories={categories}
+        categoryOptions={normalizedCategories}
         selectedCategories={selectedCategories}
         selectedChecked={selectedChecked}
         selectedFromList={selectedFromList}

@@ -1,12 +1,33 @@
-import type { ListItem } from "@/app/type";
+import { useMemo } from "react";
+import type { Category, ListItem } from "@/app/type";
 import RenderWhen from "@/components/RenderWhen";
-import NotebookItem from "./components/NotebookItem";
+import CategorySection from "./components/CategorySection";
+import { getCategoryName } from "@/lib/utils";
 
 interface NotebookListProps {
   items: ListItem[];
+  categories: Category[];
 }
 
-export default function NotebookList({ items }: NotebookListProps) {
+export default function NotebookList({ items, categories }: NotebookListProps) {
+  const groupedItems = useMemo(() => {
+    const groups: Record<string, ListItem[]> = {};
+
+    items.forEach((item) => {
+      const category = item.category || "Sem categoria";
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(item);
+    });
+
+    return Object.entries(groups).sort(([a], [b]) => {
+      if (a === "Sem categoria") return 1;
+      if (b === "Sem categoria") return -1;
+      return a.localeCompare(b);
+    });
+  }, [items]);
+
   return (
     <div className="max-w-4xl mx-auto mt-2">
       <div>
@@ -19,8 +40,12 @@ export default function NotebookList({ items }: NotebookListProps) {
             </div>
           }
         >
-          {items.map((item) => (
-            <NotebookItem key={item.id} item={item} />
+          {groupedItems.map(([category, categoryItems]) => (
+            <CategorySection
+              key={category}
+              category={getCategoryName(categories, category)}
+              items={categoryItems}
+            />
           ))}
         </RenderWhen>
       </div>

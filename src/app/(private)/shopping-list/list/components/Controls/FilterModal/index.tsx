@@ -3,12 +3,12 @@
 import { Filter } from "lucide-react";
 import Modal from "@/components/Modal";
 import MultiSelect from "@/components/MultiSelect";
-import { Category } from "@/app/type";
+import { OptionsType } from "@/app/type";
 import { useState } from "react";
 import RenderWhen from "@/components/RenderWhen";
 
 type FilterModalProps = {
-  categories: Category[];
+  categoryOptions: OptionsType[];
   selectedCategories: string[];
   selectedChecked: string[];
   selectedFromList: string[];
@@ -26,7 +26,7 @@ const fromListOptions = [
 ];
 
 export default function FilterButtonModal({
-  categories,
+  categoryOptions,
   selectedCategories,
   selectedChecked,
   selectedFromList,
@@ -71,10 +71,7 @@ export default function FilterButtonModal({
             </h3>
             <MultiSelect
               placeholder="Selecione categorias"
-              options={categories.map((item) => ({
-                value: item.id,
-                label: item.name,
-              }))}
+              options={categoryOptions}
               value={selectedCategories}
               onChange={(value) => onFilterChange("category", value || [])}
               className="w-full"

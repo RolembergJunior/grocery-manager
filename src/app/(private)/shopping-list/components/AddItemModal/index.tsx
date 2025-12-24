@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Plus, Package, ShoppingBag, ListPlus } from "lucide-react";
 import { useAtomValue } from "jotai";
-import { Product } from "@/app/type";
+import { OptionsType, Product } from "@/app/type";
 import { toast } from "sonner";
 import RenderWhen from "@/components/RenderWhen";
 import Modal from "@/components/Modal";
@@ -28,6 +28,7 @@ interface NewItemForm {
   category: string;
   neededQuantity: number;
   unit: string;
+  observation: string | null;
 }
 
 export default function AddItemModal({
@@ -36,6 +37,9 @@ export default function AddItemModal({
   listId,
 }: AddItemModalProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("inventory");
+  const [categoryMode, setCategoryMode] = useState<"select" | "create">(
+    "select"
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [neededQuantity, setNeededQuantity] = useState(1);
@@ -44,22 +48,13 @@ export default function AddItemModal({
     category: "",
     neededQuantity: 1,
     unit: unitOptions[0].value,
+    observation: null,
   });
 
   const products = useAtomValue(productsAtom);
   const categories = useAtomValue(categoriesAtom);
 
   const { items } = useList(listId!);
-
-  const filteredProducts = useMemo(() => {
-    const existingItemIds = new Set(items.flatMap((item) => item.itemId));
-
-    return products.filter(
-      (product) =>
-        !existingItemIds.has(product.id) &&
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [products, items, searchTerm]);
 
   function getCategoryName(categoryId: string) {
     return categories.find((category) => category.id === categoryId)?.name;
@@ -76,7 +71,7 @@ export default function AddItemModal({
     toast.promise(addItemFromInventory(listId, selectedProduct), {
       loading: "Adicionando item...",
       success: () => {
-        handleClose();
+        handleClearStates();
         return "Item adicionado à lista!";
       },
       error: "Erro ao adicionar item",
@@ -90,22 +85,39 @@ export default function AddItemModal({
     }
 
     if (!newItemForm.category) {
-      toast.error("Selecione uma categoria");
+      toast.error("Adicione uma categoria");
+      return;
+    }
+
+    if (
+      !categories.some(
+        (category) =>
+          category.name.toLowerCase() === newItemForm.category.toLowerCase()
+      )
+    ) {
+      toast.error("Categoria já existente");
       return;
     }
 
     toast.promise(addItemManual(listId, newItemForm), {
       loading: "Criando item...",
       success: () => {
-        handleClose();
+        handleClearStates();
         return "Item criado e adicionado à lista!";
       },
       error: "Erro ao criar item",
     });
   }
 
-  function handleClose() {
-    setViewMode("inventory");
+  function handleChangeCategoryMode(mode: "select" | "create") {
+    setCategoryMode(mode);
+    setNewItemForm({
+      ...newItemForm,
+      category: "",
+    });
+  }
+
+  function handleClearStates() {
     setSearchTerm("");
     setSelectedProduct(null);
     setNeededQuantity(1);
@@ -113,15 +125,57 @@ export default function AddItemModal({
       name: "",
       category: "",
       neededQuantity: 1,
-      unit: "unidade",
+      unit: unitOptions[0].value,
+      observation: null,
     });
+  }
+
+  function handleClose() {
+    setViewMode("inventory");
+    setCategoryMode("select");
+    handleClearStates();
     onClose();
   }
 
-  const categoryOptions = categories.map((cat) => ({
-    label: cat.name,
-    value: cat.id,
-  }));
+  const filteredProducts = useMemo(() => {
+    const existingItemIds = new Set(items.flatMap((item) => item.itemId));
+
+    return products.filter(
+      (product) =>
+        !existingItemIds.has(product.id) &&
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [products, items, searchTerm]);
+
+  const categoryOptions = useMemo(
+    () =>
+      items.reduce((acc, item) => {
+        const alredyExists = acc.some(
+          (itemAcc) => itemAcc.value === item.category
+        );
+
+        if (!alredyExists) {
+          const refferedCategory = categories.find(
+            (category) => category.id === item.category
+          );
+
+          if (!refferedCategory) {
+            acc.push({
+              value: item.category,
+              label: item.category,
+            });
+          } else {
+            acc.push({
+              value: refferedCategory.id,
+              label: refferedCategory.name,
+            });
+          }
+        }
+
+        return acc;
+      }, [] as OptionsType[]),
+    [items, categories]
+  );
 
   return (
     <Modal
@@ -172,17 +226,67 @@ export default function AddItemModal({
                 maxLength={50}
               />
 
-              <FieldForm
-                type="select"
-                label="Categoria"
-                value={newItemForm.category}
-                onChange={(value) =>
-                  setNewItemForm({ ...newItemForm, category: value as string })
-                }
-                options={categoryOptions}
-                placeholder="Selecione uma categoria"
-                required
-              />
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  Categoria <span className="text-red-500">*</span>
+                </label>
+
+                <div className="flex gap-1 p-0.5 bg-gray-100 rounded-md">
+                  <button
+                    type="button"
+                    onClick={() => handleChangeCategoryMode("select")}
+                    className={`flex-1 px-3 py-1.5 text-sm rounded font-medium transition-all duration-200 ${
+                      categoryMode === "select"
+                        ? "bg-white text-[var(--color-blue)] shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    Selecionar existente
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChangeCategoryMode("create")}
+                    className={`flex-1 px-3 py-1.5 text-sm rounded font-medium transition-all duration-200 ${
+                      categoryMode === "create"
+                        ? "bg-white text-[var(--color-blue)] shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    Criar nova
+                  </button>
+                </div>
+
+                <RenderWhen
+                  isTrue={categoryMode === "select"}
+                  elseElement={
+                    <FieldForm
+                      type="text"
+                      value={newItemForm.category}
+                      onChange={(value) =>
+                        setNewItemForm({
+                          ...newItemForm,
+                          category: value as string,
+                        })
+                      }
+                      placeholder="Digite o nome da nova categoria"
+                      maxLength={30}
+                    />
+                  }
+                >
+                  <FieldForm
+                    type="select"
+                    value={newItemForm.category}
+                    onChange={(value) =>
+                      setNewItemForm({
+                        ...newItemForm,
+                        category: value as string,
+                      })
+                    }
+                    options={categoryOptions}
+                    placeholder="Selecione uma categoria"
+                  />
+                </RenderWhen>
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <FieldForm
@@ -210,6 +314,19 @@ export default function AddItemModal({
                   required
                 />
               </div>
+
+              <FieldForm
+                type="textarea"
+                label="Observação"
+                value={newItemForm.observation}
+                onChange={(value) =>
+                  setNewItemForm({
+                    ...newItemForm,
+                    observation: value as string,
+                  })
+                }
+                placeholder="Adicione alguma observação"
+              />
             </div>
           }
         >
@@ -224,7 +341,7 @@ export default function AddItemModal({
                         {selectedProduct?.name}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        {getCategoryName(selectedProduct?.category)}
+                        {getCategoryName(selectedProduct?.category || "")}
                       </p>
                     </div>
                     <button

@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FieldFormProps } from "./types";
+import RenderWhen from "../RenderWhen";
 
 export default function FieldForm(props: FieldFormProps) {
   const {
@@ -130,15 +131,16 @@ export default function FieldForm(props: FieldFormProps) {
   return (
     <div className={`space-y-2 ${className}`}>
       <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-        {label}
+        {label} {required && <span className="text-red-500">*</span>}
       </label>
       {renderInput()}
-      {error && (
+
+      <RenderWhen isTrue={!!error}>
         <div className="flex items-center gap-1 text-red-600 text-sm mt-1">
           <AlertCircle className="w-4 h-4" />
           <span>{error}</span>
         </div>
-      )}
+      </RenderWhen>
     </div>
   );
 }

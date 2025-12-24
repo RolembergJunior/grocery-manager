@@ -8,5 +8,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getCategoryName(categories: Category[], categoryId: string) {
-  return categories.find((category) => category.id === categoryId)?.name;
+  return (
+    categories.find((category) => category.id === categoryId)?.name ||
+    categoryId
+  );
 }
