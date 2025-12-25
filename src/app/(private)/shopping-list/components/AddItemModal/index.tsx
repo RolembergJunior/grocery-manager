@@ -90,7 +90,7 @@ export default function AddItemModal({
     }
 
     if (
-      !categories.some(
+      categories.some(
         (category) =>
           category.name.toLowerCase() === newItemForm.category.toLowerCase()
       )
