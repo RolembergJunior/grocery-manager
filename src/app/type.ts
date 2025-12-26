@@ -86,6 +86,7 @@ export interface List {
   itemId: string[];
   createdAt: string;
   updatedAt: string;
+  shareToken?: string | null;
 }
 
 export interface ListItem {

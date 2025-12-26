@@ -2,7 +2,6 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import type { ListItem } from "@/app/type";
 import {
-  getListItemsByListId,
   getListItemsByUserId,
   createListItem,
   updateListItem,

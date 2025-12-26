@@ -57,3 +57,16 @@ export async function deleteList(id: string): Promise<void> {
     body: JSON.stringify({ id }),
   });
 }
+
+export async function generateShareToken(
+  listId: string
+): Promise<{ shareToken: string }> {
+  const data = await authenticatedFetch<{ shareToken: string }>(
+    "/api/lists/share/generate",
+    {
+      method: "POST",
+      body: JSON.stringify({ listId }),
+    }
+  );
+  return data;
+}

@@ -20,16 +20,17 @@ export function useList(listId: string, options?: UseListOptions) {
   const setIsLoading = useSetAtom(loadingAtom);
 
   useEffect(() => {
-    async function reloadList() {
-      if (autoLoad && !hasLoadedRef.current) {
-        setIsLoading({ isOpen: true, message: "Carregando lista..." });
-        await loadList(listId);
-        hasLoadedRef.current = true;
-        setIsLoading({ isOpen: false, message: "" });
-      }
-    }
     reloadList();
-  }, [listId, autoLoad]);
+  }, [listId, autoLoad, hasLoadedRef.current]);
+
+  async function reloadList() {
+    if (autoLoad && !hasLoadedRef.current) {
+      setIsLoading({ isOpen: true, message: "Carregando lista..." });
+      await loadList(listId);
+      hasLoadedRef.current = true;
+      setIsLoading({ isOpen: false, message: "" });
+    }
+  }
 
   return {
     items: items.filter((i) => !i.isRemoved),
