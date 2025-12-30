@@ -3,7 +3,7 @@
 import type { ListItem } from "@/app/type";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import SharedNotebookItem from "./SharedNotebookItem";
+import SharedNotebookItem from "../SharedNotebookItem";
 import RenderWhen from "@/components/RenderWhen";
 
 interface SharedCategorySectionProps {

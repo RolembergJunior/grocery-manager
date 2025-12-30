@@ -3,8 +3,8 @@
 import { useState, useMemo } from "react";
 import type { List, ListItem, Category } from "@/app/type";
 import { Share2 } from "lucide-react";
-import SharedNotebookList from "./SharedNotebookList";
-import SharedProgressBar from "./SharedProgressBar";
+import SharedNotebookList from "../SharedNotebookList";
+import SharedProgressBar from "../SharedProgressBar";
 
 interface SharedListClientProps {
   list: List;

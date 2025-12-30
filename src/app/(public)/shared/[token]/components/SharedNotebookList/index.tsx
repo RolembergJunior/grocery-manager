@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import type { Category, ListItem } from "@/app/type";
 import RenderWhen from "@/components/RenderWhen";
-import SharedCategorySection from "./SharedCategorySection";
+import SharedCategorySection from "../SharedCategorySection";
 import { getCategoryName } from "@/lib/utils";
 
 interface SharedNotebookListProps {
