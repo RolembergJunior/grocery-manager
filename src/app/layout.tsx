@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import AuthProvider from "@/components/AuthProvider";
 import LoadingFetch from "@/components/LoadingFetch";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Analytics />
+          <SpeedInsights />
           <Toaster richColors position="top-center" />
           {children}
           <LoadingFetch />
