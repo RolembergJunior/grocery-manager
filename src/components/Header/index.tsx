@@ -40,15 +40,9 @@ export default function Header() {
       : "Home";
 
   useEffect(() => {
-    const abortController = new AbortController();
+    if (!session?.user) return;
 
-    if (session?.user) {
-      initData();
-    }
-
-    return () => {
-      abortController.abort();
-    };
+    initData();
   }, [session?.user]);
 
   async function initData() {
