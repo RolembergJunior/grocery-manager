@@ -1,5 +1,4 @@
-import { getStatusText } from "../../utils";
-import { Product } from "@/app/type";
+import { buyStatusOptions } from "@/app/utils";
 import {
   Select,
   SelectContent,
@@ -19,24 +18,6 @@ interface StatusSelectProps {
   disabled?: boolean;
   onChange: (status: number) => void;
 }
-
-const statusOptions: StatusOption[] = [
-  {
-    value: 1,
-    label: "Comprar",
-    description: "Item precisa ser comprado",
-  },
-  {
-    value: 2,
-    label: "Acabando",
-    description: "Item está quase acabando",
-  },
-  {
-    value: 3,
-    label: "Tem",
-    description: "Item está em quantidade adequada",
-  },
-];
 
 export default function StatusSelect({
   currentStatus,
@@ -79,10 +60,15 @@ export default function StatusSelect({
     }
   }
 
+  function getTextStatus() {
+    return buyStatusOptions.find((option) => option.value === currentStatus)
+      ?.label;
+  }
+
   if (disabled) {
     return (
       <span className={getStatusClassName(currentStatus)}>
-        {getStatusText(currentStatus)}
+        {getTextStatus()}
       </span>
     );
   }
@@ -100,21 +86,18 @@ export default function StatusSelect({
         )} gap-1 border-0 shadow-none focus:ring-0`}
         title="Clique para alterar o status"
       >
-        <SelectValue>{getStatusText(currentStatus)}</SelectValue>
+        <SelectValue>{getTextStatus()}</SelectValue>
       </SelectTrigger>
-      <SelectContent className="w-56">
-        {statusOptions.map((option) => (
+      <SelectContent>
+        {buyStatusOptions.map((option) => (
           <SelectItem
             key={option.value}
             value={option.value.toString()}
-            className={`${getItemClassName(
+            className={` ${getItemClassName(
               option.value
             )} rounded-lg my-1 cursor-pointer transition-all duration-200`}
           >
-            <div className="flex flex-col">
-              <span className="font-medium">{option.label}</span>
-              <span className="text-xs opacity-70">{option.description}</span>
-            </div>
+            <span className="font-medium">{option.label}</span>
           </SelectItem>
         ))}
       </SelectContent>

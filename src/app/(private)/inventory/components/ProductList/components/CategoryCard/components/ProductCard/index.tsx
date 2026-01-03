@@ -9,7 +9,7 @@ import RenderWhen from "@/components/RenderWhen";
 import StatusSelect from "./components/StatusSelect";
 import { toast } from "sonner";
 import { updateOrCreate } from "@/services/products";
-import { palletColors } from "@/app/utils";
+import { getUnitName, palletColors } from "@/app/utils";
 import { useSetAtom } from "jotai";
 import { productsAtom } from "@/lib/atoms";
 import { Button } from "@/components/ui/button";
@@ -122,7 +122,9 @@ export default function ProductCard({
             <h3 className="text-base font-semibold text-gray-900 truncate w-35">
               {item.name}
             </h3>
-            <span className="text-sm text-gray-500">({item.unit})</span>
+            <span className="text-sm text-gray-500">
+              ({getUnitName(item.unit)})
+            </span>
           </div>
         </button>
 
@@ -153,6 +155,10 @@ export default function ProductCard({
           />
 
           <div className="flex gap-3 mt-3">
+            <Button onClick={handleCancel} variant="outline" className="flex-1">
+              Cancelar
+            </Button>
+
             <Button
               onClick={handleSave}
               disabled={!hasChanges}
@@ -163,9 +169,6 @@ export default function ProductCard({
               } `}
             >
               Salvar
-            </Button>
-            <Button onClick={handleCancel} variant="outline" className="flex-1">
-              Cancelar
             </Button>
           </div>
         </div>

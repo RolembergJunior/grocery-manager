@@ -22,7 +22,6 @@ interface AlertDialogProps {
   description?: string;
   variant?: AlertVariant;
   actions?: AlertAction[];
-  showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
   closeOnEscape?: boolean;
   icon?: React.ReactNode;
@@ -62,7 +61,6 @@ export default function AlertDialog({
   description,
   variant = "info",
   actions = [],
-  showCloseButton = true,
   closeOnOverlayClick = false,
   closeOnEscape = true,
   icon,
@@ -125,27 +123,20 @@ export default function AlertDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative p-6">
-          <RenderWhen isTrue={showCloseButton}>
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-              aria-label="Close alert"
-            >
-              <X className="w-4 h-4 text-gray-500" />
-            </button>
-          </RenderWhen>
-
-          <div className="flex items-start gap-4">
+          {/* <div className="flex items-start gap-4"></div> */}
+          <div className="flex items-center justify-center gap-2">
             <div
-              className={`flex-shrink-0 w-12 h-12 rounded-full ${config.iconBg} flex items-center justify-center`}
+              className={`flex-shrink-0 w-8 h-8 rounded-full ${config.iconBg} flex items-center justify-center`}
             >
               {IconComponent}
             </div>
-          </div>
-          <div className="flex-1 pt-1">
+
             <h3 className="text-lg font-semibold text-gray-900 mb-1">
               {title}
             </h3>
+          </div>
+
+          <div className="flex-1 pt-1">
             <RenderWhen isTrue={!!description}>
               <p className="text-sm text-gray-600 leading-relaxed">
                 {description}

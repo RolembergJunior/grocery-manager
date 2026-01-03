@@ -10,16 +10,3 @@ export function getStatusClassName(status: string): string {
       return `${baseClasses} bg-gradient-to-r from-blue-300 to-blue-400 text-white`;
   }
 }
-
-export function getStatusText(statusValue: number): string {
-  switch (statusValue) {
-    case 1:
-      return "Comprar";
-    case 2:
-      return "Acabando";
-    case 3:
-      return "Tenho";
-    default:
-      return "";
-  }
-}

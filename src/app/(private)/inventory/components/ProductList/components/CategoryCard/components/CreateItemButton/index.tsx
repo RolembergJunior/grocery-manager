@@ -32,7 +32,7 @@ export default function CreateItemButton({
   return (
     <>
       <div
-        className="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center font-bold text-lg shadow-lg cursor-pointer"
+        className="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center font-bold text-lg shadow-lg cursor-pointer z-50"
         onClick={handleOpenCreateItemModal}
       >
         <Plus className="w-5 h-5 text-white" />
@@ -41,7 +41,7 @@ export default function CreateItemButton({
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="Adicionar Item"
+        title={`Adicionar Item (${category.name})`}
       >
         <AddNewItemForm category={category} />
       </Modal>

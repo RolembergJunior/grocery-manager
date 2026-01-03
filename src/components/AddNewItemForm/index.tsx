@@ -14,6 +14,7 @@ import { z } from "zod";
 import { validateIfExists } from "./utils";
 import FieldForm from "../FieldForm";
 import { Button } from "../ui/button";
+import RenderWhen from "../RenderWhen";
 
 export default function AddNewItemForm({ category }: { category: Category }) {
   const [formData, setFormData] = useState<FormData>({
@@ -22,7 +23,7 @@ export default function AddNewItemForm({ category }: { category: Category }) {
     currentQuantity: null,
     neededQuantity: null,
     unit: unitOptions[0].value,
-    statusCompra: null,
+    statusCompra: 1,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -66,7 +67,7 @@ export default function AddNewItemForm({ category }: { category: Category }) {
       currentQuantity: null,
       neededQuantity: null,
       unit: unitOptions[0].value,
-      statusCompra: null,
+      statusCompra: 1,
     });
     setErrors({});
   }
@@ -101,12 +102,13 @@ export default function AddNewItemForm({ category }: { category: Category }) {
   return (
     <div className="bg-white rounded-2xl w-full">
       <div className="space-y-2">
-        {errors._form && (
+        <RenderWhen isTrue={!!errors._form}>
           <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700">
             <AlertCircle className="w-5 h-5" />
             <span>{errors._form}</span>
           </div>
-        )}
+        </RenderWhen>
+
         <FieldForm
           type="text"
           label="Nome do item"
@@ -119,20 +121,13 @@ export default function AddNewItemForm({ category }: { category: Category }) {
         />
 
         <FieldForm
-          type="text"
-          label="Categoria"
-          value={category?.name || ""}
-          onChange={() => null}
-          disabled
-        />
-
-        <FieldForm
           type="select"
           label="Unidade"
           value={formData.unit}
           onChange={(value) => handleChangeInput("unit", value)}
           options={unitOptions}
           error={errors.unit}
+          required
         />
 
         <FieldForm
@@ -144,6 +139,7 @@ export default function AddNewItemForm({ category }: { category: Category }) {
           }
           options={buyStatusOptions}
           error={errors.statusCompra}
+          required
         />
 
         <div className="flex gap-4 pt-4 border-t border-gray-100">

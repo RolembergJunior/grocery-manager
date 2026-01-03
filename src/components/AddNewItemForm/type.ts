@@ -19,5 +19,5 @@ export interface FormErrors {
   neededQuantity?: string;
   unit?: string;
   statusCompra?: string;
-  _form?: string; // General form error
+  _form?: string;
 }

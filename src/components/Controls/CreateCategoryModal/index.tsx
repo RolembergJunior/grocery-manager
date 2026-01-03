@@ -170,7 +170,7 @@ export default function CreateCategoryModal({
         <div
           className={`w-6 h-6 rounded-full border-2 border-gray-200 ${colors.bgClass}`}
         />
-        <span>{colors.backgroundColor}</span>
+        <span>{colors.name}</span>
       </div>
     ),
   }));
@@ -179,7 +179,7 @@ export default function CreateCategoryModal({
     <Modal
       isOpen={isModalOpen}
       onClose={handleCloseModal}
-      title="Criar Nova Categoria"
+      title="Criar Categoria"
       iconTitle={<Palette className="w-6 h-6 text-blue" />}
       rightHeaderContent={
         <RenderWhen isTrue={!!categoryToEdit}>
@@ -223,10 +223,6 @@ export default function CreateCategoryModal({
         />
 
         <div className="flex gap-3 pt-4">
-          <Button type="submit" className="flex-1">
-            {categoryToEdit ? "Atualizar Categoria" : "Criar Categoria"}
-          </Button>
-
           <Button
             type="button"
             variant="outline"
@@ -234,6 +230,10 @@ export default function CreateCategoryModal({
             className="flex-1"
           >
             Cancelar
+          </Button>
+
+          <Button type="submit" className="flex-1">
+            {categoryToEdit ? "Atualizar Categoria" : "Criar Categoria"}
           </Button>
         </div>
       </form>

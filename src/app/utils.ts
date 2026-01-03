@@ -24,25 +24,26 @@ export const categoryOptions = [
 ];
 
 export const unitOptions = [
-  { value: "pcs", label: "Unidade" },
-  { value: "kg", label: "Kilogramas" },
-  { value: "g", label: "Gramas" },
-  { value: "l", label: "Litros" },
-  { value: "ml", label: "Mililitros" },
-  { value: "lbs", label: "Libras" },
-  { value: "oz", label: "Onças" },
-  { value: "cups", label: "Xícaras" },
-  { value: "spoons", label: "Colheres" },
+  { value: "pcs", label: "Unidade", alias: "und" },
+  { value: "kg", label: "Kilogramas", alias: "kg" },
+  { value: "g", label: "Gramas", alias: "g" },
+  { value: "l", label: "Litros", alias: "l" },
+  { value: "ml", label: "Mililitros", alias: "ml" },
+  { value: "lbs", label: "Libras", alias: "lbs" },
+  { value: "oz", label: "Onças", alias: "oz" },
+  { value: "cups", label: "Xícaras", alias: "Xíc" },
+  { value: "spoons", label: "Colheres", alias: "Col." },
 ];
 
 export const buyStatusOptions = [
-  { value: 1, label: "Precisa comprar" },
-  { value: 2, label: "Quase acabando" },
-  { value: 3, label: "Em estoque" },
+  { value: 1, label: "Comprar" },
+  { value: 2, label: "Acabando" },
+  { value: 3, label: "Tem" },
 ];
 
 export const palletColors = {
   1: {
+    name: "Laranja",
     backgroundColor: "#EF702D",
     color: "white",
     borderColor: "#EF702D",
@@ -56,6 +57,7 @@ export const palletColors = {
     hoverTextClass: "hover:text-white",
   },
   2: {
+    name: "Azul Acinzentado",
     backgroundColor: "#7298C7",
     color: "white",
     borderColor: "#7298C7",
@@ -69,6 +71,7 @@ export const palletColors = {
     hoverTextClass: "hover:text-white",
   },
   3: {
+    name: "Rosa",
     backgroundColor: "#E36887",
     color: "white",
     borderColor: "#E36887",
@@ -82,6 +85,7 @@ export const palletColors = {
     hoverTextClass: "hover:text-white",
   },
   4: {
+    name: "Oliva",
     backgroundColor: "#897E37",
     color: "white",
     borderColor: "#897E37",
@@ -95,6 +99,7 @@ export const palletColors = {
     hoverTextClass: "hover:text-white",
   },
   5: {
+    name: "Pêssego",
     backgroundColor: "#FBE6C9",
     color: "white",
     borderColor: "#FBE6C9",
@@ -108,6 +113,7 @@ export const palletColors = {
     hoverTextClass: "hover:text-white",
   },
   6: {
+    name: "Cinza Claro",
     backgroundColor: "#E4E8EB",
     color: "white",
     borderColor: "#E4E8EB",
@@ -121,6 +127,7 @@ export const palletColors = {
     hoverTextClass: "hover:text-white",
   },
   7: {
+    name: "Rosa Claro",
     backgroundColor: "#F8DAD8",
     color: "white",
     borderColor: "#F8DAD8",
@@ -134,6 +141,7 @@ export const palletColors = {
     hoverTextClass: "hover:text-white",
   },
   8: {
+    name: "Amarelo Mostarda",
     backgroundColor: "#E4D579",
     color: "white",
     borderColor: "#E4D579",
@@ -197,7 +205,7 @@ function getItemStatus(item: Product): string {
 
 export function getUnitName(unit: string): string {
   return (
-    unitOptions.find((c) => c.value === unit?.toLowerCase())?.label || unit
+    unitOptions.find((c) => c.value === unit?.toLowerCase())?.alias || unit
   );
 }
 

@@ -51,7 +51,7 @@ export default function FilterButtonModal({
         title="Filtros"
         iconTitle={<Filter className="w-5 h-5 text-gray-600" />}
       >
-        <div className="space-y-2 max-h-60">
+        <div className="space-y-2">
           <MultiSelect
             label="Categoria"
             placeholder="Selecione uma categoria"
