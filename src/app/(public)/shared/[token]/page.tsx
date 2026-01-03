@@ -1,20 +1,25 @@
 import { notFound } from "next/navigation";
 import SharedListClient from "./components/SharedListClient";
 import type { List, ListItem, Category } from "@/app/type";
-import { authenticatedFetch } from "@/lib/api-helper";
-
 interface SharedListPageProps {
   params: Promise<{ token: string }>;
 }
 
 async function fetchSharedList(token: string) {
-  const res = await authenticatedFetch<{
+  const baseUrl = process.env.NEXTAUTH_URL;
+  const res = await fetch(`${baseUrl}/api/shared/${token}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    return null;
+  }
+
+  return res.json() as Promise<{
     list: List;
     items: ListItem[];
     categories: Category[];
-  }>(`/api/shared/${token}`);
-
-  return res;
+  }>;
 }
 
 export default async function SharedListPage({ params }: SharedListPageProps) {
