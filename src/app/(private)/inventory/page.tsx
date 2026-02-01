@@ -57,29 +57,24 @@ export default function Inventory() {
   }, [products, searchTerm, JSON.stringify(filters)]);
 
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
-      <div className="min-h-[calc(100vh-70px)] md:min-h-screen p-2 pb-24">
-        <Controls
-          categories={categories}
-          selectedCategories={filters?.category || []}
-          selectedStatus={filters?.statusCompra || []}
-          searchTerm={searchTerm}
-          onChangeFilter={(filterKey: string, value: string[]) =>
-            setFilters({ ...filters, [filterKey]: value })
-          }
-          onChangeSearchTerm={(value: string) => setSearchTerm(value)}
-        />
+    <div className="min-h-[calc(100vh-70px)] md:min-h-screen p-2 pb-24">
+      <Controls
+        categories={categories}
+        selectedCategories={filters?.category || []}
+        selectedStatus={filters?.statusCompra || []}
+        searchTerm={searchTerm}
+        onChangeFilter={(filterKey: string, value: string[]) =>
+          setFilters({ ...filters, [filterKey]: value })
+        }
+        onChangeSearchTerm={(value: string) => setSearchTerm(value)}
+      />
 
-        <RenderWhen
-          isTrue={!!categories.length}
-          elseElement={<EmptyProducts />}
-        >
-          <ProductList
-            products={filteredProducts}
-            categories={filteredCategories}
-          />
-        </RenderWhen>
-      </div>
-    </Suspense>
+      <RenderWhen isTrue={!!categories.length} elseElement={<EmptyProducts />}>
+        <ProductList
+          products={filteredProducts}
+          categories={filteredCategories}
+        />
+      </RenderWhen>
+    </div>
   );
 }
