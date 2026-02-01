@@ -7,7 +7,7 @@ import ProductList from "@/app/(private)/inventory/components/ProductList";
 import { useAtomValue } from "jotai";
 import { productsAtom } from "@/lib/atoms/products";
 import { categoriesAtom } from "@/lib/atoms/categories";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Product } from "@/app/type";
 
@@ -48,7 +48,7 @@ export default function Inventory() {
         ? Object.entries(filters).every(([key, value]) =>
             value.length
               ? value.includes(item[key as keyof Product] as string)
-              : true
+              : true,
           )
         : true;
 
@@ -57,24 +57,29 @@ export default function Inventory() {
   }, [products, searchTerm, JSON.stringify(filters)]);
 
   return (
-    <div className="min-h-[calc(100vh-70px)] md:min-h-screen p-2 pb-24">
-      <Controls
-        categories={categories}
-        selectedCategories={filters?.category || []}
-        selectedStatus={filters?.statusCompra || []}
-        searchTerm={searchTerm}
-        onChangeFilter={(filterKey: string, value: string[]) =>
-          setFilters({ ...filters, [filterKey]: value })
-        }
-        onChangeSearchTerm={(value: string) => setSearchTerm(value)}
-      />
-
-      <RenderWhen isTrue={!!categories.length} elseElement={<EmptyProducts />}>
-        <ProductList
-          products={filteredProducts}
-          categories={filteredCategories}
+    <Suspense fallback={<div>Carregando...</div>}>
+      <div className="min-h-[calc(100vh-70px)] md:min-h-screen p-2 pb-24">
+        <Controls
+          categories={categories}
+          selectedCategories={filters?.category || []}
+          selectedStatus={filters?.statusCompra || []}
+          searchTerm={searchTerm}
+          onChangeFilter={(filterKey: string, value: string[]) =>
+            setFilters({ ...filters, [filterKey]: value })
+          }
+          onChangeSearchTerm={(value: string) => setSearchTerm(value)}
         />
-      </RenderWhen>
-    </div>
+
+        <RenderWhen
+          isTrue={!!categories.length}
+          elseElement={<EmptyProducts />}
+        >
+          <ProductList
+            products={filteredProducts}
+            categories={filteredCategories}
+          />
+        </RenderWhen>
+      </div>
+    </Suspense>
   );
 }

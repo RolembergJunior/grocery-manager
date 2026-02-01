@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useAtomValue } from "jotai";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -64,7 +64,7 @@ export default function ShoppingListPage() {
         ? Object.entries(filters).every(([key, value]) =>
             value.length
               ? value.includes(item[key as keyof ListItem] as string)
-              : true
+              : true,
           )
         : true;
 
@@ -138,75 +138,77 @@ export default function ShoppingListPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-cream py-8 px-4 pb-20">
-        <div className="max-w-4xl mx-auto">
-          <button
-            onClick={handleBackToLists}
-            className="flex items-center gap-2 text-[var(--color-text-gray)] hover:text-[var(--color-text-dark)] mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Voltar para listas</span>
-          </button>
+      <Suspense fallback={<div>Carregando...</div>}>
+        <div className="min-h-screen bg-cream py-8 px-4 pb-20">
+          <div className="max-w-4xl mx-auto">
+            <button
+              onClick={handleBackToLists}
+              className="flex items-center gap-2 text-[var(--color-text-gray)] hover:text-[var(--color-text-dark)] mb-6 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Voltar para listas</span>
+            </button>
 
-          <h1 className="font-bold text-text-dark uppercase tracking-wide">
-            {currentList.name}
-          </h1>
+            <h1 className="font-bold text-text-dark uppercase tracking-wide">
+              {currentList.name}
+            </h1>
 
-          <Controls
-            items={currentItems}
-            categories={categories}
-            searchTerm={searchTerm}
-            selectedCategories={filters?.category || []}
-            selectedChecked={filters?.checked || []}
-            selectedFromList={filters?.fromList || []}
-            onChangeFilter={handleFilterChange}
-            onChangeSearchTerm={setSearchTerm}
-          />
+            <Controls
+              items={currentItems}
+              categories={categories}
+              searchTerm={searchTerm}
+              selectedCategories={filters?.category || []}
+              selectedChecked={filters?.checked || []}
+              selectedFromList={filters?.fromList || []}
+              onChangeFilter={handleFilterChange}
+              onChangeSearchTerm={setSearchTerm}
+            />
 
-          <ProgressList
-            checkedCount={checkedCount}
-            totalCount={totalCount}
-            progressPercentage={progressPercentage}
-          />
+            <ProgressList
+              checkedCount={checkedCount}
+              totalCount={totalCount}
+              progressPercentage={progressPercentage}
+            />
 
-          <NotebookList categories={categories} items={currentItems} />
+            <NotebookList categories={categories} items={currentItems} />
 
-          <RenderWhen isTrue={totalCount > 0}>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={handleCompleteList}
-                disabled={!checkedCount}
-                className="flex items-center gap-2 px-8 py-4 bg-[var(--color-blue)] text-white rounded-xl hover:opacity-90 font-semibold transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-              >
-                <CheckCircle2 className="w-6 h-6" />
-                <span>Finalizar Lista</span>
-              </button>
-            </div>
-          </RenderWhen>
+            <RenderWhen isTrue={totalCount > 0}>
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={handleCompleteList}
+                  disabled={!checkedCount}
+                  className="flex items-center gap-2 px-8 py-4 bg-[var(--color-blue)] text-white rounded-xl hover:opacity-90 font-semibold transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                >
+                  <CheckCircle2 className="w-6 h-6" />
+                  <span>Finalizar Lista</span>
+                </button>
+              </div>
+            </RenderWhen>
+          </div>
         </div>
-      </div>
 
-      <AlertDialog
-        isOpen={isOpenAlert}
-        onClose={() => setIsOpenAlert(false)}
-        title={`Existe(m) ${totalCount - checkedCount} item(ns) não marcado(s)`}
-        description="Deseja finalizar a lista mesmo assim?"
-        variant="warning"
-        actions={[
-          {
-            label: "SIM",
-            onClick: onConfirm,
-            autoClose: true,
-            variant: "default",
-          },
-          {
-            label: "NÃO",
-            onClick: () => null,
-            autoClose: true,
-            variant: "danger",
-          },
-        ]}
-      />
+        <AlertDialog
+          isOpen={isOpenAlert}
+          onClose={() => setIsOpenAlert(false)}
+          title={`Existe(m) ${totalCount - checkedCount} item(ns) não marcado(s)`}
+          description="Deseja finalizar a lista mesmo assim?"
+          variant="warning"
+          actions={[
+            {
+              label: "SIM",
+              onClick: onConfirm,
+              autoClose: true,
+              variant: "default",
+            },
+            {
+              label: "NÃO",
+              onClick: () => null,
+              autoClose: true,
+              variant: "danger",
+            },
+          ]}
+        />
+      </Suspense>
     </>
   );
 }
