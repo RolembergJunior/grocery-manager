@@ -2,7 +2,7 @@
 
 import { Product, Category } from "@/app/type";
 import { useState, useRef } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, MoreVertical } from "lucide-react";
 import { formatCategoryTitle } from "./utils";
 import ProductCard from "./components/ProductCard";
 import EmptyState from "./components/EmptyState";
@@ -33,8 +33,6 @@ export default function CategoryCard({
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
 
   const setCategories = useSetAtom(categoriesAtom);
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isLongPressRef = useRef(false);
 
   const statusCounts = items.reduce(
     (acc, item) => {
@@ -44,29 +42,16 @@ export default function CategoryCard({
       else if (status === 3) acc.tem++;
       return acc;
     },
-    { comprar: 0, acabando: 0, tem: 0 }
+    { comprar: 0, acabando: 0, tem: 0 },
   );
 
-  function handleLongPressStart() {
-    isLongPressRef.current = false;
-    longPressTimerRef.current = setTimeout(() => {
-      isLongPressRef.current = true;
-      setIsActionDialogOpen(true);
-    }, 500);
-  }
-
-  function handleLongPressEnd() {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
+  function handleOpenActionDialog(e: React.MouseEvent) {
+    e.stopPropagation();
+    setIsActionDialogOpen(true);
   }
 
   function handleCardClick() {
-    if (!isLongPressRef.current) {
-      setIsOpen(!isOpen);
-    }
-    isLongPressRef.current = false;
+    setIsOpen(!isOpen);
   }
 
   function handleEdit() {
@@ -92,9 +77,6 @@ export default function CategoryCard({
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all">
       <button
         onClick={handleCardClick}
-        onMouseLeave={handleLongPressEnd}
-        onTouchStart={handleLongPressStart}
-        onTouchEnd={handleLongPressEnd}
         className={`${
           palletColors[category.colorId as keyof typeof palletColors].bgClass
         } ${
@@ -144,6 +126,14 @@ export default function CategoryCard({
             <div className="w-[1px] h-[1rem] bg-white/50" />
 
             <CreateItemButton category={category} items={items} />
+
+            <div
+              onClick={handleOpenActionDialog}
+              className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-200 active:scale-95"
+              title="Opções da categoria"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </div>
           </div>
         </div>
       </button>

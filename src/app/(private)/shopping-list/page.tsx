@@ -27,10 +27,10 @@ export default async function ShoppingListApp() {
         <div className="space-y-6">
           <div>
             <h2 className="text-[var(--color-text-gray)] text-sm font-semibold uppercase tracking-wide mb-3 px-1">
-              INICIAR NOVA LISTA
+              LISTA AUTOMÁTICA
             </h2>
             <div className="space-y-3">
-              <QuickListCard />
+              {/* <QuickListCard /> */}
               <InventoryListCard />
             </div>
           </div>

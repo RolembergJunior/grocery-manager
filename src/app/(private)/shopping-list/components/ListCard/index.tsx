@@ -2,7 +2,12 @@
 
 import { List, ListItem } from "@/app/type";
 import { useState, useRef } from "react";
-import { List as ListIcon, Plus, ShoppingCart } from "lucide-react";
+import {
+  List as ListIcon,
+  Plus,
+  ShoppingCart,
+  MoreVertical,
+} from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
 import { useRouter } from "next/navigation";
 import ListItemCard from "../ListItemCard";
@@ -30,8 +35,6 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
   const [isDeleteListAlertOpen, setIsDeleteListAlertOpen] = useState(false);
 
   const setLists = useSetAtom(listsAtom);
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isLongPressRef = useRef(false);
 
   const { items } = useList(list.id);
 
@@ -40,34 +43,17 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
   const checkedCount = items.filter((item) => item.checked).length;
   const totalCount = items.length;
 
-  function handleLongPressStart() {
-    isLongPressRef.current = false;
-    longPressTimerRef.current = setTimeout(() => {
-      isLongPressRef.current = true;
-      setIsActionDialogOpen(true);
-    }, 500);
-  }
-
-  function handleLongPressEnd() {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
+  function handleOpenActionDialog(e: React.MouseEvent) {
+    e.stopPropagation();
+    setIsActionDialogOpen(true);
   }
 
   function handleCardClick() {
-    if (!isLongPressRef.current) {
-      setIsExpanded(!isExpanded);
-    }
-    isLongPressRef.current = false;
+    setIsExpanded(!isExpanded);
   }
 
   function handleNavigateToList() {
     router.push(`/shopping-list/list?id=${list.id}`);
-  }
-
-  function handleToggleExpand() {
-    setIsExpanded(!isExpanded);
   }
 
   function handleEdit() {
@@ -90,7 +76,7 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
           return "Lista excluída com sucesso!";
         },
         error: "Erro ao excluir lista. Tente novamente.",
-      }
+      },
     );
   }
 
@@ -104,7 +90,7 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
         loading: "Salvando...",
         success: "Alterações salvas com sucesso!",
         error: "Erro ao salvar as alterações",
-      }
+      },
     );
   }
 
@@ -129,9 +115,6 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden transition-all hover:shadow-md">
       <button
         onClick={handleCardClick}
-        onMouseLeave={handleLongPressEnd}
-        onTouchStart={handleLongPressStart}
-        onTouchEnd={handleLongPressEnd}
         className="bg-[var(--color-blue)] w-full p-6 flex items-center justify-between transition-all cursor-pointer hover:opacity-90 active:scale-95"
       >
         <div className="flex items-center gap-4 flex-1">
@@ -170,6 +153,14 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
             title="Iniciar lista"
           >
             <ShoppingCart className="w-5 h-5" />
+          </div>
+
+          <div
+            onClick={handleOpenActionDialog}
+            className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-200 active:scale-95"
+            title="Opções da lista"
+          >
+            <MoreVertical className="w-5 h-5" />
           </div>
         </div>
       </button>
