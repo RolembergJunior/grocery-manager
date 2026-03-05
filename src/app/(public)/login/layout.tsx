@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Grocery Manager - Login",
-  description: "Grocery Manager - A plataforma de gestão de listas de compras",
+  title: "ListaAí - Login",
+  description: "ListaAí - A plataforma de gestão de listas de compras",
 };
 
 export default function PrivateLayout({

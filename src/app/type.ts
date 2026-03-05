@@ -26,6 +26,8 @@ export interface Profile {
   subscriptionTier?: "monthly" | "yearly";
   subscriptionStartDate?: string;
   subscriptionEndDate?: string;
+  hasCompletedOnboarding?: boolean;
+  onboardingCompletedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

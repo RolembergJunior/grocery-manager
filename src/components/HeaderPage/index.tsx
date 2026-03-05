@@ -13,7 +13,7 @@ export default function HeaderPage({ hasNameApp }: { hasNameApp?: boolean }) {
             </div>
           </div>
           <h1 className="text-2xl font-semibold text-[var(--color-text-gray)]">
-            Grocery
+            ListaAí
           </h1>
         </div>
       </RenderWhen>

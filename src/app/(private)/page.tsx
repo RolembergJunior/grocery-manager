@@ -8,6 +8,7 @@ import RecurrenciesSection from "@/components/RecurrenciesSection";
 import ReviewStockSection from "@/components/ReviewStockSection";
 import RecentActivitySection from "@/components/RecentActivitySection";
 import FreeTierBanner from "@/components/FreeTierBanner";
+import OnboardingTutorial from "@/components/OnboardingTutorial";
 import { useSubscription } from "@/hooks/use-subscription";
 import RenderWhen from "@/components/RenderWhen";
 
@@ -37,6 +38,8 @@ export default function GroceryHome() {
       {/* <RecentActivitySection /> */}
 
       {/* <ReviewStockSection /> */}
+
+      <OnboardingTutorial />
     </div>
   );
 }

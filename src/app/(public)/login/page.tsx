@@ -15,7 +15,7 @@ export default function LoginPage() {
                 <ShoppingCart className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-4xl font-bold text-[var(--color-blue)]">
-                Grocery Manager
+                ListaAí
               </h1>
             </div>
             <p className="text-gray-600 text-lg">
@@ -76,7 +76,7 @@ export default function LoginPage() {
                   <ShoppingCart className="w-6 h-6 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-[var(--color-blue)]">
-                  Grocery Manager
+                  ListaAí
                 </h1>
               </div>
               <p className="text-gray-600 text-sm">

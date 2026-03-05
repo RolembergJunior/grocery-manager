@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { listsAtom } from "@/lib/atoms";
 import { useRouter } from "next/navigation";
-import { Share2, Package } from "lucide-react";
+import { Share2 } from "lucide-react";
 import { List } from "@/app/type";
 import ShareListModal from "./components/ShareListModal";
 import RenderWhen from "../RenderWhen";

@@ -9,7 +9,7 @@ export async function getUserProfile() {
       `/api/profile`,
       {
         method: "GET",
-      }
+      },
     );
 
     if (!data) return null;
@@ -28,5 +28,16 @@ export async function updateAllProfiles() {
     });
   } catch (error) {
     console.error("Error fetching profile:", error);
+  }
+}
+
+export async function completeOnboarding() {
+  try {
+    await authenticatedFetchVoid(`/api/profile/onboarding`, {
+      method: "PUT",
+    });
+  } catch (error) {
+    console.error("Error completing onboarding:", error);
+    throw error;
   }
 }

@@ -7,7 +7,7 @@ interface FetchOptions extends RequestInit {
 
 export async function authenticatedFetch<T>(
   endpoint: string,
-  options?: FetchOptions
+  options?: FetchOptions,
 ): Promise<T> {
   const session = await auth();
 
@@ -46,7 +46,7 @@ export async function authenticatedFetch<T>(
 
 export async function authenticatedFetchArray<T>(
   endpoint: string,
-  options?: FetchOptions
+  options?: FetchOptions,
 ): Promise<T[]> {
   try {
     const session = await auth();
@@ -80,7 +80,7 @@ export async function authenticatedFetchArray<T>(
 
 export async function authenticatedFetchVoid(
   endpoint: string,
-  options?: FetchOptions
+  options?: FetchOptions,
 ): Promise<void> {
   const session = await auth();
 
