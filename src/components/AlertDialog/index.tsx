@@ -169,5 +169,7 @@ export default function AlertDialog({
     </div>
   );
 
-  return createPortal(alertContent, document.body);
+  return typeof document !== "undefined"
+    ? createPortal(alertContent, document.body)
+    : null;
 }

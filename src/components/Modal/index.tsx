@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -132,5 +134,7 @@ export default function Modal({
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  return typeof document !== "undefined"
+    ? createPortal(modalContent, document.body)
+    : null;
 }

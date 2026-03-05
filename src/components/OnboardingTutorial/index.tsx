@@ -148,9 +148,9 @@ export default function OnboardingTutorial() {
     </div>
   );
 
-  return (
-    <RenderWhen isTrue={isOpen}>
-      {createPortal(modalContent, document.body)}
-    </RenderWhen>
-  );
+  if (!isOpen || typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(modalContent, document.body);
 }
