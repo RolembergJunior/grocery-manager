@@ -3,6 +3,7 @@
 import type { Product } from "@/app/type";
 import { authenticatedFetchVoid, authenticatedFetch } from "@/lib/api-helper";
 import { syncInventoryListAPI } from "./inventory-list";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 
 export async function subscribeProducts(): Promise<Product[]> {
   try {
@@ -10,7 +11,7 @@ export async function subscribeProducts(): Promise<Product[]> {
       "/api/products",
       {
         method: "GET",
-      }
+      },
     );
 
     if (!data) return [];
@@ -28,10 +29,10 @@ export async function updateOrCreate(item: Product): Promise<Product> {
     {
       method: "PUT",
       body: JSON.stringify(item),
-    }
+    },
   );
 
-  await syncInventoryListAPI([updatedProduct], "inventory-list");
+  await syncInventoryListAPI([updatedProduct], INVENTORY_LIST_ID);
 
   return updatedProduct;
 }

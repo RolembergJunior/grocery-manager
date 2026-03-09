@@ -2,14 +2,15 @@
 
 import { STATUSPRODUCT, type ListItem, type Product } from "@/app/type";
 import { batchCreateItems, batchUpdateItems, getListItems } from "./list-items";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 
 export async function syncInventoryListAPI(
   products: Product[],
-  listId: string
+  listId: string,
 ): Promise<ListItem[]> {
   const listItems = await getListItems(listId, true);
 
-  if (listId === "inventory-list") {
+  if (listId === INVENTORY_LIST_ID) {
     const listItemsToCreate: Partial<Omit<ListItem, "id">>[] = [];
     const listItemsToUpdate: Partial<
       Omit<ListItem, "id" | "userId" | "createdAt">

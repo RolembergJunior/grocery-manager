@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import ListCard from "../ListCard";
 import AddItemModal from "../AddItemModal";
@@ -11,6 +11,7 @@ import CreateListModal from "@/components/ListSection/components/CreateListModal
 import RenderWhen from "@/components/RenderWhen";
 import { useSubscription } from "@/hooks/use-subscription";
 import { toast } from "sonner";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 
 export default function UserListsSection() {
   const [selectedList, setSelectedList] = useState<List | null>(null);
@@ -18,6 +19,10 @@ export default function UserListsSection() {
   const [isCreateListModalOpen, setIsCreateListModalOpen] = useState(false);
 
   const lists = useAtomValue(listsAtom);
+
+  const normalizedList = useMemo(() => {
+    return lists.filter((list) => list.id !== INVENTORY_LIST_ID);
+  }, [lists]);
 
   const { isFree, isPro } = useSubscription();
 
@@ -34,13 +39,13 @@ export default function UserListsSection() {
   function handleOpenCreateListModal() {
     if (isFree) {
       return toast.warning(
-        "Seu plano não permite criar listas! Faça upgrade do seu plano atual para conseguir mais listas."
+        "Seu plano não permite criar listas! Faça upgrade do seu plano atual para conseguir mais listas.",
       );
     }
 
-    if (isPro && lists.length >= 5) {
+    if (isPro && normalizedList.length >= 5) {
       return toast.warning(
-        "Seu plano não permite criar mais de 5 listas! Faça upgrade do seu plano atual para conseguir mais listas."
+        "Seu plano não permite criar mais de 5 listas! Faça upgrade do seu plano atual para conseguir mais listas.",
       );
     }
     setIsCreateListModalOpen(true);
@@ -63,7 +68,7 @@ export default function UserListsSection() {
       </div>
 
       <RenderWhen
-        isTrue={lists.length > 0}
+        isTrue={normalizedList.length > 0}
         elseElement={
           <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
             <div className="max-w-md mx-auto">
@@ -78,7 +83,7 @@ export default function UserListsSection() {
         }
       >
         <div className="space-y-4">
-          {lists.map((list) => (
+          {normalizedList.map((list) => (
             <ListCard
               key={list.id}
               list={list}

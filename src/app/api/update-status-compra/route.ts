@@ -1,7 +1,6 @@
 import { updateProduct } from "@/lib/helpers/products-helpers";
 import { NextResponse } from "next/server";
-
-export const INVENTORY_LIST_ID = "inventory-list";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 
 export async function PUT(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -9,7 +8,7 @@ export async function PUT(req: Request) {
   if (!userId) {
     return NextResponse.json(
       { error: "userId é obrigatório" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -23,7 +22,7 @@ export async function PUT(req: Request) {
   if (!payload.id || !payload.statusCompra) {
     return NextResponse.json(
       { error: "id e statusCompra são obrigatórios" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 

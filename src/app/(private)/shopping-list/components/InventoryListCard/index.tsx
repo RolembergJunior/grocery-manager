@@ -10,8 +10,7 @@ import { useList } from "@/hooks/use-list";
 import { deleteItem, updateItem } from "@/services/list-manager";
 import { ListItem } from "@/app/type";
 import AlertDialog from "@/components/AlertDialog";
-
-export const INVENTORY_LIST_ID = "inventory-list";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 
 export default function InventoryListCard() {
   const [isExpanded, setIsExpanded] = useState(false);
