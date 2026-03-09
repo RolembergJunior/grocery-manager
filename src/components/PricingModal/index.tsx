@@ -19,7 +19,6 @@ const pricingPlans = [
     icon: Sparkles,
     color: "blue",
     features: [
-      // "Até 3 listas de compras",
       "Gerenciamento básico de produtos",
       "5 categorias",
       "Limitado a 30 produtos",
@@ -35,7 +34,7 @@ const pricingPlans = [
   },
   {
     name: "Pro",
-    price: "R$24,99",
+    price: "R$9,99",
     period: "por mês",
     description: "Para planejadores de supermercado sérios",
     icon: Zap,
@@ -54,27 +53,27 @@ const pricingPlans = [
     buttonText: "Upgrade para Pro",
     highlighted: true,
   },
-  {
-    name: "Premium",
-    price: "R$49,99",
-    period: "por mês",
-    description: "Para famílias e usuários com necessidades avançadas",
-    icon: Crown,
-    color: "amber",
-    features: [
-      "Tudo no Pro",
-      "Compartilhamento familiar (até 5 membros)",
-      "Integração de receitas",
-      "Recomendações inteligentes de compra",
-      "Análise de estoque",
-      "Rastreamento de preços",
-      "Planejamento de refeições",
-      "Suporte Premium 24/7",
-    ],
-    limitations: [],
-    buttonText: "Upgrade para Premium",
-    highlighted: false,
-  },
+  // {
+  //   name: "Premium",
+  //   price: "R$49,99",
+  //   period: "por mês",
+  //   description: "Para famílias e usuários com necessidades avançadas",
+  //   icon: Crown,
+  //   color: "amber",
+  //   features: [
+  //     "Tudo no Pro",
+  //     "Compartilhamento familiar (até 5 membros)",
+  //     "Integração de receitas",
+  //     "Recomendações inteligentes de compra",
+  //     "Análise de estoque",
+  //     "Rastreamento de preços",
+  //     "Planejamento de refeições",
+  //     "Suporte Premium 24/7",
+  //   ],
+  //   limitations: [],
+  //   buttonText: "Upgrade para Premium",
+  //   highlighted: false,
+  // },
 ];
 
 export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
@@ -117,8 +116,8 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
                   plan.color === "blue"
                     ? "bg-blue-100"
                     : plan.color === "purple"
-                    ? "bg-purple-100"
-                    : "bg-amber-100"
+                      ? "bg-purple-100"
+                      : "bg-amber-100"
                 }`}
               >
                 <Icon
@@ -126,8 +125,8 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
                     plan.color === "blue"
                       ? "text-blue-600"
                       : plan.color === "purple"
-                      ? "text-purple-600"
-                      : "text-amber-600"
+                        ? "text-purple-600"
+                        : "text-amber-600"
                   }`}
                 />
               </div>
@@ -168,8 +167,8 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
                   plan.name === "Free"
                     ? "cursor-not-allowed opacity-50"
                     : isHighlighted
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    : "bg-gray-900 hover:bg-gray-800"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                      : "bg-gray-900 hover:bg-gray-800"
                 }`}
               >
                 {plan.buttonText}
