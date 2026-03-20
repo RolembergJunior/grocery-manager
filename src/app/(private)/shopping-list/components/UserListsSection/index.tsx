@@ -18,6 +18,8 @@ export default function UserListsSection() {
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [isCreateListModalOpen, setIsCreateListModalOpen] = useState(false);
 
+  const { isActive } = useSubscription();
+
   const lists = useAtomValue(listsAtom);
 
   const normalizedList = useMemo(() => {
@@ -58,39 +60,57 @@ export default function UserListsSection() {
           MINHAS LISTAS PERSONALIZADAS
         </h2>
 
-        <button
-          onClick={handleOpenCreateListModal}
-          className="p-2 bg-blue rounded-full hover:bg-blue/80 transition-all duration-200 active:scale-95"
-          title="Criar nova lista"
-        >
-          <Plus color="white" size={20} />
-        </button>
+        <RenderWhen isTrue={isActive}>
+          <button
+            onClick={handleOpenCreateListModal}
+            className="p-2 bg-blue rounded-full hover:bg-blue/80 transition-all duration-200 active:scale-95"
+            title="Criar nova lista"
+          >
+            <Plus color="white" size={20} />
+          </button>
+        </RenderWhen>
       </div>
 
       <RenderWhen
-        isTrue={normalizedList.length > 0}
+        isTrue={isActive}
         elseElement={
-          <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+          <div className="p-8 text-center">
             <div className="max-w-md mx-auto">
               <h3 className="text-lg font-semibold text-[var(--color-text-dark)] mb-2">
-                Nenhuma lista personalizada
+                Funcionalidade indisponível
               </h3>
               <p className="text-[var(--color-text-gray)] text-sm">
-                Clique e crie sua primeira lista personalizada
+                Ative seu plano para criar listas personalizadas
               </p>
             </div>
           </div>
         }
       >
-        <div className="space-y-4">
-          {normalizedList.map((list) => (
-            <ListCard
-              key={list.id}
-              list={list}
-              onAddItem={() => handleAddItemToList(list)}
-            />
-          ))}
-        </div>
+        <RenderWhen
+          isTrue={!!lists.length}
+          elseElement={
+            <div className="p-8 text-center">
+              <div className="max-w-md mx-auto">
+                <h3 className="text-lg font-semibold text-[var(--color-text-dark)] mb-2">
+                  Nenhuma lista personalizada
+                </h3>
+                <p className="text-[var(--color-text-gray)] text-sm">
+                  Clique e crie sua primeira lista personalizada
+                </p>
+              </div>
+            </div>
+          }
+        >
+          <div className="space-y-4">
+            {lists.map((list) => (
+              <ListCard
+                key={list.id}
+                list={list}
+                onAddItem={() => handleAddItemToList(list)}
+              />
+            ))}
+          </div>
+        </RenderWhen>
       </RenderWhen>
 
       {selectedList && (

@@ -5,31 +5,27 @@ import CategorySection from "@/components/CategorySection";
 import ListSection from "@/components/ListSection";
 import PrioritiesSection from "@/components/PrioritiesSection";
 import RecurrenciesSection from "@/components/RecurrenciesSection";
-import ReviewStockSection from "@/components/ReviewStockSection";
-import RecentActivitySection from "@/components/RecentActivitySection";
-import FreeTierBanner from "@/components/FreeTierBanner";
 import OnboardingTutorial from "@/components/OnboardingTutorial";
 import { useSubscription } from "@/hooks/use-subscription";
 import RenderWhen from "@/components/RenderWhen";
+import Banner from "@/components/Banner";
 
 export default function GroceryHome() {
-  const { isActive, isPremium, isPro, isFree, isTrial } = useSubscription();
+  const { isActive, inGracePeriod } = useSubscription();
 
   return (
     <div className="min-h-dvh md:screen p-4 pb-20">
       <HeaderPage hasNameApp />
 
-      <RenderWhen isTrue={isTrial}>
-        <FreeTierBanner />
+      <RenderWhen isTrue={inGracePeriod || !isActive}>
+        <Banner />
       </RenderWhen>
 
-      <RenderWhen isTrue={(isPro || isPremium || isTrial) && isActive}>
-        <PrioritiesSection />
-      </RenderWhen>
+      <PrioritiesSection />
 
       <CategorySection />
 
-      <RenderWhen isTrue={(isPro || isPremium || isTrial) && isActive}>
+      <RenderWhen isTrue={inGracePeriod || isActive}>
         <RecurrenciesSection />
 
         <ListSection />

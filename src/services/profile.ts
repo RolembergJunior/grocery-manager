@@ -41,3 +41,27 @@ export async function completeOnboarding() {
     throw error;
   }
 }
+
+interface CheckSubscriptionExpirationResponse {
+  updated: boolean;
+  inGracePeriod: boolean;
+  daysRemainingInGrace: number;
+  previousStatus?: string;
+  newStatus: string;
+}
+
+export async function checkSubscriptionExpiration() {
+  try {
+    const data = await authenticatedFetch<CheckSubscriptionExpirationResponse>(
+      `/api/subscription/check-expiration`,
+      {
+        method: "POST",
+      },
+    );
+
+    return data;
+  } catch (error) {
+    console.error("Error checking subscription expiration:", error);
+    return null;
+  }
+}

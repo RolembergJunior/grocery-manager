@@ -5,6 +5,14 @@ export enum STATUSPRODUCT {
   ALMOST_EMPTY = 2,
   COMPLETED = 3,
 }
+
+export enum SUBSCRIPTION_STATUS {
+  FREE = "free",
+  PREMIUM = "premium",
+  TRIAL = "trial",
+  PRO = "pro",
+}
+
 export interface OptionsType {
   value: string | number | null;
   label: string | number | null | JSX.Element;

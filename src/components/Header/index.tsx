@@ -6,9 +6,9 @@ import RenderWhen from "../RenderWhen";
 import SignInButton from "./components/signInButton";
 import SignOutButton from "./components/SignOutButton";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Package, ShoppingCart, User, Store } from "lucide-react";
-import { useSetAtom } from "jotai";
+import { useSetAtom, useAtom } from "jotai";
 import MobileHeader from "./components/MobileHeader";
 import { isActive } from "./utils";
 import { fetchProductsAtom } from "@/lib/atoms/products";
@@ -16,13 +16,17 @@ import { fetchListsAtom } from "@/lib/atoms/lists";
 import { fetchCategoriesAtom } from "@/lib/atoms/categories";
 import { fetchListItemsAtom } from "@/lib/atoms/list-items";
 import { loadingAtom, LoadingParams } from "@/lib/atoms/loading";
-import { fetchProfileData } from "@/lib/atoms/profile";
+import { fetchProfileData, profileAtom } from "@/lib/atoms/profile";
+import { SUBSCRIPTION_STATUS } from "@/app/type";
+import { checkSubscriptionExpiration } from "@/services/profile";
+import { toast } from "sonner";
 
 export default function Header() {
   const { data: session } = useSession();
   const pathname = usePathname();
 
   const setIsLoading = useSetAtom(loadingAtom);
+  const [profile, setProfile] = useAtom(profileAtom);
 
   const fetchProfile = useSetAtom(fetchProfileData);
   const fetchProducts = useSetAtom(fetchProductsAtom);
@@ -34,16 +38,52 @@ export default function Header() {
     pathname === "/shopping-list"
       ? "Compras"
       : pathname === "/inventory"
-      ? "Inventário"
-      : pathname === "/profile"
-      ? "Perfil"
-      : "Home";
+        ? "Inventário"
+        : pathname === "/profile"
+          ? "Perfil"
+          : "Home";
 
   useEffect(() => {
     if (!session?.user) return;
 
     initData();
   }, [session?.user]);
+
+  useEffect(() => {
+    checkExpiration();
+  }, [profile]);
+
+  async function checkExpiration() {
+    if (!profile) return;
+
+    const { subscriptionStatus, subscriptionEndDate } = profile;
+
+    if (
+      subscriptionStatus === SUBSCRIPTION_STATUS.FREE ||
+      !subscriptionEndDate
+    ) {
+      return;
+    }
+
+    try {
+      const result = await checkSubscriptionExpiration();
+
+      if (!result) return;
+
+      if (result.updated && result.previousStatus) {
+        setProfile((prev) => ({
+          ...prev!,
+          subscriptionStatus: SUBSCRIPTION_STATUS.FREE,
+        }));
+
+        toast.warning(
+          `Seu plano ${result.previousStatus.toUpperCase()} expirou e foi alterado para FREE`,
+        );
+      }
+    } catch (error) {
+      console.error("Error checking subscription expiration:", error);
+    }
+  }
 
   async function initData() {
     setIsLoading({ isOpen: true, message: "Carregando..." });
@@ -73,7 +113,7 @@ export default function Header() {
               <div
                 className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${isActive(
                   "/",
-                  pathname
+                  pathname,
                 )}`}
               >
                 <Store className="w-6 h-6" />
@@ -88,7 +128,7 @@ export default function Header() {
               <div
                 className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${isActive(
                   "/inventory",
-                  pathname
+                  pathname,
                 )}`}
               >
                 <Package className="w-6 h-6" />
@@ -103,7 +143,7 @@ export default function Header() {
               <div
                 className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${isActive(
                   "/shopping-list",
-                  pathname
+                  pathname,
                 )}`}
               >
                 <ShoppingCart className="w-6 h-6" />
