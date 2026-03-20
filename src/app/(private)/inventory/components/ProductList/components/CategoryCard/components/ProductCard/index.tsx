@@ -66,13 +66,13 @@ export default function ProductCard({
 
           return "Erro ao salvar as alterações";
         },
-      }
+      },
     );
   }
 
   function handleChangeItemProp(
     field: keyof Product,
-    value: string | number | null
+    value: string | number | null,
   ) {
     setNewItem({ ...newItem, [field]: value });
   }

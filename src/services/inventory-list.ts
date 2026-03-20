@@ -18,12 +18,14 @@ export async function syncInventoryListAPI(
 
     products.forEach((product) => {
       const existItem = listItems.find((i) => i.itemId === product.id);
+
       if (existItem) {
         listItemsToUpdate.push({
           ...existItem,
           name: product.name,
           category: product.category,
           unit: product.unit,
+          observation: product.observation,
           isRemoved: product.statusCompra !== STATUSPRODUCT.NEED_SHOPPING,
           updatedAt: new Date().toISOString(),
         });
@@ -35,6 +37,7 @@ export async function syncInventoryListAPI(
           fromList: "inventory",
           category: product.category,
           unit: product.unit,
+          observation: product.observation,
           neededQuantity: product.neededQuantity || 0,
           boughtQuantity: 0,
           checked: false,

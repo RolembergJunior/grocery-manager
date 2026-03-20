@@ -100,7 +100,7 @@ export default function InventoryListCard() {
         }`}
       >
         <RenderWhen
-          isTrue={items.length > 0}
+          isTrue={!!items.length}
           elseElement={
             <div className="p-8 text-center text-[var(--color-text-gray)]">
               <p className="text-base">Nenhum item precisa ser reposto</p>
