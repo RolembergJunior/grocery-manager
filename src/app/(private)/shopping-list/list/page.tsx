@@ -12,7 +12,7 @@ import RenderWhen from "@/components/RenderWhen";
 import AlertDialog from "@/components/AlertDialog";
 import { useList } from "@/hooks/use-list";
 import { completeList } from "@/services/list-manager";
-import { INVENTORY_LIST_ID } from "../components/InventoryListCard";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 import Controls from "./components/Controls";
 import { ListItem } from "@/app/type";
 

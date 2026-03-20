@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { decryptShareToken } from "@/lib/helpers/share-token";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { COLLECTIONS } from "@/lib/helpers/constants";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ token: string }> }
+  { params }: { params: Promise<{ token: string }> },
 ) {
   try {
     const { token } = await params;
@@ -14,27 +15,39 @@ export async function GET(
     if (!payload) {
       return NextResponse.json(
         { error: "Token inválido ou expirado" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const { userId, listId } = payload;
 
-    const listQuery = adminDb
-      .collection(COLLECTIONS.LISTS)
-      .where("userId", "==", userId)
-      .where("id", "==", listId);
+    let list;
 
-    const listSnapshot = await listQuery.get();
+    if (listId !== INVENTORY_LIST_ID) {
+      const listQuery = adminDb
+        .collection(COLLECTIONS.LISTS)
+        .where("userId", "==", userId)
+        .where("id", "==", listId);
 
-    if (listSnapshot.empty) {
-      return NextResponse.json(
-        { error: "Lista não encontrada" },
-        { status: 404 }
-      );
+      const listSnapshot = await listQuery.get();
+
+      if (listSnapshot.empty) {
+        return NextResponse.json(
+          { error: "Lista não encontrada" },
+          { status: 404 },
+        );
+      }
+
+      list = listSnapshot.docs[0].data();
+    } else {
+      list = {
+        id: INVENTORY_LIST_ID,
+        name: "Estoque",
+        userId: userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
     }
-
-    const list = listSnapshot.docs[0].data();
 
     const itemsQuery = adminDb
       .collection(COLLECTIONS.LIST_ITEMS)
@@ -58,7 +71,7 @@ export async function GET(
     console.error("Error fetching shared list:", error);
     return NextResponse.json(
       { error: "Erro ao buscar lista compartilhada" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

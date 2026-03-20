@@ -10,8 +10,7 @@ import { useList } from "@/hooks/use-list";
 import { deleteItem, updateItem } from "@/services/list-manager";
 import { ListItem } from "@/app/type";
 import AlertDialog from "@/components/AlertDialog";
-
-export const INVENTORY_LIST_ID = "inventory-list";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 
 export default function InventoryListCard() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -101,7 +100,7 @@ export default function InventoryListCard() {
         }`}
       >
         <RenderWhen
-          isTrue={items.length > 0}
+          isTrue={!!items.length}
           elseElement={
             <div className="p-8 text-center text-[var(--color-text-gray)]">
               <p className="text-base">Nenhum item precisa ser reposto</p>

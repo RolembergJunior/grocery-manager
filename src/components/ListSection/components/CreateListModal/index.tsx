@@ -2,11 +2,12 @@
 
 import { ListPlus, Trash2 } from "lucide-react";
 import Modal from "../../../Modal";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import RenderWhen from "../../../RenderWhen";
 import { toast } from "sonner";
 import { useAtom } from "jotai";
 import { listsAtom } from "@/lib/atoms";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 import FieldForm from "../../../FieldForm";
 import { createList, updateList, deleteList } from "@/services/lists";
 import { List } from "@/app/type";
@@ -38,6 +39,10 @@ export default function CreateListModal({
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
 
   const [lists, setLists] = useAtom(listsAtom);
+
+  const normalizedLists = useMemo(() => {
+    return lists.filter((list) => list.id !== INVENTORY_LIST_ID);
+  }, [lists]);
 
   useEffect(() => {
     if (listToEdit && isModalOpen) {
@@ -73,8 +78,8 @@ export default function CreateListModal({
   }
 
   function create() {
-    const listExists = lists.some(
-      (list) => list.name.toLowerCase() === listName.toLowerCase()
+    const listExists = normalizedLists.some(
+      (list) => list.name.toLowerCase() === listName.toLowerCase(),
     );
 
     if (listExists) {
@@ -94,10 +99,10 @@ export default function CreateListModal({
   }
 
   function update() {
-    const listNameExists = lists.some(
+    const listNameExists = normalizedLists.some(
       (list) =>
         list.name.toLowerCase() === listName.toLowerCase() &&
-        list.id !== listToEdit?.id
+        list.id !== listToEdit?.id,
     );
 
     if (listNameExists) {
@@ -114,7 +119,7 @@ export default function CreateListModal({
         loading: "Editando lista...",
         success: (res: List) => {
           const updatedList = lists.map((list) =>
-            list.id === listToEdit?.id ? res : list
+            list.id === listToEdit?.id ? res : list,
           );
 
           setLists(updatedList);
@@ -122,7 +127,7 @@ export default function CreateListModal({
           return "Lista editada com sucesso!";
         },
         error: "Erro ao editar lista. Tente novamente.",
-      }
+      },
     );
   }
 
@@ -161,14 +166,14 @@ export default function CreateListModal({
         loading: "Excluindo lista...",
         success: () => {
           const remainingLists = lists.filter(
-            (list) => list.id !== listToEdit.id
+            (list) => list.id !== listToEdit.id,
           );
           setLists(remainingLists);
           handleCloseModal();
           return "Lista excluída com sucesso!";
         },
         error: "Erro ao excluir lista. Tente novamente.",
-      }
+      },
     );
   }
 

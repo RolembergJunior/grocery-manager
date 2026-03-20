@@ -1,7 +1,7 @@
 "use client";
 
 import { ListItem, Product } from "@/app/type";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
 import { getUnitName } from "@/app/utils";
@@ -19,8 +19,12 @@ export default function ListItemCard({
   onSave,
   onDelete,
 }: ListItemCardProps) {
-  const [newItem, setNewItem] = useState(item);
+  const [newItem, setNewItem] = useState<ListItem>({} as ListItem);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    setNewItem(item);
+  }, [item]);
 
   const hasChanges = useMemo(() => {
     return (
@@ -91,7 +95,7 @@ export default function ListItemCard({
                   onChange={(e) =>
                     handleChangeItemProp(
                       "neededQuantity",
-                      parseFloat(e.target.value) || 0
+                      parseFloat(e.target.value) || 0,
                     )
                   }
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

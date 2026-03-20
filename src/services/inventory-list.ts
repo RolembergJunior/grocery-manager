@@ -2,14 +2,15 @@
 
 import { STATUSPRODUCT, type ListItem, type Product } from "@/app/type";
 import { batchCreateItems, batchUpdateItems, getListItems } from "./list-items";
+import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 
 export async function syncInventoryListAPI(
   products: Product[],
-  listId: string
+  listId: string,
 ): Promise<ListItem[]> {
   const listItems = await getListItems(listId, true);
 
-  if (listId === "inventory-list") {
+  if (listId === INVENTORY_LIST_ID) {
     const listItemsToCreate: Partial<Omit<ListItem, "id">>[] = [];
     const listItemsToUpdate: Partial<
       Omit<ListItem, "id" | "userId" | "createdAt">
@@ -17,12 +18,14 @@ export async function syncInventoryListAPI(
 
     products.forEach((product) => {
       const existItem = listItems.find((i) => i.itemId === product.id);
+
       if (existItem) {
         listItemsToUpdate.push({
           ...existItem,
           name: product.name,
           category: product.category,
           unit: product.unit,
+          observation: product.observation,
           isRemoved: product.statusCompra !== STATUSPRODUCT.NEED_SHOPPING,
           updatedAt: new Date().toISOString(),
         });
@@ -34,6 +37,7 @@ export async function syncInventoryListAPI(
           fromList: "inventory",
           category: product.category,
           unit: product.unit,
+          observation: product.observation,
           neededQuantity: product.neededQuantity || 0,
           boughtQuantity: 0,
           checked: false,

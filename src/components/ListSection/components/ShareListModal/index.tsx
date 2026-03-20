@@ -57,7 +57,7 @@ export default function ShareListModal({
         setIsSharing(true);
 
         setLists((prev) =>
-          prev.map((l) => (l.id === list.id ? { ...l, shareToken: token } : l))
+          prev.map((l) => (l.id === list.id ? { ...l, shareToken: token } : l)),
         );
       }
 
@@ -101,22 +101,30 @@ export default function ShareListModal({
           size="lg"
           className="w-full h-14 text-base gap-3"
         >
-          {isEnabling ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : copied ? (
-            <Check className="w-5 h-5" />
-          ) : (
-            <Copy className="w-5 h-5" />
-          )}
-          <span>
-            {isEnabling
-              ? "Gerando link..."
-              : copied
-              ? "Link copiado!"
-              : isSharing
-              ? "Copiar Link"
-              : "Gerar e Copiar Link"}
-          </span>
+          <RenderWhen
+            isTrue={isEnabling}
+            elseElement={
+              <RenderWhen
+                isTrue={copied}
+                elseElement={
+                  <>
+                    <Copy className="w-5 h-5" />
+                    <span>Gerar e Copiar Link</span>
+                  </>
+                }
+              >
+                <>
+                  <Check className="w-5 h-5" />
+                  <span>Link copiado!</span>
+                </>
+              </RenderWhen>
+            }
+          >
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Gerando link...</span>
+            </>
+          </RenderWhen>
         </Button>
 
         <RenderWhen isTrue={isSharing && !!currentToken}>
