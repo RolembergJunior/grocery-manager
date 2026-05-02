@@ -38,7 +38,7 @@ export default function AddItemModal({
 }: AddItemModalProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("inventory");
   const [categoryMode, setCategoryMode] = useState<"select" | "create">(
-    "select"
+    "select",
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -92,7 +92,7 @@ export default function AddItemModal({
     if (
       categories.some(
         (category) =>
-          category.name.toLowerCase() === newItemForm.category.toLowerCase()
+          category.name.toLowerCase() === newItemForm.category.toLowerCase(),
       )
     ) {
       toast.error("Categoria já existente");
@@ -143,7 +143,7 @@ export default function AddItemModal({
     return products.filter(
       (product) =>
         !existingItemIds.has(product.id) &&
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [products, items, searchTerm]);
 
@@ -151,12 +151,12 @@ export default function AddItemModal({
     () =>
       items.reduce((acc, item) => {
         const alredyExists = acc.some(
-          (itemAcc) => itemAcc.value === item.category
+          (itemAcc) => itemAcc.value === item.category,
         );
 
         if (!alredyExists) {
           const refferedCategory = categories.find(
-            (category) => category.id === item.category
+            (category) => category.id === item.category,
           );
 
           if (!refferedCategory) {
@@ -174,7 +174,7 @@ export default function AddItemModal({
 
         return acc;
       }, [] as OptionsType[]),
-    [items, categories]
+    [items, categories],
   );
 
   return (

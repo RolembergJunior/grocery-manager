@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import RenderWhen from "../RenderWhen";
 import SignInButton from "./components/signInButton";
 import SignOutButton from "./components/SignOutButton";
-import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { Package, ShoppingCart, User, Store } from "lucide-react";
 import { useSetAtom } from "jotai";
@@ -17,9 +16,10 @@ import { fetchCategoriesAtom } from "@/lib/atoms/categories";
 import { fetchListItemsAtom } from "@/lib/atoms/list-items";
 import { loadingAtom, LoadingParams } from "@/lib/atoms/loading";
 import { fetchProfileData } from "@/lib/atoms/profile";
+import { useFirebaseAuth } from "@/components/AuthProvider";
 
 export default function Header() {
-  const { data: session } = useSession();
+  const { user } = useFirebaseAuth();
   const pathname = usePathname();
 
   const setIsLoading = useSetAtom(loadingAtom);
@@ -34,16 +34,15 @@ export default function Header() {
     pathname === "/shopping-list"
       ? "Compras"
       : pathname === "/inventory"
-      ? "Inventário"
-      : pathname === "/profile"
-      ? "Perfil"
-      : "Home";
+        ? "Inventário"
+        : pathname === "/profile"
+          ? "Perfil"
+          : "Home";
 
   useEffect(() => {
-    if (!session?.user) return;
-
+    if (!user) return;
     initData();
-  }, [session?.user]);
+  }, [user]);
 
   async function initData() {
     setIsLoading({ isOpen: true, message: "Carregando..." });
@@ -62,7 +61,7 @@ export default function Header() {
 
   return (
     <>
-      <MobileHeader title={title} session={session} pathname={pathname} />
+      <MobileHeader title={title} user={user} pathname={pathname} />
 
       <header className="hidden md:block fixed top-0 left-0 right-0 z-[1000] bg-white border-b shadow-[0_2px_10px_rgba(0,0,0,0.06)]">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -73,7 +72,7 @@ export default function Header() {
               <div
                 className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${isActive(
                   "/",
-                  pathname
+                  pathname,
                 )}`}
               >
                 <Store className="w-6 h-6" />
@@ -88,7 +87,7 @@ export default function Header() {
               <div
                 className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${isActive(
                   "/inventory",
-                  pathname
+                  pathname,
                 )}`}
               >
                 <Package className="w-6 h-6" />
@@ -103,7 +102,7 @@ export default function Header() {
               <div
                 className={`flex flex-col items-center mx-6 transition-all duration-200 ease-in-out ${isActive(
                   "/shopping-list",
-                  pathname
+                  pathname,
                 )}`}
               >
                 <ShoppingCart className="w-6 h-6" />
@@ -113,13 +112,13 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
-            {session?.user && (
+            {user && (
               <Link href="/profile">
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 ring-1 ring-gray-300 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all">
-                  {session.user.image ? (
+                  {user.photoURL ? (
                     <img
-                      src={(session.user as any).image}
-                      alt={session.user.name || session.user.email || "User"}
+                      src={user.photoURL}
+                      alt={user.displayName || user.email || "User"}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -128,7 +127,7 @@ export default function Header() {
                 </div>
               </Link>
             )}
-            <RenderWhen isTrue={!session?.user} elseElement={<SignOutButton />}>
+            <RenderWhen isTrue={!user} elseElement={<SignOutButton />}>
               <SignInButton />
             </RenderWhen>
           </div>

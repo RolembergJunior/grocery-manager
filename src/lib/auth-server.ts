@@ -1,17 +1,23 @@
 import "server-only";
-import { auth } from "@/auth";
+import { cookies } from "next/headers";
+import { adminAuth } from "./firebaseAdmin";
 
-function extractUserId(session: any): string | null {
-  return (session?.user as any)?.id || session?.user?.email || null;
+const SESSION_COOKIE = "firebase-session";
+
+export async function getUidFromSession(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get(SESSION_COOKIE)?.value;
+  if (!sessionCookie) return null;
+  try {
+    const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
+    return decoded.uid;
+  } catch {
+    return null;
+  }
 }
 
-export async function requireSessionUserId(
-  expectedUserId: string
-): Promise<string> {
-  const session = await auth();
-  const sessionUserId = extractUserId(session);
-  if (!session || !sessionUserId || sessionUserId !== expectedUserId) {
-    throw new Error("Não autorizado");
-  }
-  return sessionUserId;
+export async function requireSessionUid(): Promise<string> {
+  const uid = await getUidFromSession();
+  if (!uid) throw new Error("Não autorizado");
+  return uid;
 }

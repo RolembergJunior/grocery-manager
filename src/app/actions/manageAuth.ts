@@ -1,11 +1,12 @@
 "use server";
 
-import { signIn, signOut } from "@/auth";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export async function signInAction() {
-  await signIn("google", { redirectTo: "/" });
-}
+const SESSION_COOKIE = "firebase-session";
 
 export async function signOutAction() {
-  await signOut({ redirectTo: "/login" });
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE);
+  redirect("/login");
 }

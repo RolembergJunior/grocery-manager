@@ -1,176 +1,60 @@
 "use client";
 
-import FieldForm from "@/components/FieldForm";
 import Modal from "@/components/Modal";
-import RenderWhen from "@/components/RenderWhen";
 import { User, UserPen } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { schema } from "./schema";
-import z from "zod";
-import { Button } from "@/components/ui/button";
+import { User as FirebaseUser } from "firebase/auth";
+import RenderWhen from "@/components/RenderWhen";
 
 interface AccountModalProps {
   isModalOpen: boolean;
   onCloseModal: () => void;
-  session: any;
-  updateSession: any;
-}
-
-interface FormErrors {
-  name?: string;
-  phone?: string;
-  email?: string;
+  user: FirebaseUser | null;
 }
 
 export default function AccountModal({
   isModalOpen,
   onCloseModal,
-  session,
-  updateSession,
+  user,
 }: AccountModalProps) {
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    profileImage: null,
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
-
-  useEffect(() => {
-    if (session?.user) {
-      setFormData({
-        name: session.user.name || "",
-        phone: session.user.phone || "",
-        email: session.user.email || "",
-        profileImage: session.user.image || null,
-      });
-    }
-  }, [session]);
-
-  function handleCloseModal() {
-    setErrors({});
-    onCloseModal();
-  }
-
-  function validateForm(): boolean {
-    try {
-      schema.parse(formData);
-      setErrors({});
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const newErrors: FormErrors = {};
-        error.issues.forEach((err) => {
-          const path = err.path[0] as keyof FormErrors;
-          newErrors[path] = err.message;
-        });
-        setErrors(newErrors);
-      } else {
-        setErrors({ name: "Erro ao validar o formulário" });
-      }
-      return false;
-    }
-  }
-
-  function handleChangeInput(
-    value: string | number | null,
-    field: keyof FormErrors
-  ) {
-    setFormData({
-      ...formData,
-      [field]: value,
-    });
-  }
-
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    toast.promise(
-      updateSession({
-        ...session,
-        user: {
-          ...session?.user,
-          name: formData.name,
-          email: formData.email,
-          image: formData.profileImage,
-        },
-      }),
-      {
-        loading: "Salvando dados...",
-        success: "Dados atualizados com sucesso!",
-        error: "Erro ao salvar dados. Tente novamente.",
-      }
-    );
-  }
-
   return (
     <Modal
       isOpen={isModalOpen}
-      onClose={handleCloseModal}
+      onClose={onCloseModal}
       title="Dados da conta"
       height="xl"
       iconTitle={<UserPen />}
     >
-      <form onSubmit={handleSave} className="space-y-4">
+      <div className="space-y-4">
         <div className="flex justify-center mb-6">
-          <div className="relative">
-            <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-4 border-blue-400">
-              <RenderWhen
-                isTrue={!!formData.profileImage}
-                elseElement={<User className="w-16 h-16 text-gray-400" />}
-              >
-                <img
-                  src={formData.profileImage!}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </RenderWhen>
-            </div>
+          <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-4 border-blue-400">
+            <RenderWhen
+              isTrue={!!user?.photoURL}
+              elseElement={<User className="w-16 h-16 text-gray-400" />}
+            >
+              <img
+                src={user?.photoURL!}
+                alt={user?.displayName || "Profile"}
+                className="w-full h-full object-cover"
+              />
+            </RenderWhen>
           </div>
         </div>
 
-        <FieldForm
-          type="text"
-          label="Nome"
-          value={formData.name}
-          onChange={(value) => handleChangeInput(value, "name")}
-          error={errors.name}
-          required
-          placeholder="Nome"
-          maxLength={100}
-        />
-
-        <FieldForm
-          type="text"
-          label="Celular"
-          value={formData.phone}
-          onChange={(value) => handleChangeInput(value, "phone")}
-          error={errors.phone}
-          placeholder="Celular"
-          maxLength={15}
-        />
-
-        <FieldForm
-          type="text"
-          label="Email"
-          value={formData.email}
-          onChange={(value) => handleChangeInput(value, "email")}
-          error={errors.email}
-          placeholder="Email"
-          maxLength={100}
-        />
-
-        <div className="pt-4">
-          <Button type="submit" className="w-full text-lg">
-            Salvar
-          </Button>
+        <div className="space-y-3">
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Nome</p>
+            <p className="text-sm font-medium text-gray-800">
+              {user?.displayName || "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Email</p>
+            <p className="text-sm font-medium text-gray-800">
+              {user?.email || "—"}
+            </p>
+          </div>
         </div>
-      </form>
+      </div>
     </Modal>
   );
 }

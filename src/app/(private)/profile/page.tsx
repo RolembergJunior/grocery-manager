@@ -1,21 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
-import { User, ChevronRight, Settings, FileText, LogOut } from "lucide-react";
+import { useFirebaseAuth } from "@/components/AuthProvider";
+import { User, ChevronRight, FileText, LogOut } from "lucide-react";
 import { signOutAction } from "@/app/actions/manageAuth";
 import RenderWhen from "@/components/RenderWhen";
 import HeaderPage from "@/components/HeaderPage";
 import AccountModal from "./components/AccoutModal";
-// import { Metadata } from "next";
-
-const metadata = {
-  title: "ListaAí - Perfil",
-  description: "ListaAí - A plataforma de gestão de listas de compras",
-};
 
 export default function ProfilePage() {
-  const { data: session, update } = useSession();
+  const { user } = useFirebaseAuth();
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 
   const menuItems = [
@@ -33,20 +27,20 @@ export default function ProfilePage() {
         <div className="flex items-center gap-3 mb-6 px-2">
           <div className="w-12 h-12 bg-[var(--color-stats-card)] rounded-full flex items-center justify-center overflow-hidden">
             <RenderWhen
-              isTrue={!!session?.user?.image}
+              isTrue={!!user?.photoURL}
               elseElement={
                 <User className="w-6 h-6 text-[var(--color-text-gray)]" />
               }
             >
               <img
-                src={session?.user?.image!}
-                alt={session?.user?.name || "User"}
+                src={user?.photoURL!}
+                alt={user?.displayName || "User"}
                 className="w-full h-full object-cover"
               />
             </RenderWhen>
           </div>
           <h1 className="text-xl font-medium text-[var(--color-text-gray)]">
-            {session?.user?.name || "Nome da pessoa"}
+            {user?.displayName || "Nome da pessoa"}
           </h1>
         </div>
 
@@ -59,7 +53,7 @@ export default function ProfilePage() {
               <button
                 key={index}
                 onClick={item.onClick}
-                className="w-full bg-white hover:bg-gray-200 px-5 py-4 flex items-center justify-between  transition-all border-b border-gray-200"
+                className="w-full bg-white hover:bg-gray-200 px-5 py-4 flex items-center justify-between transition-all border-b border-gray-200"
               >
                 <div className="flex items-center gap-3">
                   <Icon className="w-5 h-5 text-[var(--color-text-gray)]" />
@@ -78,7 +72,7 @@ export default function ProfilePage() {
 
         <button
           onClick={() => signOutAction()}
-          className="w-full bg-white hover:bg-gray-200 px-5 py-4 flex items-center gap-3  transition-all border-b border-gray-200 text-red-600"
+          className="w-full bg-white hover:bg-gray-200 px-5 py-4 flex items-center gap-3 transition-all border-b border-gray-200 text-red-600"
         >
           <LogOut className="w-5 h-5" />
           <span className="font-medium">Sair</span>
@@ -87,8 +81,7 @@ export default function ProfilePage() {
         <AccountModal
           isModalOpen={isAccountModalOpen}
           onCloseModal={() => setIsAccountModalOpen(false)}
-          session={session}
-          updateSession={update}
+          user={user}
         />
       </div>
     </div>

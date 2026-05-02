@@ -1,4 +1,4 @@
-import QuickListCard from "./components/QuickListCard";
+// import QuickListCard from "./components/QuickListCard";
 import InventoryListCard from "./components/InventoryListCard";
 import UserListsSection from "./components/UserListsSection";
 import { Metadata } from "next";

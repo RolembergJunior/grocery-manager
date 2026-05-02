@@ -1,19 +1,13 @@
-import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
 import { NextRequest, NextResponse } from "next/server";
 
-const { auth } = NextAuth({
-  providers: [Google],
-});
+const SESSION_COOKIE = "firebase-session";
 
-export default auth(async function middleware(req: NextRequest) {
+const protectedRoutes = ["/", "/shopping-list"];
+const authRoutes = ["/login"];
+
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-
-  const isAuthenticated = !!req?.auth?.user;
-
-  const protectedRoutes = ["/", "/shopping-list"];
-
-  const authRoutes = ["/login"];
+  const isAuthenticated = !!req.cookies.get(SESSION_COOKIE)?.value;
 
   if (isAuthenticated && authRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL("/", req.url));
@@ -24,7 +18,7 @@ export default auth(async function middleware(req: NextRequest) {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
