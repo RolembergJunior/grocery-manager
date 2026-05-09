@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 async function updateUserStatus(
   customerId: string,
   newStatus: "trial" | "free" | "pro",
-  protectPro = false
+  protectPro = false,
 ) {
   const snapshot = await adminDb
     .collection("users")
@@ -28,6 +28,7 @@ async function updateUserStatus(
 
   await doc.ref.update({
     subscriptionStatus: newStatus,
+    stripeCustomerStatus: newStatus,
     updatedAt: new Date().toISOString(),
   });
 }
@@ -37,7 +38,10 @@ export async function POST(request: Request) {
   const sig = request.headers.get("stripe-signature");
 
   if (!sig) {
-    return NextResponse.json({ error: "Missing stripe-signature header" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing stripe-signature header" },
+      { status: 400 },
+    );
   }
 
   let event: Stripe.Event;
@@ -45,7 +49,7 @@ export async function POST(request: Request) {
     event = stripe.webhooks.constructEvent(
       rawBody,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET!,
     );
   } catch (err: any) {
     console.error("Webhook signature verification failed:", err.message);
