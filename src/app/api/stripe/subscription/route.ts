@@ -7,25 +7,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: Request) {
   try {
-    const { priceId } = await request.json();
+    const { stripeCustomerId } = await request.json();
 
-    if (!priceId) {
+    if (!stripeCustomerId) {
       return NextResponse.json(
-        { error: "Price ID is required" },
+        { error: "stripeCustomerId is required" },
         { status: 400 }
       );
     }
 
-    const customer = await stripe.customers.create();
-
     const ephemeralKey = await stripe.ephemeralKeys.create(
-      { customer: customer.id },
+      { customer: stripeCustomerId },
       { apiVersion: "2025-02-24.acacia" }
     );
 
     const subscription = await stripe.subscriptions.create({
-      customer: customer.id,
-      items: [{ price: priceId }],
+      customer: stripeCustomerId,
+      items: [{ price: process.env.STRIPE_SUBSCRIPTION_PRICE_ID! }],
       payment_behavior: "default_incomplete",
       payment_settings: { save_default_payment_method: "on_subscription" },
       expand: ["latest_invoice.payment_intent"],
@@ -38,7 +36,7 @@ export async function POST(request: Request) {
       subscriptionId: subscription.id,
       paymentIntent: paymentIntent.client_secret,
       ephemeralKey: ephemeralKey.secret,
-      customer: customer.id,
+      customer: stripeCustomerId,
       publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     });
   } catch (error: any) {
