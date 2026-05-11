@@ -6,10 +6,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
 });
 
-async function updateUserStatus(
+async function updateUserSubscription(
   customerId: string,
-  newStatus: "trial" | "free" | "pro",
-  protectPro = false,
+  stripeStatus: string,
+  dates?: { start: number; end: number },
+  protectActive = false,
 ) {
   const snapshot = await adminDb
     .collection("users")
@@ -21,16 +22,22 @@ async function updateUserStatus(
 
   const doc = snapshot.docs[0];
 
-  if (protectPro && doc.data().subscriptionStatus === "pro") {
-    // Never downgrade an active paying user due to an old trial subscription event
+  if (protectActive && doc.data().stripeCustomerStatus === "active") {
+    // Never downgrade an active paying user due to a stale event
     return;
   }
 
-  await doc.ref.update({
-    subscriptionStatus: newStatus,
-    stripeCustomerStatus: newStatus,
+  const updates: Record<string, string> = {
+    stripeCustomerStatus: stripeStatus,
     updatedAt: new Date().toISOString(),
-  });
+  };
+
+  if (dates) {
+    updates.subscriptionStartDate = new Date(dates.start * 1000).toISOString();
+    updates.subscriptionEndDate = new Date(dates.end * 1000).toISOString();
+  }
+
+  await doc.ref.update(updates);
 }
 
 export async function POST(request: Request) {
@@ -60,34 +67,36 @@ export async function POST(request: Request) {
     switch (event.type) {
       case "customer.subscription.updated": {
         const sub = event.data.object as Stripe.Subscription;
-        const customerId = sub.customer as string;
-
-        if (sub.status === "trialing") {
-          await updateUserStatus(customerId, "trial");
-        } else if (sub.status === "active") {
-          await updateUserStatus(customerId, "pro");
-        } else if (
-          sub.status === "past_due" ||
-          sub.status === "canceled" ||
-          sub.status === "unpaid" ||
-          sub.status === "incomplete_expired"
-        ) {
-          await updateUserStatus(customerId, "free", true);
-        }
+        await updateUserSubscription(
+          sub.customer as string,
+          sub.status,
+          { start: sub.current_period_start, end: sub.current_period_end },
+          true,
+        );
         break;
       }
 
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
-        const customerId = invoice.customer as string;
-        await updateUserStatus(customerId, "pro");
+        const sub = await stripe.subscriptions.retrieve(
+          invoice.subscription as string,
+        );
+        await updateUserSubscription(
+          invoice.customer as string,
+          sub.status,
+          { start: sub.current_period_start, end: sub.current_period_end },
+        );
         break;
       }
 
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
-        const customerId = sub.customer as string;
-        await updateUserStatus(customerId, "free", true);
+        await updateUserSubscription(
+          sub.customer as string,
+          sub.status,
+          { start: sub.current_period_start, end: sub.current_period_end },
+          true,
+        );
         break;
       }
     }

@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     if (userSnap.exists && userSnap.data()?.stripeCustomerId) {
       return NextResponse.json({
         stripeCustomerId: userSnap.data()!.stripeCustomerId,
+        stripeCustomerStatus: userSnap.data()!.stripeCustomerStatus ?? "trialing",
       });
     }
 
@@ -28,25 +29,32 @@ export async function POST(request: Request) {
       name: name || undefined,
     });
 
-    await stripe.subscriptions.create({
+    const subscription = await stripe.subscriptions.create({
       customer: customer.id,
       items: [{ price: process.env.STRIPE_SUBSCRIPTION_PRICE_ID! }],
       trial_period_days: 90,
       payment_behavior: "default_incomplete",
     });
 
-    const now = new Date().toISOString();
     await userRef.set(
       {
         stripeCustomerId: customer.id,
-        subscriptionStatus: "trial",
-        subscriptionStartDate: now,
-        updatedAt: now,
+        stripeCustomerStatus: subscription.status,
+        subscriptionStartDate: new Date(
+          subscription.current_period_start * 1000,
+        ).toISOString(),
+        subscriptionEndDate: new Date(
+          subscription.current_period_end * 1000,
+        ).toISOString(),
+        updatedAt: new Date().toISOString(),
       },
-      { merge: true }
+      { merge: true },
     );
 
-    return NextResponse.json({ stripeCustomerId: customer.id });
+    return NextResponse.json({
+      stripeCustomerId: customer.id,
+      stripeCustomerStatus: subscription.status,
+    });
   } catch (error: any) {
     console.error("Error creating trial:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
