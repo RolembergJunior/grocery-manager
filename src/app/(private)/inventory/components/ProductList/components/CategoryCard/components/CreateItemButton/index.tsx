@@ -17,10 +17,10 @@ export default function CreateItemButton({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { isFree } = useSubscription();
+  const { isActive } = useSubscription();
 
   function handleOpenCreateItemModal() {
-    if (isFree && items.length >= 30) {
+    if (!isActive && items.length >= 30) {
       return toast.warning(
         "Seu plano não permite criar mais que 30 itens! Faça upgrade do seu plano atual para conseguir mais itens."
       );

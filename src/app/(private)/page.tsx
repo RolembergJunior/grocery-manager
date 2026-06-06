@@ -13,23 +13,23 @@ import { useSubscription } from "@/hooks/use-subscription";
 import RenderWhen from "@/components/RenderWhen";
 
 export default function GroceryHome() {
-  const { isActive, isPremium, isPro, isFree, isTrial } = useSubscription();
+  const { isActive, isTrialing } = useSubscription();
 
   return (
     <div className="min-h-dvh md:screen p-4 pb-20">
       <HeaderPage hasNameApp />
 
-      <RenderWhen isTrue={isTrial}>
+      <RenderWhen isTrue={isTrialing}>
         <FreeTierBanner />
       </RenderWhen>
 
-      <RenderWhen isTrue={(isPro || isPremium || isTrial) && isActive}>
+      <RenderWhen isTrue={isActive}>
         <PrioritiesSection />
       </RenderWhen>
 
       <CategorySection />
 
-      <RenderWhen isTrue={(isPro || isPremium || isTrial) && isActive}>
+      <RenderWhen isTrue={isActive}>
         <RecurrenciesSection />
 
         <ListSection />

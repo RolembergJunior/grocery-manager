@@ -28,10 +28,10 @@ export default function Controls({
   const [isOpenCreateCategoryModal, setIsOpenCreateCategoryModal] =
     useState(false);
 
-  const { isFree } = useSubscription();
+  const { isActive } = useSubscription();
 
   function handleOpenCreateCategoryModal() {
-    if (isFree && categories.length >= 5) {
+    if (!isActive && categories.length >= 5) {
       return toast.warning(
         "Seu plano não permite criar mais que 5 categorias! Faça upgrade do seu plano atual para conseguir mais categorias."
       );

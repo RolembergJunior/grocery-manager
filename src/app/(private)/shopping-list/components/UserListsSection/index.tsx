@@ -24,7 +24,7 @@ export default function UserListsSection() {
     return lists.filter((list) => list.id !== INVENTORY_LIST_ID);
   }, [lists]);
 
-  const { isFree, isPro } = useSubscription();
+  const { isActive } = useSubscription();
 
   function handleAddItemToList(list: List) {
     setSelectedList(list);
@@ -37,17 +37,12 @@ export default function UserListsSection() {
   }
 
   function handleOpenCreateListModal() {
-    if (isFree) {
+    if (!isActive) {
       return toast.warning(
         "Seu plano não permite criar listas! Faça upgrade do seu plano atual para conseguir mais listas.",
       );
     }
 
-    if (isPro && normalizedList.length >= 5) {
-      return toast.warning(
-        "Seu plano não permite criar mais de 5 listas! Faça upgrade do seu plano atual para conseguir mais listas.",
-      );
-    }
     setIsCreateListModalOpen(true);
   }
 
