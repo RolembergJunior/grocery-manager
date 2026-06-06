@@ -22,8 +22,8 @@ export interface Profile {
   email: string;
   nameApp: string;
   imagePath: string;
-  subscriptionStatus: "free" | "premium" | "trial" | "pro";
-  subscriptionTier?: "monthly" | "yearly";
+  stripeCustomerId?: string;
+  stripeCustomerStatus?: string;
   subscriptionStartDate?: string;
   subscriptionEndDate?: string;
   hasCompletedOnboarding?: boolean;

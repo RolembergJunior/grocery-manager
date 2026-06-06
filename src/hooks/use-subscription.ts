@@ -5,27 +5,34 @@ export function useSubscription() {
   const profile = useAtomValue(profileAtom);
 
   function isSubscriptionActive() {
-    const { subscriptionStatus, subscriptionEndDate } = profile || {};
+    const stripeCustomerStatus = (profile as any)?.stripeCustomerStatus;
+    const subscriptionEndDate = (profile as any)?.subscriptionEndDate;
 
-    if (subscriptionStatus === "free") {
+    if (!stripeCustomerStatus || stripeCustomerStatus === "canceled") {
       return false;
     }
 
-    if (!subscriptionEndDate && subscriptionStatus === "trial") {
+    if (stripeCustomerStatus === "trialing" && !subscriptionEndDate) {
       return true;
     }
 
-    const endDate = new Date(subscriptionEndDate!);
+    if (!subscriptionEndDate) {
+      return stripeCustomerStatus === "active" || stripeCustomerStatus === "trialing";
+    }
+
+    const endDate = new Date(subscriptionEndDate);
     const today = new Date();
 
     return endDate >= today;
   }
 
+  const stripeCustomerStatus = profile?.stripeCustomerStatus;
+
   return {
-    isPremium: profile?.subscriptionStatus === "premium",
-    isPro: profile?.subscriptionStatus === "pro",
-    isFree: profile?.subscriptionStatus === "free",
-    isTrial: profile?.subscriptionStatus === "trial",
+    isPremium: stripeCustomerStatus === "active",
+    isPro: stripeCustomerStatus === "active",
+    isFree: !stripeCustomerStatus || stripeCustomerStatus === "canceled",
+    isTrial: stripeCustomerStatus === "trialing",
     isActive: isSubscriptionActive(),
   };
 }

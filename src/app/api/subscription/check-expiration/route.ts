@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { COLLECTIONS } from "@/lib/helpers/constants";
-import { SUBSCRIPTION_STATUS } from "@/app/type";
 
 const GRACE_PERIOD_DAYS = 5;
 
@@ -30,15 +29,15 @@ export async function POST(req: NextRequest) {
     const profile = profileDoc.data();
 
     if (
-      !profile?.subscriptionStatus ||
-      profile.subscriptionStatus === SUBSCRIPTION_STATUS.FREE ||
+      !profile?.stripeCustomerStatus ||
+      profile.stripeCustomerStatus === "canceled" ||
       !profile.subscriptionEndDate
     ) {
       return NextResponse.json({
         updated: false,
         inGracePeriod: false,
         daysRemainingInGrace: 0,
-        newStatus: profile?.subscriptionStatus || SUBSCRIPTION_STATUS.FREE,
+        newStatus: profile?.stripeCustomerStatus || "canceled",
       });
     }
 
@@ -52,7 +51,7 @@ export async function POST(req: NextRequest) {
         updated: false,
         inGracePeriod: false,
         daysRemainingInGrace: 0,
-        newStatus: profile.subscriptionStatus,
+        newStatus: profile.stripeCustomerStatus,
       });
     }
 
@@ -68,13 +67,13 @@ export async function POST(req: NextRequest) {
         updated: false,
         inGracePeriod: true,
         daysRemainingInGrace: daysRemaining,
-        newStatus: profile.subscriptionStatus,
+        newStatus: profile.stripeCustomerStatus,
       });
     }
 
-    const previousStatus = profile.subscriptionStatus;
+    const previousStatus = profile.stripeCustomerStatus;
     await profileRef.update({
-      subscriptionStatus: SUBSCRIPTION_STATUS.FREE,
+      stripeCustomerStatus: "canceled",
       updatedAt: new Date().toISOString(),
     });
 
@@ -83,7 +82,7 @@ export async function POST(req: NextRequest) {
       inGracePeriod: false,
       daysRemainingInGrace: 0,
       previousStatus,
-      newStatus: SUBSCRIPTION_STATUS.FREE,
+      newStatus: "canceled",
     });
   } catch (error) {
     console.error("Error checking subscription expiration:", error);
