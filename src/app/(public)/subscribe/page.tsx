@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, ShoppingCart } from "lucide-react";
 import { useFirebaseAuth } from "@/components/AuthProvider";
@@ -14,11 +14,17 @@ const BENEFITS = [
 ];
 
 export default function SubscribePage() {
-  const { user } = useFirebaseAuth();
+  const { user, isLoading: authLoading } = useFirebaseAuth();
   const router = useRouter();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/login");
+    }
+  }, [authLoading, user, router]);
 
   async function handleSubscribeClick() {
     if (!user) {
@@ -110,7 +116,7 @@ export default function SubscribePage() {
 
             <div className="text-center">
               <button
-                onClick={() => signOutAction()}
+                onClick={signOutAction}
                 className="text-sm text-gray-400 hover:text-gray-600 underline"
               >
                 Sair da conta
