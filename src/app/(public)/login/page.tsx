@@ -37,9 +37,9 @@ export default function LoginPage() {
             name: result.user.displayName,
           }),
         });
-      } catch {
+      } catch (e) {
         // Non-fatal: trial creation will be retried on next login
-        console.error("Failed to create Stripe trial on login");
+        console.error("Failed to create Stripe trial on login", e);
       }
 
       router.push("/");
