@@ -32,22 +32,17 @@ export default function SubscribePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const profileRes = await fetch(`/api/profile?userId=${user.uid}`);
-      if (!profileRes.ok) throw new Error("Perfil não encontrado");
-      const { profile } = await profileRes.json();
-
-      if (!profile?.stripeCustomerId) {
-        setError("Erro ao preparar assinatura. Tente sair e entrar novamente.");
-        return;
-      }
-
       const res = await fetch("/api/stripe/checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stripeCustomerId: profile.stripeCustomerId }),
+        body: JSON.stringify({}),
       });
-      if (!res.ok) throw new Error("Erro ao criar sessão de pagamento");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Erro ao criar sessão de pagamento");
+      }
       const { url } = await res.json();
+      if (!url) throw new Error("URL de pagamento não disponível");
       window.location.href = url;
     } catch (err: any) {
       setError(err.message || "Erro inesperado. Tente novamente.");

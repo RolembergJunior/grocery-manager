@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { requireSessionUid } from "@/lib/auth-server";
+import { adminDb } from "@/lib/firebaseAdmin";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -8,19 +9,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: NextRequest) {
   try {
-    await requireSessionUid();
+    const uid = await requireSessionUid();
 
-    const { stripeCustomerId } = await request.json();
+    const userDoc = await adminDb.collection("users").doc(uid).get();
+    const stripeCustomerId = userDoc.data()?.stripeCustomerId as string | undefined;
 
     if (!stripeCustomerId) {
       return NextResponse.json(
-        { error: "stripeCustomerId is required" },
+        { error: "Stripe customer not found" },
         { status: 400 }
       );
     }
 
     const origin = new URL(request.url).origin;
-
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: stripeCustomerId,
@@ -31,9 +32,17 @@ export async function POST(request: NextRequest) {
       cancel_url: `${origin}/subscribe`,
     });
 
+    if (!session.url) {
+      return NextResponse.json(
+        { error: "Failed to create checkout URL" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ url: session.url });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error creating checkout session:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
