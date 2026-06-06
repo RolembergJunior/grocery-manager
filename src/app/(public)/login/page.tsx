@@ -26,6 +26,22 @@ export default function LoginPage() {
 
       if (!res.ok) throw new Error("Falha ao autenticar");
 
+      // Ensure Stripe trial exists (re-entrant safe — no-op if already created)
+      try {
+        await fetch("/api/stripe/create-trial", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            uid: result.user.uid,
+            email: result.user.email,
+            name: result.user.displayName,
+          }),
+        });
+      } catch {
+        // Non-fatal: trial creation will be retried on next login
+        console.error("Failed to create Stripe trial on login");
+      }
+
       router.push("/");
     } catch (err: any) {
       setError(err.message || "Erro ao entrar. Tente novamente.");
