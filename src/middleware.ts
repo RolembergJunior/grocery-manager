@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const SESSION_COOKIE = "firebase-session";
 
-const protectedRoutes = ["/", "/shopping-list"];
+const protectedRoutes = ["/", "/shopping-list", "/subscribe"];
 const authRoutes = ["/login"];
 
 export function middleware(req: NextRequest) {
