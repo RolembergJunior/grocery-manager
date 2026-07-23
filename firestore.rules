@@ -18,8 +18,26 @@ service cloud.firestore {
     // ============================================
     // USERS COLLECTION (profiles)
     // ============================================
+    // Entitlement fields are written only by the Admin SDK (server routes and
+    // webhooks). Clients may read them but never write them.
+    function entitlementFields() {
+      return [
+        'stripeCustomerId',
+        'stripeCustomerStatus',
+        'subscriptionSource',
+        'subscriptionStartDate',
+        'subscriptionEndDate'
+      ];
+    }
+
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && !request.resource.data.keys().hasAny(entitlementFields());
+      allow update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data)
+              .affectedKeys().hasAny(entitlementFields());
+      allow delete: if isOwner(userId);
     }
 
     // ============================================

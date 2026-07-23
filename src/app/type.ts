@@ -24,6 +24,8 @@ export interface Profile {
   imagePath: string;
   stripeCustomerId?: string;
   stripeCustomerStatus?: string;
+  /** Which platform the active subscription was purchased on. Absent = "stripe". */
+  subscriptionSource?: "stripe" | "play";
   subscriptionStartDate?: string;
   subscriptionEndDate?: string;
   hasCompletedOnboarding?: boolean;
