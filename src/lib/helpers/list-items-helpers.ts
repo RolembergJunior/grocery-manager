@@ -1,7 +1,7 @@
 import "server-only";
 import { adminDb } from "../firebaseAdmin";
 import type { ListItem } from "@/app/type";
-import { COLLECTIONS, withTimestamps } from "./constants";
+import { COLLECTIONS, withTimestamps, batchDeleteRefs } from "./constants";
 
 export async function createListItem(
   data: Omit<ListItem, "id">
@@ -90,18 +90,12 @@ export async function softDeleteListItem(id: string): Promise<void> {
 }
 
 export async function hardDeleteListItemsById(id: string): Promise<void> {
-  const batch = adminDb.batch();
-
   const snapshot = await adminDb
     .collection(COLLECTIONS.LIST_ITEMS)
     .where("listId", "==", id)
     .get();
 
-  snapshot.docs.forEach((doc) => {
-    batch.delete(doc.ref);
-  });
-
-  await batch.commit();
+  await batchDeleteRefs(snapshot.docs.map((doc) => doc.ref));
 }
 
 export async function batchCreateItems(items: ListItem[]): Promise<void> {

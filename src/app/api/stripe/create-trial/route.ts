@@ -38,6 +38,8 @@ export async function POST(request: Request) {
 
     await userRef.set(
       {
+        name: name || "",
+        email: email || "",
         stripeCustomerId: customer.id,
         stripeCustomerStatus: subscription.status,
         subscriptionStartDate: new Date(

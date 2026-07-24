@@ -26,6 +26,7 @@ export interface Profile {
   stripeCustomerStatus?: string;
   subscriptionStartDate?: string;
   subscriptionEndDate?: string;
+  cancelAtPeriodEnd?: boolean;
   hasCompletedOnboarding?: boolean;
   onboardingCompletedAt?: string;
   createdAt: string;

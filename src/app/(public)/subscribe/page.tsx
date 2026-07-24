@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ShoppingCart } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 import { useFirebaseAuth } from "@/components/AuthProvider";
 import { signOutAction } from "@/app/actions/manageAuth";
 
@@ -55,9 +56,13 @@ export default function SubscribePage() {
     <div className="min-h-dvh flex items-center justify-center p-6 bg-white">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="p-2 bg-[var(--color-blue)] rounded-xl">
-            <ShoppingCart className="w-6 h-6 text-white" />
-          </div>
+          <Image
+            src="/brand-icon.png"
+            alt="ListaAí"
+            width={40}
+            height={40}
+            className="rounded-xl"
+          />
           <h1 className="text-2xl font-bold text-[var(--color-blue)]">
             ListaAí
           </h1>

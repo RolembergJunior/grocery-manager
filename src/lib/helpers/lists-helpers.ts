@@ -41,3 +41,7 @@ export async function softDeleteList(id: string): Promise<void> {
   const updateData = withTimestamps({ isRemoved: true }, true);
   await adminDb.collection(COLLECTIONS.LISTS).doc(id).update(updateData);
 }
+
+export async function hardDeleteList(id: string): Promise<void> {
+  await adminDb.collection(COLLECTIONS.LISTS).doc(id).delete();
+}

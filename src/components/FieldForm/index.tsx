@@ -128,12 +128,31 @@ export default function FieldForm(props: FieldFormProps) {
     }
   }
 
+  const maxLength = "maxLength" in props ? props.maxLength : undefined;
+  const showCharCount =
+    (props.type === "text" || props.type === "textarea") && !!maxLength;
+  const charCount = typeof value === "string" ? value.length : 0;
+
   return (
     <div className={`space-y-2 ${className}`}>
       <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       {renderInput()}
+
+      <RenderWhen isTrue={showCharCount}>
+        <div className="flex justify-end">
+          <span
+            className={`text-xs ${
+              charCount >= (maxLength ?? 0)
+                ? "text-red-500 font-medium"
+                : "text-gray-400"
+            }`}
+          >
+            {charCount}/{maxLength}
+          </span>
+        </div>
+      </RenderWhen>
 
       <RenderWhen isTrue={!!error}>
         <div className="flex items-center gap-1 text-red-600 text-sm mt-1">

@@ -223,7 +223,7 @@ export default function AddItemModal({
                 }
                 required
                 placeholder="Ex: Arroz, Feijão, Macarrão..."
-                maxLength={50}
+                maxLength={30}
               />
 
               <div className="space-y-3">
@@ -293,13 +293,15 @@ export default function AddItemModal({
                   type="number"
                   label="Quantidade"
                   value={newItemForm.neededQuantity}
-                  onChange={(value) =>
+                  onChange={(value) => {
+                    const n = typeof value === "number" ? value : 0;
                     setNewItemForm({
                       ...newItemForm,
-                      neededQuantity: value as number,
-                    })
-                  }
+                      neededQuantity: Math.min(Math.max(n, 0), 999),
+                    });
+                  }}
                   min={0}
+                  max={999}
                   required
                 />
 
@@ -326,6 +328,7 @@ export default function AddItemModal({
                   })
                 }
                 placeholder="Adicione alguma observação"
+                maxLength={200}
               />
             </div>
           }

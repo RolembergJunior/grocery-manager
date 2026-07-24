@@ -6,6 +6,7 @@ import { signInWithPopup, getIdToken } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebaseClient";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, CheckCircle2, ListChecks } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,6 +17,15 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     try {
+      const forceReauth =
+        typeof window !== "undefined" &&
+        localStorage.getItem("forceGoogleReauth") === "1";
+
+      if (forceReauth) {
+        googleProvider.setCustomParameters({ prompt: "select_account" });
+        localStorage.removeItem("forceGoogleReauth");
+      }
+
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await getIdToken(result.user);
 
@@ -56,9 +66,13 @@ export default function LoginPage() {
         <div className="hidden md:block space-y-6">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-[var(--color-blue)] rounded-2xl shadow-lg">
-                <ShoppingCart className="w-8 h-8 text-white" />
-              </div>
+              <Image
+                src="/brand-icon.png"
+                alt="ListaAí"
+                width={56}
+                height={56}
+                className="rounded-2xl shadow-lg"
+              />
               <h1 className="text-4xl font-bold text-[var(--color-blue)]">
                 ListaAí
               </h1>
@@ -117,9 +131,13 @@ export default function LoginPage() {
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-10 shadow-2xl border border-gray-100">
             <div className="md:hidden mb-6 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="p-2 bg-[var(--color-blue)] rounded-xl">
-                  <ShoppingCart className="w-6 h-6 text-white" />
-                </div>
+                <Image
+                  src="/brand-icon.png"
+                  alt="ListaAí"
+                  width={40}
+                  height={40}
+                  className="rounded-xl"
+                />
                 <h1 className="text-2xl font-bold text-[var(--color-blue)]">
                   ListaAí
                 </h1>
