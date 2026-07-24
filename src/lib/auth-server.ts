@@ -2,7 +2,23 @@ import "server-only";
 import { cookies } from "next/headers";
 import { adminAuth } from "./firebaseAdmin";
 
-const SESSION_COOKIE = "firebase-session";
+export const SESSION_COOKIE = "firebase-session";
+
+export async function getUidFromBearer(
+  req: Request,
+): Promise<{ uid: string; email?: string } | null> {
+  const authorization = req.headers.get("Authorization");
+  if (!authorization?.startsWith("Bearer ")) return null;
+
+  try {
+    const decoded = await adminAuth.verifyIdToken(
+      authorization.slice("Bearer ".length),
+    );
+    return { uid: decoded.uid, email: decoded.email };
+  } catch {
+    return null;
+  }
+}
 
 export async function getUidFromSession(): Promise<string | null> {
   const cookieStore = await cookies();
