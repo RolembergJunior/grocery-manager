@@ -117,7 +117,7 @@ export default function AddNewItemForm({ category }: { category: Category }) {
           error={errors.name}
           required
           placeholder="Digite o nome do produto"
-          maxLength={20}
+          maxLength={30}
         />
 
         <FieldForm

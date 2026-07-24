@@ -5,8 +5,9 @@ import {
   getListsByUserId,
   createList,
   updateList,
-  softDeleteList,
+  hardDeleteList,
 } from "@/lib/helpers/lists-helpers";
+import { hardDeleteListItemsById } from "@/lib/helpers/list-items-helpers";
 
 export const runtime = "nodejs";
 
@@ -141,7 +142,8 @@ export async function DELETE(req: NextRequest) {
     }
 
     const { id } = body as { id: string };
-    await softDeleteList(id);
+    await hardDeleteList(id);
+    await hardDeleteListItemsById(id);
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Error deleting list:", error);
