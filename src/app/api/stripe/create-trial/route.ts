@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { requireUidFromRequest } from "@/lib/auth-server";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -8,11 +9,14 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: Request) {
   try {
-    const { uid, email, name } = await request.json();
-
-    if (!uid) {
-      return NextResponse.json({ error: "uid is required" }, { status: 400 });
+    let uid: string;
+    try {
+      uid = await requireUidFromRequest(request);
+    } catch {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
+
+    const { email, name } = await request.json();
 
     // Re-entrant safety: if user already has a customer, return it
     const userRef = adminDb.collection("users").doc(uid);

@@ -37,3 +37,23 @@ export async function requireSessionUid(): Promise<string> {
   if (!uid) throw new Error("Não autorizado");
   return uid;
 }
+
+/**
+ * Resolves the caller's UID from either a Firebase ID token (mobile, which has
+ * no cookies) or the session cookie (web). Never trust a uid from the body.
+ */
+export async function requireUidFromRequest(request: Request): Promise<string> {
+  const authHeader = request.headers.get("authorization");
+
+  if (authHeader?.startsWith("Bearer ")) {
+    const idToken = authHeader.slice("Bearer ".length).trim();
+    try {
+      const decoded = await adminAuth.verifyIdToken(idToken);
+      return decoded.uid;
+    } catch {
+      throw new Error("Não autorizado");
+    }
+  }
+
+  return requireSessionUid();
+}
