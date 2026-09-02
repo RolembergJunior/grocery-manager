@@ -25,7 +25,7 @@ export async function getListItemById(id: string) {
     return null;
   }
 
-  return snapshot.data();
+  return { ...snapshot.data(), id: snapshot.id };
 }
 
 export async function getListItemsByListId(
@@ -41,7 +41,7 @@ export async function getListItemsByListId(
   }
 
   const snapshot = await query.get();
-  return snapshot.docs.map((doc) => doc.data() as ListItem);
+  return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }) as ListItem);
 }
 
 export async function getListItemsByItemId(
@@ -57,7 +57,7 @@ export async function getListItemsByItemId(
   }
 
   const snapshot = await query.get();
-  return snapshot.docs.map((doc) => doc.data() as ListItem);
+  return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }) as ListItem);
 }
 
 export async function getListItemsByUserId(
@@ -73,7 +73,7 @@ export async function getListItemsByUserId(
   }
 
   const snapshot = await query.get();
-  return snapshot.docs.map((doc) => doc.data() as ListItem);
+  return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }) as ListItem);
 }
 
 export async function updateListItem(

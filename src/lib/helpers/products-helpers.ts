@@ -18,7 +18,7 @@ export async function createProduct(
 export async function getProduct(id: string): Promise<Product | null> {
   const doc = await adminDb.collection(COLLECTIONS.PRODUCTS).doc(id).get();
   if (!doc.exists) return null;
-  return doc.data() as Product;
+  return { ...doc.data(), id: doc.id } as Product;
 }
 
 export async function getProductsByUserId(
@@ -34,7 +34,7 @@ export async function getProductsByUserId(
   }
 
   const snapshot = await query.get();
-  return snapshot.docs.map((doc) => doc.data() as Product);
+  return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Product);
 }
 
 export async function updateProduct(
