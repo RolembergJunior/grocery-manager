@@ -28,7 +28,7 @@ export async function getCategoriesByUserId(
   }
 
   const snapshot = await query.get();
-  return snapshot.docs.map((doc) => doc.data() as Category);
+  return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Category);
 }
 
 export async function updateCategory(
