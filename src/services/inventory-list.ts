@@ -39,7 +39,6 @@ export async function syncInventoryListAPI(
           unit: product.unit,
           observation: product.observation,
           neededQuantity: product.neededQuantity || 0,
-          boughtQuantity: 0,
           checked: false,
           isRemoved: product.statusCompra !== STATUSPRODUCT.NEED_SHOPPING,
           userId: product.userId,

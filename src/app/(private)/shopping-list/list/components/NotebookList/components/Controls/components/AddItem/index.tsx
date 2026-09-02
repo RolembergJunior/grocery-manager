@@ -9,6 +9,7 @@ import { categoryOptions, getUnitName, unitOptions } from "@/app/utils";
 import FieldForm from "@/components/FieldForm";
 import { FormErrors } from "./types";
 import { addItemFormSchema } from "./schema";
+import { parseDecimalInput } from "@/lib/helpers/number-helpers";
 import z from "zod";
 interface AddItemProps {
   onAddItem: (item: Omit<Product, "id">) => void;
@@ -20,7 +21,7 @@ export default function AddItemButton({ onAddItem }: AddItemProps) {
     name: "",
     category: "",
     currentQuantity: null,
-    neededQuantity: 1,
+    neededQuantity: "1",
     unit: "",
     observation: "",
   });
@@ -38,7 +39,10 @@ export default function AddItemButton({ onAddItem }: AddItemProps) {
 
   function validateForm(): boolean {
     try {
-      addItemFormSchema.parse(formData);
+      addItemFormSchema.parse({
+        ...formData,
+        neededQuantity: parseDecimalInput(formData.neededQuantity),
+      });
       setErrors({});
       return true;
     } catch (error) {
@@ -65,7 +69,7 @@ export default function AddItemButton({ onAddItem }: AddItemProps) {
       id: crypto.randomUUID(),
       name: formData.name.trim(),
       category: formData.category,
-      neededQuantity: formData.neededQuantity || 0,
+      neededQuantity: parseDecimalInput(formData.neededQuantity),
       unit: formData.unit,
       observation: formData.observation?.trim() || null,
       listId: "",
@@ -120,13 +124,13 @@ export default function AddItemButton({ onAddItem }: AddItemProps) {
             />
 
             <FieldForm
-              type="number"
+              type="decimal"
               label="Qtd. Necessária"
               value={formData.neededQuantity}
               onChange={(value) => handleChangeInput("neededQuantity", value)}
               error={errors.neededQuantity}
               required
-              min={1}
+              placeholder="Ex: 1,5"
             />
 
             <FieldForm

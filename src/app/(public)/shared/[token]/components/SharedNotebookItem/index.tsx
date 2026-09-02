@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import type { ListItem } from "@/app/type";
 import { toast } from "sonner";
 import RenderWhen from "@/components/RenderWhen";
+import { formatDecimalBR } from "@/lib/helpers/number-helpers";
 
 interface SharedNotebookItemProps {
   item: ListItem;
@@ -84,8 +85,10 @@ export default function SharedNotebookItem({
             </h3>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span className="font-medium">{item.neededQuantity}</span>
+          <div className="flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-lg bg-gray-100">
+            <span className="text-sm font-semibold text-gray-700">
+              {formatDecimalBR(item.neededQuantity)}
+            </span>
             <span className="text-xs text-gray-400">{item.unit}</span>
           </div>
         </div>

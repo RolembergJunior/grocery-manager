@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FieldFormProps } from "./types";
+import { sanitizeDecimalInput } from "@/lib/helpers/number-helpers";
 import RenderWhen from "../RenderWhen";
 
 export default function FieldForm(props: FieldFormProps) {
@@ -38,6 +39,10 @@ export default function FieldForm(props: FieldFormProps) {
 
   function handleNumberChange(e: ChangeEvent<HTMLInputElement>) {
     onChange(e.target.value ? parseInt(e.target.value) : null);
+  }
+
+  function handleDecimalChange(e: ChangeEvent<HTMLInputElement>) {
+    onChange(sanitizeDecimalInput(e.target.value));
   }
 
   function handleSelectChange(value: string) {
@@ -74,6 +79,21 @@ export default function FieldForm(props: FieldFormProps) {
             defaultValue={
               defaultValue as string | number | readonly string[] | undefined
             }
+          />
+        );
+
+      case "decimal":
+        return (
+          <input
+            type="text"
+            inputMode="decimal"
+            value={value ?? ""}
+            onChange={handleDecimalChange}
+            className={baseInputClasses}
+            required={required}
+            placeholder={props.placeholder}
+            maxLength={props.maxLength}
+            disabled={disabled}
           />
         );
 

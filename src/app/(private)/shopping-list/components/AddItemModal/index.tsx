@@ -13,6 +13,11 @@ import { useList } from "@/hooks/use-list";
 import { productsAtom } from "@/lib/atoms/products";
 import { categoriesAtom } from "@/lib/atoms/categories";
 import { addItemFromInventory, addItemManual } from "@/services/list-manager";
+import {
+  parseDecimalInput,
+  formatDecimalBR,
+  sanitizeDecimalInput,
+} from "@/lib/helpers/number-helpers";
 import { Button } from "@/components/ui/button";
 
 interface AddItemModalProps {
@@ -26,7 +31,7 @@ type ViewMode = "inventory" | "new";
 interface NewItemForm {
   name: string;
   category: string;
-  neededQuantity: number;
+  neededQuantity: string;
   unit: string;
   observation: string | null;
 }
@@ -42,11 +47,11 @@ export default function AddItemModal({
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [neededQuantity, setNeededQuantity] = useState(1);
+  const [neededQuantity, setNeededQuantity] = useState("1");
   const [newItemForm, setNewItemForm] = useState<NewItemForm>({
     name: "",
     category: "",
-    neededQuantity: 1,
+    neededQuantity: "1",
     unit: unitOptions[0].value,
     observation: null,
   });
@@ -62,7 +67,7 @@ export default function AddItemModal({
 
   function handleSelectProduct(product: Product) {
     setSelectedProduct(product);
-    setNeededQuantity(product.neededQuantity || 1);
+    setNeededQuantity(formatDecimalBR(product.neededQuantity || 1));
   }
 
   function handleAddItem() {
@@ -99,7 +104,12 @@ export default function AddItemModal({
       return;
     }
 
-    toast.promise(addItemManual(listId, newItemForm), {
+    toast.promise(
+      addItemManual(listId, {
+        ...newItemForm,
+        neededQuantity: parseDecimalInput(newItemForm.neededQuantity),
+      }),
+      {
       loading: "Criando item...",
       success: () => {
         handleClearStates();
@@ -120,11 +130,11 @@ export default function AddItemModal({
   function handleClearStates() {
     setSearchTerm("");
     setSelectedProduct(null);
-    setNeededQuantity(1);
+    setNeededQuantity("1");
     setNewItemForm({
       name: "",
       category: "",
-      neededQuantity: 1,
+      neededQuantity: "1",
       unit: unitOptions[0].value,
       observation: null,
     });
@@ -290,18 +300,16 @@ export default function AddItemModal({
 
               <div className="grid grid-cols-2 gap-4">
                 <FieldForm
-                  type="number"
+                  type="decimal"
                   label="Quantidade"
                   value={newItemForm.neededQuantity}
-                  onChange={(value) => {
-                    const n = typeof value === "number" ? value : 0;
+                  onChange={(value) =>
                     setNewItemForm({
                       ...newItemForm,
-                      neededQuantity: Math.min(Math.max(n, 0), 999),
-                    });
-                  }}
-                  min={0}
-                  max={999}
+                      neededQuantity: value as string,
+                    })
+                  }
+                  placeholder="Ex: 1,5"
                   required
                 />
 
@@ -362,14 +370,13 @@ export default function AddItemModal({
                   </label>
                   <div className="flex items-center gap-2">
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="decimal"
                       value={neededQuantity}
                       onChange={(e) =>
-                        setNeededQuantity(parseFloat(e.target.value) || 0)
+                        setNeededQuantity(sanitizeDecimalInput(e.target.value))
                       }
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      min="0"
-                      step="0.1"
                     />
                     <span className="text-sm text-gray-600 font-medium px-4 py-2 bg-gray-100 rounded-lg">
                       {selectedProduct?.unit}

@@ -9,6 +9,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { productsAtom } from "@/lib/atoms/products";
 import { categoriesAtom } from "@/lib/atoms/categories";
 import { getCategoryName } from "@/lib/utils";
+import { formatDecimalBR } from "@/lib/helpers/number-helpers";
 import {
   Select,
   SelectContent,
@@ -155,7 +156,7 @@ export default function PriorityProductsModal({
                       </p>
                       <p className="text-xs text-gray-600">
                         <span className="font-medium">
-                          {product.neededQuantity}
+                          {formatDecimalBR(product.neededQuantity)}
                         </span>{" "}
                         {product.unit}
                       </p>

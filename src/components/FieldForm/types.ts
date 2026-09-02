@@ -1,6 +1,11 @@
 import { OptionsType } from "@/app/type";
 
-export type FieldType = "text" | "number" | "select" | "textarea";
+export type FieldType =
+  | "text"
+  | "number"
+  | "decimal"
+  | "select"
+  | "textarea";
 
 export interface BaseFieldProps {
   label?: string;
@@ -28,6 +33,13 @@ export interface NumberFieldProps extends BaseFieldProps {
   disabled?: boolean;
 }
 
+export interface DecimalFieldProps extends BaseFieldProps {
+  type: "decimal";
+  placeholder?: string;
+  maxLength?: number;
+  disabled?: boolean;
+}
+
 export interface SelectFieldProps extends BaseFieldProps {
   type: "select";
   defaultValue?: string | number | null;
@@ -48,5 +60,6 @@ export interface TextareaFieldProps extends BaseFieldProps {
 export type FieldFormProps =
   | TextFieldProps
   | NumberFieldProps
+  | DecimalFieldProps
   | SelectFieldProps
   | TextareaFieldProps;

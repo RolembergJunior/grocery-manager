@@ -5,8 +5,8 @@ import { ChevronDown } from "lucide-react";
 import type { ListItem } from "@/app/type";
 import { toast } from "sonner";
 import RenderWhen from "@/components/RenderWhen";
-import QuantityControl from "./QantityControl";
 import { updateItem } from "@/services/list-manager";
+import { formatDecimalBR } from "@/lib/helpers/number-helpers";
 
 interface NotebookItemProps {
   item: ListItem;
@@ -65,13 +65,16 @@ export default function NotebookItem({ item }: NotebookItemProps) {
             </h3>
           </div>
 
-          <QuantityControl
-            itemId={item.id}
-            boughtQuantity={item.boughtQuantity || 0}
-            neededQuantity={item.neededQuantity}
-            unit={item.unit}
-            disabled={checked}
-          />
+          <div
+            className={`flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-lg bg-gray-100 transition-opacity ${
+              checked ? "opacity-40" : ""
+            }`}
+          >
+            <span className="text-sm font-semibold text-gray-700">
+              {formatDecimalBR(item.neededQuantity)}
+            </span>
+            <span className="text-xs text-gray-400">{item.unit}</span>
+          </div>
         </div>
 
         <div className="mt-3 pt-3 border-t border-gray-100">

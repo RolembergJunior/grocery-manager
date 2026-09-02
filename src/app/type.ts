@@ -101,7 +101,6 @@ export interface ListItem {
   itemId: string | null;
   category: string;
   neededQuantity: number;
-  boughtQuantity: number;
   unit: string;
   observation: string | null;
   checked: boolean;

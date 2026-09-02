@@ -5,6 +5,11 @@ import { useState, useMemo, useEffect } from "react";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
 import { getUnitName } from "@/app/utils";
+import {
+  parseDecimalInput,
+  formatDecimalBR,
+  sanitizeDecimalInput,
+} from "@/lib/helpers/number-helpers";
 
 interface ListItemCardProps {
   item: ListItem;
@@ -20,25 +25,35 @@ export default function ListItemCard({
   onDelete,
 }: ListItemCardProps) {
   const [newItem, setNewItem] = useState<ListItem>({} as ListItem);
+  const [neededQuantityInput, setNeededQuantityInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     setNewItem(item);
+    setNeededQuantityInput(formatDecimalBR(item.neededQuantity || 0));
   }, [item]);
 
   const hasChanges = useMemo(() => {
     return (
-      newItem.neededQuantity !== item.neededQuantity ||
+      parseDecimalInput(neededQuantityInput) !== item.neededQuantity ||
       newItem.observation !== item.observation
     );
-  }, [newItem, item]);
+  }, [newItem, neededQuantityInput, item]);
 
   function handleChangeItemProp(field: keyof ListItem, value: string | number) {
     setNewItem({ ...newItem, [field]: value });
   }
 
+  function handleSave() {
+    onSave({
+      ...newItem,
+      neededQuantity: parseDecimalInput(neededQuantityInput),
+    });
+  }
+
   function handleCancel() {
     setNewItem(item);
+    setNeededQuantityInput(formatDecimalBR(item.neededQuantity || 0));
   }
 
   return (
@@ -64,7 +79,8 @@ export default function ListItemCard({
                 {item.name}
               </h3>
               <span className="text-sm text-gray-500">
-                Precisa: {item.neededQuantity} {getUnitName(item.unit)}
+                Precisa: {formatDecimalBR(item.neededQuantity)}{" "}
+                {getUnitName(item.unit)}
               </span>
             </div>
           </button>
@@ -90,17 +106,13 @@ export default function ListItemCard({
               </label>
               <div className="flex items-center gap-2">
                 <input
-                  type="number"
-                  value={newItem.neededQuantity}
+                  type="text"
+                  inputMode="decimal"
+                  value={neededQuantityInput}
                   onChange={(e) =>
-                    handleChangeItemProp(
-                      "neededQuantity",
-                      parseFloat(e.target.value) || 0,
-                    )
+                    setNeededQuantityInput(sanitizeDecimalInput(e.target.value))
                   }
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  min="0"
-                  step="0.1"
                 />
                 <span className="text-sm text-gray-600 font-medium px-3 py-2 bg-gray-100 rounded-lg">
                   {item.unit}
@@ -126,7 +138,7 @@ export default function ListItemCard({
 
           <div className="flex gap-3 mt-3">
             <button
-              onClick={() => onSave(newItem)}
+              onClick={handleSave}
               disabled={!hasChanges}
               className="flex-1 py-2.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 font-medium transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
             >
