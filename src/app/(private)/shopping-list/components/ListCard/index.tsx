@@ -1,25 +1,23 @@
 "use client";
 
 import { List, ListItem } from "@/app/type";
-import { useState, useRef } from "react";
-import {
-  List as ListIcon,
-  Plus,
-  ShoppingCart,
-  MoreVertical,
-} from "lucide-react";
+import { useState } from "react";
+import { Plus, MoreVertical } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
 import { useRouter } from "next/navigation";
 import ListItemCard from "../ListItemCard";
+import ExpandableListCard from "../ExpandableListCard";
 import { toast } from "sonner";
 import { useList } from "@/hooks/use-list";
+import { useCompleteList } from "@/hooks/use-complete-list";
+import { useToggleListItem } from "@/hooks/use-toggle-list-item";
 import { updateItem, deleteItem } from "@/services/list-manager";
 import AlertDialog from "@/components/AlertDialog";
 import CreateListModal from "@/components/ListSection/components/CreateListModal";
 import { deleteList } from "@/services/lists";
 import { deleteItemsByListId } from "@/services/list-items";
-import { useSetAtom } from "jotai";
-import { listsAtom } from "@/lib/atoms";
+import { useSetAtom, useAtomValue } from "jotai";
+import { listsAtom, categoriesAtom } from "@/lib/atoms";
 
 interface ListCardProps {
   list: List;
@@ -27,7 +25,6 @@ interface ListCardProps {
 }
 
 export default function ListCard({ list, onAddItem }: ListCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [isActionDialogOpen, setIsActionDialogOpen] = useState(false);
@@ -35,22 +32,13 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
   const [isDeleteListAlertOpen, setIsDeleteListAlertOpen] = useState(false);
 
   const setLists = useSetAtom(listsAtom);
+  const categories = useAtomValue(categoriesAtom);
 
   const { items } = useList(list.id);
+  const { onToggle } = useToggleListItem();
+  const { confirmAndComplete, confirmDialog } = useCompleteList(list.id);
 
   const router = useRouter();
-
-  const checkedCount = items.filter((item) => item.checked).length;
-  const totalCount = items.length;
-
-  function handleOpenActionDialog(e: React.MouseEvent) {
-    e.stopPropagation();
-    setIsActionDialogOpen(true);
-  }
-
-  function handleCardClick() {
-    setIsExpanded(!isExpanded);
-  }
 
   function handleNavigateToList() {
     router.push(`/shopping-list/list?id=${list.id}`);
@@ -111,91 +99,58 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
     setItemToDelete(null);
   }
 
-  return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden transition-all hover:shadow-md">
-      <button
-        onClick={handleCardClick}
-        className="bg-[var(--color-blue)] w-full p-6 flex items-center justify-between transition-all cursor-pointer hover:opacity-90 active:scale-95"
-      >
-        <div className="flex items-center gap-4 flex-1">
-          <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
-            <ListIcon className="w-6 h-6 text-white" />
-          </div>
-
-          <div className="text-left flex flex-col gap-2">
-            <h3 className="text-white text-lg font-semibold">{list.name}</h3>
-            <div className="inline-flex self-start bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full font-medium text-sm">
-              {checkedCount}/{totalCount}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <RenderWhen isTrue={!!onAddItem}>
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddItem?.();
-              }}
-              className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-200 active:scale-95"
-              title="Adicionar item à lista"
-            >
-              <Plus className="w-5 h-5" />
-            </div>
-          </RenderWhen>
-
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNavigateToList();
-            }}
-            className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-200 active:scale-95"
-            title="Iniciar lista"
-          >
-            <ShoppingCart className="w-5 h-5" />
-          </div>
-
-          <div
-            onClick={handleOpenActionDialog}
-            className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-200 active:scale-95"
-            title="Opções da lista"
-          >
-            <MoreVertical className="w-5 h-5" />
-          </div>
-        </div>
-      </button>
-
-      <div
-        className={`transition-all duration-300 ease-in-out ${
-          isExpanded
-            ? "max-h-[10000px] opacity-100"
-            : "max-h-0 opacity-0 overflow-hidden"
-        }`}
-      >
-        <RenderWhen
-          isTrue={items && items.length > 0}
-          elseElement={
-            <div className="p-8 text-center text-[var(--color-text-gray)]">
-              <p className="text-base">Nenhum item nesta lista</p>
-              <p className="text-sm mt-2 opacity-75">
-                Adicione itens do inventário
-              </p>
-            </div>
-          }
+  const headerActions = (
+    <>
+      <RenderWhen isTrue={!!onAddItem}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddItem?.();
+          }}
+          className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-200 active:scale-95"
+          title="Adicionar item à lista"
         >
-          <div className="p-4 space-y-2">
-            {items.map((item: ListItem) => (
-              <ListItemCard
-                key={item.id}
-                item={item}
-                hasDeleteButton
-                onSave={handleSaveItem}
-                onDelete={handleDeleteItem}
-              />
-            ))}
-          </div>
-        </RenderWhen>
-      </div>
+          <Plus className="w-5 h-5" />
+        </button>
+      </RenderWhen>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsActionDialogOpen(true);
+        }}
+        className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-200 active:scale-95"
+        title="Opções da lista"
+      >
+        <MoreVertical className="w-5 h-5" />
+      </button>
+    </>
+  );
+
+  return (
+    <>
+      <ExpandableListCard
+        title={list.name}
+        headerClassName="bg-[var(--color-blue)]"
+        headerActions={headerActions}
+        items={items}
+        categories={categories}
+        onOpenFull={handleNavigateToList}
+        onFinalize={() => confirmAndComplete()}
+        emptyText="Nenhum item nesta lista"
+        emptySubtext="Adicione itens do inventário"
+        renderItem={(item) => (
+          <ListItemCard
+            item={item}
+            hasDeleteButton
+            onSave={handleSaveItem}
+            onDelete={handleDeleteItem}
+            onToggleChecked={onToggle}
+          />
+        )}
+      />
+
+      <AlertDialog {...confirmDialog} />
 
       <AlertDialog
         isOpen={isDeleteAlertOpen}
@@ -277,6 +232,6 @@ export default function ListCard({ list, onAddItem }: ListCardProps) {
           },
         ]}
       />
-    </div>
+    </>
   );
 }

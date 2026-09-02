@@ -4,6 +4,7 @@ import { ListItem, Product } from "@/app/type";
 import { useState, useMemo, useEffect } from "react";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import RenderWhen from "@/components/RenderWhen";
+import ItemCheckbox from "@/components/ItemCheckbox";
 import { getUnitName } from "@/app/utils";
 import {
   parseDecimalInput,
@@ -16,6 +17,7 @@ interface ListItemCardProps {
   hasDeleteButton?: boolean;
   onSave: (item: ListItem) => void;
   onDelete: (id: string) => void;
+  onToggleChecked?: (item: ListItem) => Promise<void> | void;
 }
 
 export default function ListItemCard({
@@ -23,6 +25,7 @@ export default function ListItemCard({
   hasDeleteButton = false,
   onSave,
   onDelete,
+  onToggleChecked,
 }: ListItemCardProps) {
   const [newItem, setNewItem] = useState<ListItem>({} as ListItem);
   const [neededQuantityInput, setNeededQuantityInput] = useState("");
@@ -60,6 +63,14 @@ export default function ListItemCard({
     <div className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden transition-all duration-200">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3 flex-1">
+          <RenderWhen isTrue={!!onToggleChecked}>
+            <ItemCheckbox
+              checked={!!item.checked}
+              onToggle={() => onToggleChecked!(item)}
+              size={24}
+            />
+          </RenderWhen>
+
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-2 flex-1 text-left"
