@@ -34,8 +34,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <Analytics />
-          <SpeedInsights />
+          {process.env.NODE_ENV === "production" && (
+            <>
+              <Analytics />
+              <SpeedInsights />
+            </>
+          )}
           <Toaster richColors position="top-center" />
           <Suspense>{children}</Suspense>
           <LoadingFetch />
