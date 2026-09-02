@@ -116,7 +116,9 @@ export async function completeList(listId: string): Promise<void> {
     return i;
   });
 
-  await batchUpdateItems(reset);
+  if (reset.length > 0) {
+    await batchUpdateItems(reset);
+  }
   store.set(atom, reset);
 
   const products = store.get(productsAtom);
@@ -143,7 +145,9 @@ export async function completeList(listId: string): Promise<void> {
       };
     });
 
-  await updateMany(updateProductsToSave);
+  if (updateProductsToSave.length > 0) {
+    await updateMany(updateProductsToSave);
+  }
 
   store.set(productsAtom, updatedProductsListToSetAtom);
 }
