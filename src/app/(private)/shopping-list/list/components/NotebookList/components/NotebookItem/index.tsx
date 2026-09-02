@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp, StickyNote } from "lucide-react";
 import type { ListItem } from "@/app/type";
-import { toast } from "sonner";
 import RenderWhen from "@/components/RenderWhen";
-import { updateItem } from "@/services/list-manager";
+import ItemCheckbox from "@/components/ItemCheckbox";
+import { useToggleListItem } from "@/hooks/use-toggle-list-item";
 import { formatDecimalBR } from "@/lib/helpers/number-helpers";
 
 interface NotebookItemProps {
@@ -13,96 +13,67 @@ interface NotebookItemProps {
 }
 
 export default function NotebookItem({ item }: NotebookItemProps) {
-  const [checked, setChecked] = useState(item.checked);
   const [showObservation, setShowObservation] = useState(false);
+  const { onToggle } = useToggleListItem();
 
-  async function handleCheckToggle() {
-    const newChecked = !checked;
-    setChecked(newChecked);
-
-    try {
-      await updateItem(item.listId, item.id, { checked: newChecked });
-    } catch (error) {
-      setChecked(!newChecked);
-      toast.error("Erro ao atualizar item");
-    }
-  }
+  const hasObservation = !!item.observation?.trim();
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg mb-3 hover:shadow-md transition-all overflow-hidden">
-      <div className="p-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <button
-              onClick={handleCheckToggle}
-              className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                checked
-                  ? "bg-[var(--color-blue)] border-[var(--color-blue)]"
-                  : "border-gray-300 hover:border-[var(--color-blue)]"
-              }`}
-            >
-              <RenderWhen isTrue={checked}>
-                <svg
-                  className="w-3.5 h-3.5 text-white"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-              </RenderWhen>
-            </button>
+    <div className="py-3">
+      <div className="flex items-center gap-3">
+        <ItemCheckbox
+          checked={!!item.checked}
+          onToggle={() => onToggle(item)}
+          size={24}
+        />
 
-            <h3
-              className={`text-base font-medium transition-all ${
-                checked ? "line-through text-gray-400" : "text-gray-900"
-              }`}
-            >
-              {item.name}
-            </h3>
-          </div>
+        <h3
+          className={`flex-1 text-base font-medium line-clamp-2 transition-all ${
+            item.checked ? "line-through text-gray-400" : "text-gray-900"
+          }`}
+        >
+          {item.name}
+        </h3>
 
-          <div
-            className={`flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-lg bg-gray-100 transition-opacity ${
-              checked ? "opacity-40" : ""
-            }`}
-          >
-            <span className="text-sm font-semibold text-gray-700">
-              {formatDecimalBR(item.neededQuantity)}
-            </span>
-            <span className="text-xs text-gray-400">{item.unit}</span>
-          </div>
-        </div>
-
-        <div className="mt-3 pt-3 border-t border-gray-100">
-          <button
-            onClick={() => setShowObservation(!showObservation)}
-            className="flex items-center gap-2 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors w-full"
-          >
-            <span>Observação</span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 transition-transform ${
-                showObservation ? "rotate-180" : ""
-              }`}
-            />
-
-            <RenderWhen isTrue={!!item.observation}>
-              <span className="ml-auto text-gray-400 truncate max-w-[200px]">
-                {item.observation}
-              </span>
-            </RenderWhen>
-          </button>
-
-          <RenderWhen isTrue={showObservation}>
-            <div className="mt-2 px-3 py-2 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-md">
-              {item.observation || "Sem observação"}
-            </div>
-          </RenderWhen>
+        <div
+          className={`flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-lg bg-gray-100 transition-opacity ${
+            item.checked ? "opacity-40" : ""
+          }`}
+        >
+          <span className="text-sm font-semibold text-gray-700">
+            {formatDecimalBR(item.neededQuantity)}
+          </span>
+          <span className="text-xs text-gray-400">{item.unit}</span>
         </div>
       </div>
+
+      <RenderWhen isTrue={hasObservation}>
+        <button
+          onClick={() => setShowObservation((v) => !v)}
+          className="flex items-center gap-2 mt-2 w-full text-left"
+        >
+          <StickyNote className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
+          <span className="flex-1 text-xs text-gray-500 truncate">
+            {item.observation}
+          </span>
+          <RenderWhen
+            isTrue={showObservation}
+            elseElement={
+              <ChevronDown className="w-3.5 h-3.5 text-[#C4C7CC] shrink-0" />
+            }
+          >
+            <ChevronUp className="w-3.5 h-3.5 text-[#C4C7CC] shrink-0" />
+          </RenderWhen>
+        </button>
+
+        <RenderWhen isTrue={showObservation}>
+          <div className="mt-2 px-3 py-2 bg-[#FFFBEB] border border-[#FDE9C8] rounded-lg">
+            <p className="text-[13px] text-[#78500A] leading-5">
+              {item.observation}
+            </p>
+          </div>
+        </RenderWhen>
+      </RenderWhen>
     </div>
   );
 }

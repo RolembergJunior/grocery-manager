@@ -3,13 +3,10 @@
 import { Filter } from "lucide-react";
 import Modal from "@/components/Modal";
 import MultiSelect from "@/components/MultiSelect";
-import { OptionsType } from "@/app/type";
 import { useState } from "react";
 import RenderWhen from "@/components/RenderWhen";
 
 type FilterModalProps = {
-  categoryOptions: OptionsType[];
-  selectedCategories: string[];
   selectedChecked: string[];
   selectedFromList: string[];
   onFilterChange: (filterKey: string, value: string[]) => void;
@@ -26,8 +23,6 @@ const fromListOptions = [
 ];
 
 export default function FilterButtonModal({
-  categoryOptions,
-  selectedCategories,
   selectedChecked,
   selectedFromList,
   onFilterChange,
@@ -35,7 +30,6 @@ export default function FilterButtonModal({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const activeFiltersCount = [
-    selectedCategories.length > 0,
     selectedChecked.length > 0,
     selectedFromList.length > 0,
   ].filter(Boolean).length;
@@ -44,14 +38,27 @@ export default function FilterButtonModal({
     <>
       <button
         onClick={() => setIsFilterOpen((v) => !v)}
-        className={`relative p-3 rounded-xl bg-white border border-gray-200 shadow-sm hover:bg-blue-50 hover:border-blue-300 active:bg-blue-100 transition-all duration-200 group ${
-          isFilterOpen ? "bg-blue-50 border-blue-300" : ""
+        className={`flex items-center gap-2 px-4 py-3 rounded-2xl border shadow-sm transition-colors ${
+          activeFiltersCount > 0
+            ? "bg-[var(--color-blue)] border-[var(--color-blue)]"
+            : "bg-white border-gray-100 hover:bg-gray-50"
         }`}
         title="Filtrar itens"
       >
-        <Filter className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
+        <Filter
+          className={`w-4 h-4 ${
+            activeFiltersCount > 0 ? "text-white" : "text-gray-700"
+          }`}
+        />
+        <span
+          className={`text-sm font-bold ${
+            activeFiltersCount > 0 ? "text-white" : "text-gray-800"
+          }`}
+        >
+          Filtros
+        </span>
         <RenderWhen isTrue={activeFiltersCount > 0}>
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+          <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-white/30 flex items-center justify-center text-[10px] font-extrabold text-white">
             {activeFiltersCount}
           </span>
         </RenderWhen>
@@ -65,19 +72,6 @@ export default function FilterButtonModal({
         size="md"
       >
         <div className="space-y-6">
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-[var(--color-text-dark)] uppercase tracking-wide">
-              Categoria
-            </h3>
-            <MultiSelect
-              placeholder="Selecione categorias"
-              options={categoryOptions}
-              value={selectedCategories}
-              onChange={(value) => onFilterChange("category", value || [])}
-              className="w-full"
-            />
-          </div>
-
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-[var(--color-text-dark)] uppercase tracking-wide">
               Status de Marcação
@@ -114,7 +108,6 @@ export default function FilterButtonModal({
                 </span>
                 <button
                   onClick={() => {
-                    onFilterChange("category", []);
                     onFilterChange("checked", []);
                     onFilterChange("fromList", []);
                   }}

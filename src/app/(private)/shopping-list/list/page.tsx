@@ -3,7 +3,6 @@
 import { Suspense, useMemo, useState } from "react";
 import { useAtomValue } from "jotai";
 import { useSearchParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { listsAtom, categoriesAtom } from "@/lib/atoms";
 import NotebookList from "./components/NotebookList";
@@ -11,7 +10,7 @@ import ProgressList from "./components/ProgressList";
 import RenderWhen from "@/components/RenderWhen";
 import AlertDialog from "@/components/AlertDialog";
 import { useList } from "@/hooks/use-list";
-import { completeList } from "@/services/list-manager";
+import { useCompleteList } from "@/hooks/use-complete-list";
 import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
 import Controls from "./components/Controls";
 import { ListItem } from "@/app/type";
@@ -22,7 +21,6 @@ export default function ShoppingListPage() {
   const listId = searchParams.get("id");
   const typeList = searchParams.get("type");
 
-  const [isOpenAlert, setIsOpenAlert] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<{ [key: string]: string[] }>({});
 
@@ -30,6 +28,11 @@ export default function ShoppingListPage() {
   const categories = useAtomValue(categoriesAtom);
 
   const { items } = useList(listId!);
+  const { confirmAndComplete, confirmDialog } = useCompleteList(listId ?? "");
+
+  const listItems = items.filter((i) => !i.isRemoved);
+  const listCheckedCount = listItems.filter((i) => i.checked).length;
+  const listTotalCount = listItems.length;
 
   const currentList = useMemo(() => {
     if (listId === INVENTORY_LIST_ID) {
@@ -88,27 +91,6 @@ export default function ShoppingListPage() {
     router.push("/shopping-list");
   }
 
-  function handleCompleteList() {
-    if (checkedCount < totalCount) {
-      setIsOpenAlert(true);
-
-      return;
-    }
-
-    onConfirm();
-  }
-
-  async function onConfirm() {
-    toast.promise(completeList(listId!), {
-      loading: "Finalizando a lista...",
-      success: () => {
-        router.push("/shopping-list");
-        return "Lista finalizada com sucesso!";
-      },
-      error: "Erro ao tentar finalizar lista. Tente novamente mais tarde!",
-    });
-  }
-
   function handleFilterChange(filterKey: string, value: string[]) {
     setFilters({ ...filters, [filterKey]: value });
   }
@@ -138,7 +120,7 @@ export default function ShoppingListPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-cream py-8 px-4 pb-20">
+      <div className="min-h-screen bg-cream py-8 px-4 pb-44">
         <div className="max-w-4xl mx-auto">
           <button
             onClick={handleBackToLists}
@@ -153,7 +135,7 @@ export default function ShoppingListPage() {
           </h1>
 
           <Controls
-            items={currentItems}
+            items={items}
             categories={categories}
             searchTerm={searchTerm}
             selectedCategories={filters?.category || []}
@@ -171,42 +153,31 @@ export default function ShoppingListPage() {
 
           <NotebookList categories={categories} items={currentItems} />
 
-          <RenderWhen isTrue={totalCount > 0}>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={handleCompleteList}
-                disabled={!checkedCount}
-                className="flex items-center gap-2 px-8 py-4 bg-[var(--color-blue)] text-white rounded-xl hover:opacity-90 font-semibold transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-              >
-                <CheckCircle2 className="w-6 h-6" />
-                <span>Finalizar Lista</span>
-              </button>
-            </div>
-          </RenderWhen>
         </div>
       </div>
 
-      <AlertDialog
-        isOpen={isOpenAlert}
-        onClose={() => setIsOpenAlert(false)}
-        title={`Existe(m) ${totalCount - checkedCount} item(ns) não marcado(s)`}
-        description="Deseja finalizar a lista mesmo assim?"
-        variant="warning"
-        actions={[
-          {
-            label: "SIM",
-            onClick: onConfirm,
-            autoClose: true,
-            variant: "default",
-          },
-          {
-            label: "NÃO",
-            onClick: () => null,
-            autoClose: true,
-            variant: "danger",
-          },
-        ]}
-      />
+      <RenderWhen isTrue={listTotalCount > 0}>
+        <div className="fixed bottom-[68px] md:bottom-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur-sm border-t border-gray-200 px-4 py-3">
+          <div className="max-w-4xl mx-auto">
+            <button
+              onClick={() =>
+                confirmAndComplete(() => router.push("/shopping-list"))
+              }
+              disabled={!listCheckedCount}
+              className={`w-full flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white transition-all ${
+                listCheckedCount
+                  ? "bg-[var(--color-blue)] hover:opacity-90 shadow-sm"
+                  : "bg-gray-300 cursor-not-allowed"
+              }`}
+            >
+              <CheckCircle2 className="w-6 h-6" />
+              <span>Finalizar Lista</span>
+            </button>
+          </div>
+        </div>
+      </RenderWhen>
+
+      <AlertDialog {...confirmDialog} />
     </>
   );
 }

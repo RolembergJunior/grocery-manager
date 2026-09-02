@@ -3,6 +3,9 @@ import type { Category, ListItem } from "@/app/type";
 import RenderWhen from "@/components/RenderWhen";
 import CategorySection from "./components/CategorySection";
 import { getCategoryName } from "@/lib/utils";
+import { palletColors } from "@/app/utils";
+
+const FALLBACK_COLOR = "#9CA3AF";
 
 interface NotebookListProps {
   items: ListItem[];
@@ -10,6 +13,14 @@ interface NotebookListProps {
 }
 
 export default function NotebookList({ items, categories }: NotebookListProps) {
+  function categoryColor(categoryId: string): string {
+    const colorId = categories.find((c) => c.id === categoryId)?.colorId;
+    return (
+      palletColors[colorId as keyof typeof palletColors]?.backgroundColor ??
+      FALLBACK_COLOR
+    );
+  }
+
   const groupedItems = useMemo(() => {
     const groups: Record<string, ListItem[]> = {};
 
@@ -44,6 +55,7 @@ export default function NotebookList({ items, categories }: NotebookListProps) {
             <CategorySection
               key={category}
               category={getCategoryName(categories, category)}
+              color={categoryColor(category)}
               items={categoryItems}
             />
           ))}
