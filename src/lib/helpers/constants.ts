@@ -8,6 +8,7 @@ export const COLLECTIONS = {
   CATEGORIES: "categories",
   LISTS: "lists",
   LIST_ITEMS: "list_items",
+  SUPPORT_TICKETS: "supportTickets",
 } as const;
 
 export function withTimestamps<T extends object>(data: T, isUpdate = false) {

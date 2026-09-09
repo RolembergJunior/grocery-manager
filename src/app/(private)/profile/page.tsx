@@ -2,21 +2,29 @@
 
 import { useState } from "react";
 import { useFirebaseAuth } from "@/components/AuthProvider";
-import { User, ChevronRight, FileText, LogOut } from "lucide-react";
+import { User, ChevronRight, FileText, LogOut, LifeBuoy } from "lucide-react";
 import { signOutAction } from "@/app/actions/manageAuth";
 import RenderWhen from "@/components/RenderWhen";
 import HeaderPage from "@/components/HeaderPage";
 import AccountModal from "./components/AccoutModal";
+import SupportModal from "./components/SupportModal";
 
 export default function ProfilePage() {
   const { user } = useFirebaseAuth();
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
   const menuItems = [
     {
       icon: FileText,
       label: "Dados da conta",
       onClick: () => setIsAccountModalOpen(true),
+      showArrow: true,
+    },
+    {
+      icon: LifeBuoy,
+      label: "Ajuda e suporte",
+      onClick: () => setIsSupportModalOpen(true),
       showArrow: true,
     },
   ];
@@ -82,6 +90,11 @@ export default function ProfilePage() {
           isModalOpen={isAccountModalOpen}
           onCloseModal={() => setIsAccountModalOpen(false)}
           user={user}
+        />
+
+        <SupportModal
+          isOpen={isSupportModalOpen}
+          onClose={() => setIsSupportModalOpen(false)}
         />
       </div>
     </div>
