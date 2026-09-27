@@ -2,10 +2,8 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import type { Product } from "@/app/type";
-import {
-  getProductsByUserId,
-  hardDeleteProduct,
-} from "@/lib/helpers/products-helpers";
+import { getProductsByUserId } from "@/lib/helpers/products-helpers";
+import { deleteProductCascade } from "@/lib/helpers/delete-cascade-helpers";
 
 export const runtime = "nodejs";
 
@@ -106,9 +104,9 @@ export async function DELETE(req: NextRequest) {
 
     const { id } = body as { id: string };
 
-    await hardDeleteProduct(id);
+    const deleted = await deleteProductCascade(userId, id);
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, ...deleted });
   } catch (error) {
     console.error("Error deleting product:", error);
     return NextResponse.json(

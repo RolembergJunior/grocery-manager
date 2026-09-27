@@ -1,7 +1,7 @@
 import "server-only";
 import { adminDb } from "../firebaseAdmin";
 import type { Product } from "@/app/type";
-import { COLLECTIONS, batchDeleteRefs } from "./constants";
+import { COLLECTIONS } from "./constants";
 
 export async function createProduct(
   data: Omit<Product, "id">
@@ -50,25 +50,6 @@ export async function softDeleteProduct(id: string): Promise<void> {
   });
 }
 
-export async function hardDeleteProduct(itemId: string) {
-  await adminDb.collection(COLLECTIONS.PRODUCTS).doc(itemId).delete();
-
-  const snapshot = adminDb
-    .collection(COLLECTIONS.LIST_ITEMS)
-    .where("itemId", "==", itemId);
-
-  const updates = (await snapshot.get()).docs;
-
-  const batch = adminDb.batch();
-
-  updates.forEach((itemList) => {
-    const docRef = adminDb.collection(COLLECTIONS.LIST_ITEMS).doc(itemList.id);
-    batch.delete(docRef);
-  });
-
-  await batch.commit();
-}
-
 export async function batchUpdateProducts(updates: Product[]): Promise<void> {
   const batch = adminDb.batch();
 
@@ -78,32 +59,4 @@ export async function batchUpdateProducts(updates: Product[]): Promise<void> {
   });
 
   await batch.commit();
-}
-
-export async function hardDeleteProductsByCategory(
-  categoryId: string
-): Promise<void> {
-  const productsSnap = await adminDb
-    .collection(COLLECTIONS.PRODUCTS)
-    .where("category", "==", categoryId)
-    .get();
-
-  if (productsSnap.empty) return;
-
-  const refs = productsSnap.docs.map((doc) => doc.ref);
-
-  // Fetch every product's linked list items concurrently, then delete all refs
-  const listItemSnaps = await Promise.all(
-    productsSnap.docs.map((doc) =>
-      adminDb
-        .collection(COLLECTIONS.LIST_ITEMS)
-        .where("itemId", "==", doc.id)
-        .get(),
-    ),
-  );
-  listItemSnaps.forEach((snap) =>
-    snap.docs.forEach((doc) => refs.push(doc.ref)),
-  );
-
-  await batchDeleteRefs(refs);
 }
