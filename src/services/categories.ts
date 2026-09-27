@@ -46,9 +46,14 @@ export async function updateCategory(
   });
 }
 
-export async function deleteCategory(id: string): Promise<void> {
-  await authenticatedFetchVoid("/api/categories", {
-    method: "DELETE",
-    body: JSON.stringify({ id }),
-  });
+export async function deleteCategory(
+  id: string
+): Promise<{ productIds: string[]; listItemIds: string[] }> {
+  return authenticatedFetch<{ productIds: string[]; listItemIds: string[] }>(
+    "/api/categories",
+    {
+      method: "DELETE",
+      body: JSON.stringify({ id }),
+    }
+  );
 }

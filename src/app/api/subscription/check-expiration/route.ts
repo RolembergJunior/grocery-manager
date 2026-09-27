@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebaseAdmin";
-import { COLLECTIONS } from "@/lib/helpers/constants";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
+
 
 const GRACE_PERIOD_DAYS = 5;
 
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const profileRef = adminDb.collection(COLLECTIONS.PROFILES).doc(userId);
+    const profileRef = getRefCollection(COLLECTIONS.PROFILES, userId);
     const profileDoc = await profileRef.get();
 
     if (!profileDoc.exists) {

@@ -15,6 +15,8 @@ import { deleteCategory } from "@/services/categories";
 import { toast } from "sonner";
 import { useSetAtom } from "jotai";
 import { categoriesAtom } from "@/lib/atoms/categories";
+import { productsAtom } from "@/lib/atoms/products";
+import { removeListItemsAtom } from "@/lib/atoms/list-items";
 
 interface CategoryCardProps {
   category: Category;
@@ -33,6 +35,8 @@ export default function CategoryCard({
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
 
   const setCategories = useSetAtom(categoriesAtom);
+  const setProducts = useSetAtom(productsAtom);
+  const removeListItems = useSetAtom(removeListItemsAtom);
 
   const statusCounts = items.reduce(
     (acc, item) => {
@@ -65,8 +69,11 @@ export default function CategoryCard({
   function confirmDelete() {
     toast.promise(deleteCategory(category.id), {
       loading: "Excluindo categoria...",
-      success: () => {
+      success: ({ productIds, listItemIds }) => {
+        const deletedProducts = new Set(productIds);
         setCategories((prev) => prev.filter((cat) => cat.id !== category.id));
+        setProducts((prev) => prev.filter((p) => !deletedProducts.has(p.id)));
+        removeListItems(listItemIds);
         return "Categoria excluída com sucesso!";
       },
       error: "Erro ao excluir categoria. Tente novamente.",

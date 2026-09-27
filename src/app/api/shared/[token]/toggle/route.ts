@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decryptShareToken } from "@/lib/helpers/share-token";
-import { adminDb } from "@/lib/firebaseAdmin";
-import { COLLECTIONS, withTimestamps } from "@/lib/helpers/constants";
+import { withTimestamps } from "@/lib/helpers/constants";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 export async function PUT(
   req: NextRequest,
@@ -28,8 +29,7 @@ export async function PUT(
       );
     }
 
-    const itemQuery = adminDb
-      .collection(COLLECTIONS.LIST_ITEMS)
+    const itemQuery = getRefCollection(COLLECTIONS.LIST_ITEMS)
       .where("userId", "==", userId)
       .where("listId", "==", listId)
       .where("id", "==", itemId);

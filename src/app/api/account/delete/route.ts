@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { adminDb, adminAuth } from "@/lib/firebaseAdmin";
-import { COLLECTIONS, batchDeleteRefs } from "@/lib/helpers/constants";
+import { adminAuth } from "@/lib/firebaseAdmin";
+import { batchDeleteRefs } from "@/lib/helpers/constants";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -14,9 +16,11 @@ const USER_DATA_COLLECTIONS = [
   COLLECTIONS.LIST_ITEMS,
 ];
 
-async function deleteUserDocsInCollection(collection: string, uid: string) {
-  const snap = await adminDb
-    .collection(collection)
+async function deleteUserDocsInCollection(
+  collection: COLLECTIONS,
+  uid: string
+) {
+  const snap = await getRefCollection(collection)
     .where("userId", "==", uid)
     .get();
 
@@ -31,7 +35,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "uid is required" }, { status: 400 });
     }
 
-    const userRef = adminDb.collection(COLLECTIONS.PROFILES).doc(uid);
+    const userRef = getRefCollection(COLLECTIONS.PROFILES, uid);
     const userSnap = await userRef.get();
     const stripeCustomerId = userSnap.exists
       ? (userSnap.data()?.stripeCustomerId as string | undefined)
