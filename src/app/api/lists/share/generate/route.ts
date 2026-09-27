@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateShareToken } from "@/lib/helpers/share-token";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { COLLECTIONS } from "@/lib/helpers/constants";
+import { COLLECTIONS } from "@/app/type";
 
 export async function POST(req: NextRequest) {
   try {

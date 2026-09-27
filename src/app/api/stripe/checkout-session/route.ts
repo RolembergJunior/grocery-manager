@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { requireSessionUid } from "@/lib/auth-server";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
   try {
     const uid = await requireSessionUid();
 
-    const userDoc = await adminDb.collection("users").doc(uid).get();
+    const userDoc = await getRefCollection(COLLECTIONS.PROFILES, uid).get();
     const stripeCustomerId = userDoc.data()?.stripeCustomerId as string | undefined;
 
     if (!stripeCustomerId) {

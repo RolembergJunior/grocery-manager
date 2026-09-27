@@ -8,17 +8,14 @@ import {
   selectOrphanListItemIds,
   selectProductsWithMissingCategory,
 } from "@/lib/delete-cascade";
-import { COLLECTIONS } from "./constants";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
+
 
 const BATCH_LIMIT = 450;
 
-function ref(collection: string, id: string) {
-  return adminDb.collection(collection).doc(id);
-}
-
 async function fetchAllProducts(userId: string): Promise<Product[]> {
-  const snap = await adminDb
-    .collection(COLLECTIONS.PRODUCTS)
+  const snap = await getRefCollection(COLLECTIONS.PRODUCTS)
     .where("userId", "==", userId)
     .get();
 
@@ -26,8 +23,7 @@ async function fetchAllProducts(userId: string): Promise<Product[]> {
 }
 
 async function fetchAllListItems(userId: string): Promise<ListItem[]> {
-  const snap = await adminDb
-    .collection(COLLECTIONS.LIST_ITEMS)
+  const snap = await getRefCollection(COLLECTIONS.LIST_ITEMS)
     .where("userId", "==", userId)
     .get();
 
@@ -35,8 +31,7 @@ async function fetchAllListItems(userId: string): Promise<ListItem[]> {
 }
 
 async function fetchAllCategoryIds(userId: string): Promise<string[]> {
-  const snap = await adminDb
-    .collection(COLLECTIONS.CATEGORIES)
+  const snap = await getRefCollection(COLLECTIONS.CATEGORIES)
     .where("userId", "==", userId)
     .get();
 
@@ -67,9 +62,9 @@ export async function deleteCategoryCascade(
   });
 
   await commitDeletes([
-    ...listItemIds.map((id) => ref(COLLECTIONS.LIST_ITEMS, id)),
-    ...productIds.map((id) => ref(COLLECTIONS.PRODUCTS, id)),
-    ref(COLLECTIONS.CATEGORIES, categoryId),
+    ...listItemIds.map((id) => getRefCollection(COLLECTIONS.LIST_ITEMS, id)),
+    ...productIds.map((id) => getRefCollection(COLLECTIONS.PRODUCTS, id)),
+    getRefCollection(COLLECTIONS.CATEGORIES, categoryId),
   ]);
 
   return { productIds, listItemIds };
@@ -87,8 +82,8 @@ export async function deleteProductCascade(
   });
 
   await commitDeletes([
-    ...listItemIds.map((id) => ref(COLLECTIONS.LIST_ITEMS, id)),
-    ref(COLLECTIONS.PRODUCTS, productId),
+    ...listItemIds.map((id) => getRefCollection(COLLECTIONS.LIST_ITEMS, id)),
+    getRefCollection(COLLECTIONS.PRODUCTS, productId),
   ]);
 
   return { listItemIds };
@@ -117,8 +112,10 @@ export async function cleanupOrphans(userId: string): Promise<{
   });
 
   await commitDeletes([
-    ...deletedIds.map((id) => ref(COLLECTIONS.LIST_ITEMS, id)),
-    ...deletedProductIds.map((id) => ref(COLLECTIONS.PRODUCTS, id)),
+    ...deletedIds.map((id) => getRefCollection(COLLECTIONS.LIST_ITEMS, id)),
+    ...deletedProductIds.map((id) =>
+      getRefCollection(COLLECTIONS.PRODUCTS, id)
+    ),
   ]);
 
   return { deletedIds, deletedProductIds };

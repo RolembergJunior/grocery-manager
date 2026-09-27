@@ -1,10 +1,11 @@
 import "server-only";
-import { adminDb } from "../firebaseAdmin";
 import type { List } from "@/app/type";
-import { COLLECTIONS, withTimestamps } from "./constants";
+import { withTimestamps } from "./constants";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 export async function createList(data: Omit<List, "id">): Promise<List> {
-  const docRef = adminDb.collection(COLLECTIONS.LISTS).doc();
+  const docRef = getRefCollection(COLLECTIONS.LISTS).doc();
   const listData: List = {
     ...data,
     id: docRef.id,
@@ -17,9 +18,7 @@ export async function getListsByUserId(
   userId: string,
   includeRemoved = false
 ): Promise<List[]> {
-  let query = adminDb
-    .collection(COLLECTIONS.LISTS)
-    .where("userId", "==", userId);
+  let query = getRefCollection(COLLECTIONS.LISTS).where("userId", "==", userId);
 
   if (!includeRemoved) {
     query = query.where("isRemoved", "==", false);
@@ -34,14 +33,14 @@ export async function updateList(
   data: Partial<Omit<List, "id" | "userId" | "createdAt">>
 ): Promise<void> {
   const updateData = withTimestamps(data, true);
-  await adminDb.collection(COLLECTIONS.LISTS).doc(id).update(updateData);
+  await getRefCollection(COLLECTIONS.LISTS, id).update(updateData);
 }
 
 export async function softDeleteList(id: string): Promise<void> {
   const updateData = withTimestamps({ isRemoved: true }, true);
-  await adminDb.collection(COLLECTIONS.LISTS).doc(id).update(updateData);
+  await getRefCollection(COLLECTIONS.LISTS, id).update(updateData);
 }
 
 export async function hardDeleteList(id: string): Promise<void> {
-  await adminDb.collection(COLLECTIONS.LISTS).doc(id).delete();
+  await getRefCollection(COLLECTIONS.LISTS, id).delete();
 }

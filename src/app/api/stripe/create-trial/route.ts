@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { adminDb } from "@/lib/firebaseAdmin";
 import { requireUidFromRequest } from "@/lib/auth-server";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
     const { email, name } = await request.json();
 
     // Re-entrant safety: if user already has a customer, return it
-    const userRef = adminDb.collection("users").doc(uid);
+    const userRef = getRefCollection(COLLECTIONS.PROFILES, uid);
     const userSnap = await userRef.get();
     if (userSnap.exists && userSnap.data()?.stripeCustomerId) {
       return NextResponse.json({

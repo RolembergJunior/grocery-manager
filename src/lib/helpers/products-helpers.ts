@@ -1,12 +1,14 @@
 import "server-only";
 import { adminDb } from "../firebaseAdmin";
 import type { Product } from "@/app/type";
-import { COLLECTIONS } from "./constants";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
+
 
 export async function createProduct(
   data: Omit<Product, "id">
 ): Promise<Product> {
-  const docRef = adminDb.collection(COLLECTIONS.PRODUCTS).doc();
+  const docRef = getRefCollection(COLLECTIONS.PRODUCTS).doc();
   const productData: Product = {
     ...data,
     id: docRef.id,
@@ -16,7 +18,7 @@ export async function createProduct(
 }
 
 export async function getProduct(id: string): Promise<Product | null> {
-  const doc = await adminDb.collection(COLLECTIONS.PRODUCTS).doc(id).get();
+  const doc = await getRefCollection(COLLECTIONS.PRODUCTS, id).get();
   if (!doc.exists) return null;
   return { ...doc.data(), id: doc.id } as Product;
 }
@@ -25,8 +27,7 @@ export async function getProductsByUserId(
   userId: string,
   includeRemoved = false
 ): Promise<Product[]> {
-  let query = adminDb
-    .collection(COLLECTIONS.PRODUCTS)
+  let query = getRefCollection(COLLECTIONS.PRODUCTS)
     .where("userId", "==", userId);
 
   if (!includeRemoved) {
@@ -41,11 +42,11 @@ export async function updateProduct(
   id: string,
   data: Partial<Omit<Product, "id" | "userId">>
 ): Promise<void> {
-  await adminDb.collection(COLLECTIONS.PRODUCTS).doc(id).update(data);
+  await getRefCollection(COLLECTIONS.PRODUCTS, id).update(data);
 }
 
 export async function softDeleteProduct(id: string): Promise<void> {
-  await adminDb.collection(COLLECTIONS.PRODUCTS).doc(id).update({
+  await getRefCollection(COLLECTIONS.PRODUCTS, id).update({
     isRemoved: 1,
   });
 }
@@ -54,7 +55,7 @@ export async function batchUpdateProducts(updates: Product[]): Promise<void> {
   const batch = adminDb.batch();
 
   updates.forEach((product) => {
-    const docRef = adminDb.collection(COLLECTIONS.PRODUCTS).doc(product.id);
+    const docRef = getRefCollection(COLLECTIONS.PRODUCTS, product.id);
     batch.update(docRef, product);
   });
 

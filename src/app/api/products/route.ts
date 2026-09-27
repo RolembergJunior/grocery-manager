@@ -4,6 +4,8 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import type { Product } from "@/app/type";
 import { getProductsByUserId } from "@/lib/helpers/products-helpers";
 import { deleteProductCascade } from "@/lib/helpers/delete-cascade-helpers";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 export const runtime = "nodejs";
 
@@ -67,10 +69,10 @@ export async function PUT(req: NextRequest) {
       };
 
       if (item.id) {
-        const docRef = adminDb.collection("products").doc(item.id);
+        const docRef = getRefCollection(COLLECTIONS.PRODUCTS, item.id);
         batch.update(docRef, productData);
       } else {
-        const docRef = adminDb.collection("products").doc();
+        const docRef = getRefCollection(COLLECTIONS.PRODUCTS).doc();
         batch.set(docRef, { ...productData, id: docRef.id });
       }
     }
