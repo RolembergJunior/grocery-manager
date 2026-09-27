@@ -10,7 +10,6 @@ import {
 } from "@/lib/delete-cascade";
 import { COLLECTIONS } from "./constants";
 
-// Firestore allows 500 writes per batch; keep headroom.
 const BATCH_LIMIT = 450;
 
 function ref(collection: string, id: string) {
@@ -44,9 +43,6 @@ async function fetchAllCategoryIds(userId: string): Promise<string[]> {
   return snap.docs.map((doc) => doc.id);
 }
 
-// Batches run in order, so whatever comes last (the category or product
-// itself) is only removed once everything that points to it is gone. A
-// failure midway leaves it in place and the delete can simply be retried.
 async function commitDeletes(refs: DocumentReference[]): Promise<void> {
   for (const group of chunk(refs, BATCH_LIMIT)) {
     const batch = adminDb.batch();
@@ -59,8 +55,6 @@ export async function deleteCategoryCascade(
   userId: string,
   categoryId: string,
 ): Promise<{ productIds: string[]; listItemIds: string[] }> {
-  // Read products first, then list items: a list item written after the
-  // product read is still caught by the list item read that follows.
   const products = await fetchAllProducts(userId);
   const listItems = await fetchAllListItems(userId);
 
@@ -100,16 +94,10 @@ export async function deleteProductCascade(
   return { listItemIds };
 }
 
-// Repairs data left behind by earlier deletes: products whose category no
-// longer exists (with their list items), and list items whose product is gone.
-// Items are matched by itemId only, never by name.
 export async function cleanupOrphans(userId: string): Promise<{
   deletedIds: string[];
   deletedProductIds: string[];
 }> {
-  // Read list items, then products, then categories: everything a later read
-  // is checked against already existed when the earlier one ran, so data
-  // created between the reads is never mistaken for an orphan.
   const listItems = await fetchAllListItems(userId);
   const products = await fetchAllProducts(userId);
   const categoryIds = await fetchAllCategoryIds(userId);

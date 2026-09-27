@@ -12,7 +12,6 @@ export default async function PrivateLayout({
   const uid = await getUidFromSession();
   if (!uid) redirect("/login");
 
-  // Repair data left behind by earlier deletes before any page loads it.
   try {
     await cleanupOrphans(uid);
   } catch (error) {
