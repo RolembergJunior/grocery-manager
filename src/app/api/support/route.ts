@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { adminDb } from "@/lib/firebaseAdmin";
-import { COLLECTIONS } from "@/lib/helpers/constants";
+
 import { getUidFromBearer } from "@/lib/auth-server";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 const SUPPORT_EMAIL = "listaai.contato@gmail.com";
 
@@ -126,7 +127,7 @@ export async function POST(request: Request) {
       );
     }
 
-    await adminDb.collection(COLLECTIONS.SUPPORT_TICKETS).add({
+    await getRefCollection(COLLECTIONS.SUPPORT_TICKETS).add({
       uid,
       email,
       name,

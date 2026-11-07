@@ -5,9 +5,8 @@ import {
   getCategoriesByUserId,
   createCategory,
   updateCategory,
-  hardDeleteCategory,
 } from "@/lib/helpers/categories-helpers";
-import { hardDeleteProductsByCategory } from "@/lib/helpers/products-helpers";
+import { deleteCategoryCascade } from "@/lib/helpers/delete-cascade-helpers";
 
 export const runtime = "nodejs";
 
@@ -131,10 +130,9 @@ export async function DELETE(req: NextRequest) {
 
     const { id } = body as { id: string };
 
-    await hardDeleteCategory(id);
-    await hardDeleteProductsByCategory(id);
+    const deleted = await deleteCategoryCascade(userId, id);
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, ...deleted });
   } catch (error) {
     console.error("Error deleting category:", error);
     return NextResponse.json(

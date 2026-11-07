@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -41,8 +42,7 @@ export async function POST(request: Request) {
       cancel_at_period_end: false,
     });
 
-    const usersSnap = await adminDb
-      .collection("users")
+    const usersSnap = await getRefCollection(COLLECTIONS.PROFILES)
       .where("stripeCustomerId", "==", stripeCustomerId)
       .limit(1)
       .get();

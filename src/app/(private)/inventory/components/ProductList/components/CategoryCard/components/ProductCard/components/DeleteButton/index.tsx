@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { useAtomValue, useSetAtom, useStore } from "jotai";
+import { useSetAtom } from "jotai";
 import { toast } from "sonner";
 import Modal from "@/components/Modal";
-import { listItemsAtom, listItemsByIdAtom, productsAtom } from "@/lib/atoms";
+import { productsAtom } from "@/lib/atoms";
+import { removeListItemsAtom } from "@/lib/atoms/list-items";
 import { deleteItem } from "@/services/products";
-import { ListItem } from "@/app/type";
 
 interface DeleteButtonProps {
   itemId: string;
@@ -18,37 +18,19 @@ export default function DeleteButton({ itemId }: DeleteButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const setProducts = useSetAtom(productsAtom);
-  const listItems = useAtomValue(listItemsAtom);
-
-  const store = useStore();
-
-  function updateListItems() {
-    const separatedArrayByListId = listItems.reduce((acc, item) => {
-      if (item.itemId !== itemId) {
-        if (!acc[item.listId]) {
-          acc[item.listId] = [];
-        }
-        acc[item.listId].push(item);
-      }
-      return acc;
-    }, {} as Record<string, ListItem[]>);
-
-    Object.entries(separatedArrayByListId).forEach(([listId, items]) => {
-      store.set(listItemsByIdAtom(listId), items);
-    });
-  }
+  const removeListItems = useSetAtom(removeListItemsAtom);
 
   async function handleConfirmDelete() {
     setIsDeleting(true);
 
     toast.promise(deleteItem(itemId.toString()), {
       loading: "Excluindo...",
-      success: () => {
+      success: ({ listItemIds }) => {
         setProducts((prevProducts) =>
           prevProducts.filter((product) => product.id !== itemId)
         );
 
-        updateListItems();
+        removeListItems(listItemIds);
         return "Item excluído com sucesso!";
       },
       error: (error) => {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -12,8 +13,7 @@ async function updateUserSubscription(
   dates?: { start: number; end: number },
   protectActive = false,
 ) {
-  const snapshot = await adminDb
-    .collection("users")
+  const snapshot = await getRefCollection(COLLECTIONS.PROFILES)
     .where("stripeCustomerId", "==", customerId)
     .limit(1)
     .get();

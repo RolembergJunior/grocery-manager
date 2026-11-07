@@ -1,7 +1,9 @@
 import "server-only";
 import Stripe from "stripe";
 import { adminDb, adminAuth } from "../firebaseAdmin";
-import { COLLECTIONS } from "./constants";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -14,9 +16,8 @@ const USER_DATA_COLLECTIONS = [
   COLLECTIONS.LIST_ITEMS,
 ];
 
-async function deleteUserDocs(collection: string, uid: string) {
-  const snap = await adminDb
-    .collection(collection)
+async function deleteUserDocs(collection: COLLECTIONS, uid: string) {
+  const snap = await getRefCollection(collection)
     .where("userId", "==", uid)
     .get();
 
@@ -36,7 +37,7 @@ export async function cleanupOrphanAuthUser(uid: string): Promise<void> {
 }
 
 export async function accountExists(uid: string): Promise<boolean> {
-  const snap = await adminDb.collection(COLLECTIONS.PROFILES).doc(uid).get();
+  const snap = await getRefCollection(COLLECTIONS.PROFILES, uid).get();
 
   if (!snap.exists) {
     await cleanupOrphanAuthUser(uid);
@@ -47,7 +48,7 @@ export async function accountExists(uid: string): Promise<boolean> {
 }
 
 export async function deleteAccount(uid: string): Promise<{ existed: boolean }> {
-  const userRef = adminDb.collection(COLLECTIONS.PROFILES).doc(uid);
+  const userRef = getRefCollection(COLLECTIONS.PROFILES, uid);
   const userSnap = await userRef.get();
 
   if (!userSnap.exists) {

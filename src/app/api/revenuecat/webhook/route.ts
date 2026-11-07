@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebaseAdmin";
 import Stripe from "stripe";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -63,19 +64,19 @@ export async function POST(request: Request) {
       ).toISOString();
     }
 
-    await adminDb
-      .collection("users")
-      .doc(event.app_user_id)
-      .set(updates, { merge: true });
+    await getRefCollection(COLLECTIONS.PROFILES, event.app_user_id).set(
+      updates,
+      { merge: true }
+    );
 
     // A Play subscriber must not also hold a live Stripe subscription. Cancel
     // the Stripe side once, on first purchase only.
     if (event.type === "INITIAL_PURCHASE") {
       try {
-        const snap = await adminDb
-          .collection("users")
-          .doc(event.app_user_id)
-          .get();
+        const snap = await getRefCollection(
+          COLLECTIONS.PROFILES,
+          event.app_user_id
+        ).get();
         const stripeCustomerId = snap.data()?.stripeCustomerId;
 
         if (stripeCustomerId) {

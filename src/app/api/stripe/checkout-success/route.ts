@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { requireSessionUid } from "@/lib/auth-server";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${origin}/subscribe`);
     }
 
-    await adminDb.collection("users").doc(uid).update({
+    await getRefCollection(COLLECTIONS.PROFILES, uid).update({
       stripeCustomerStatus: "active",
       updatedAt: new Date().toISOString(),
     });

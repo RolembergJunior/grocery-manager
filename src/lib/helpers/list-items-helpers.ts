@@ -1,12 +1,14 @@
 import "server-only";
 import { adminDb } from "../firebaseAdmin";
 import type { ListItem } from "@/app/type";
-import { COLLECTIONS, withTimestamps, batchDeleteRefs } from "./constants";
+import { withTimestamps, batchDeleteRefs } from "./constants";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 export async function createListItem(
   data: Omit<ListItem, "id">
 ): Promise<ListItem> {
-  const docRef = adminDb.collection(COLLECTIONS.LIST_ITEMS).doc();
+  const docRef = getRefCollection(COLLECTIONS.LIST_ITEMS).doc();
   const listItemData: ListItem = {
     ...data,
     id: docRef.id,
@@ -16,10 +18,7 @@ export async function createListItem(
 }
 
 export async function getListItemById(id: string) {
-  const snapshot = await adminDb
-    .collection(COLLECTIONS.LIST_ITEMS)
-    .doc(id)
-    .get();
+  const snapshot = await getRefCollection(COLLECTIONS.LIST_ITEMS, id).get();
 
   if (!snapshot.exists) {
     return null;
@@ -32,8 +31,7 @@ export async function getListItemsByListId(
   listId: string,
   includeRemoved = false
 ): Promise<ListItem[]> {
-  let query = adminDb
-    .collection(COLLECTIONS.LIST_ITEMS)
+  let query = getRefCollection(COLLECTIONS.LIST_ITEMS)
     .where("listId", "==", listId);
 
   if (!includeRemoved) {
@@ -48,8 +46,7 @@ export async function getListItemsByItemId(
   itemId: string,
   includeRemoved = false
 ): Promise<ListItem[]> {
-  let query = adminDb
-    .collection(COLLECTIONS.LIST_ITEMS)
+  let query = getRefCollection(COLLECTIONS.LIST_ITEMS)
     .where("itemId", "==", itemId);
 
   if (!includeRemoved) {
@@ -64,8 +61,7 @@ export async function getListItemsByUserId(
   userId: string,
   includeRemoved = false
 ): Promise<ListItem[]> {
-  let query = adminDb
-    .collection(COLLECTIONS.LIST_ITEMS)
+  let query = getRefCollection(COLLECTIONS.LIST_ITEMS)
     .where("userId", "==", userId);
 
   if (!includeRemoved) {
@@ -81,17 +77,16 @@ export async function updateListItem(
   data: Partial<Omit<ListItem, "id" | "userId" | "createdAt">>
 ): Promise<void> {
   const updateData = withTimestamps(data, true);
-  await adminDb.collection(COLLECTIONS.LIST_ITEMS).doc(id).update(updateData);
+  await getRefCollection(COLLECTIONS.LIST_ITEMS, id).update(updateData);
 }
 
 export async function softDeleteListItem(id: string): Promise<void> {
   const updateData = withTimestamps({ isRemoved: true }, true);
-  await adminDb.collection(COLLECTIONS.LIST_ITEMS).doc(id).update(updateData);
+  await getRefCollection(COLLECTIONS.LIST_ITEMS, id).update(updateData);
 }
 
 export async function hardDeleteListItemsById(id: string): Promise<void> {
-  const snapshot = await adminDb
-    .collection(COLLECTIONS.LIST_ITEMS)
+  const snapshot = await getRefCollection(COLLECTIONS.LIST_ITEMS)
     .where("listId", "==", id)
     .get();
 
@@ -102,7 +97,7 @@ export async function batchCreateItems(items: ListItem[]): Promise<void> {
   const batch = adminDb.batch();
 
   items.forEach((item) => {
-    const docRef = adminDb.collection(COLLECTIONS.LIST_ITEMS).doc();
+    const docRef = getRefCollection(COLLECTIONS.LIST_ITEMS).doc();
 
     const updatedItem = {
       ...item,
@@ -119,7 +114,7 @@ export async function batchUpdateItems(items: ListItem[]): Promise<void> {
   const batch = adminDb.batch();
 
   items.forEach((item) => {
-    const docRef = adminDb.collection(COLLECTIONS.LIST_ITEMS).doc(item.id);
+    const docRef = getRefCollection(COLLECTIONS.LIST_ITEMS, item.id);
     batch.update(docRef, item);
   });
 

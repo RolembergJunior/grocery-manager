@@ -37,12 +37,13 @@ export async function updateOrCreate(item: Product): Promise<Product> {
   return updatedProduct;
 }
 
-export async function deleteItem(id: string): Promise<{ ok: true }> {
-  await authenticatedFetchVoid("/api/products", {
+export async function deleteItem(
+  id: string
+): Promise<{ listItemIds: string[] }> {
+  return authenticatedFetch<{ listItemIds: string[] }>("/api/products", {
     method: "DELETE",
     body: JSON.stringify({ id }),
   });
-  return { ok: true };
 }
 
 export async function updateStatus({

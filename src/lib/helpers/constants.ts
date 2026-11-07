@@ -2,15 +2,6 @@ import "server-only";
 import type { DocumentReference } from "firebase-admin/firestore";
 import { adminDb } from "../firebaseAdmin";
 
-export const COLLECTIONS = {
-  PROFILES: "users",
-  PRODUCTS: "products",
-  CATEGORIES: "categories",
-  LISTS: "lists",
-  LIST_ITEMS: "list_items",
-  SUPPORT_TICKETS: "supportTickets",
-} as const;
-
 export function withTimestamps<T extends object>(data: T, isUpdate = false) {
   const now = new Date().toISOString();
   if (isUpdate) {

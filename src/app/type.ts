@@ -5,6 +5,17 @@ export enum STATUSPRODUCT {
   ALMOST_EMPTY = 2,
   COMPLETED = 3,
 }
+
+export enum COLLECTIONS {
+  PROFILES = "users",
+  PRODUCTS = "products",
+  CATEGORIES = "categories",
+  LISTS = "lists",
+  LIST_ITEMS = "list_items",
+  SUPPORT_TICKETS = "supportTickets",
+  MIGRATIONS = "migrations",
+}
+
 export interface OptionsType {
   value: string | number | null;
   label: string | number | null | JSX.Element;

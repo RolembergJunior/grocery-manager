@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decryptShareToken } from "@/lib/helpers/share-token";
-import { adminDb } from "@/lib/firebaseAdmin";
-import { COLLECTIONS } from "@/lib/helpers/constants";
+
 import { INVENTORY_LIST_ID } from "@/lib/constants/lists";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 export async function GET(
   req: NextRequest,
@@ -24,8 +25,7 @@ export async function GET(
     let list;
 
     if (listId !== INVENTORY_LIST_ID) {
-      const listQuery = adminDb
-        .collection(COLLECTIONS.LISTS)
+      const listQuery = getRefCollection(COLLECTIONS.LISTS)
         .where("userId", "==", userId)
         .where("id", "==", listId);
 
@@ -49,8 +49,7 @@ export async function GET(
       };
     }
 
-    const itemsQuery = adminDb
-      .collection(COLLECTIONS.LIST_ITEMS)
+    const itemsQuery = getRefCollection(COLLECTIONS.LIST_ITEMS)
       .where("userId", "==", userId)
       .where("listId", "==", listId)
       .where("isRemoved", "==", false);
@@ -58,8 +57,7 @@ export async function GET(
     const itemsSnapshot = await itemsQuery.get();
     const items = itemsSnapshot.docs.map((doc) => doc.data());
 
-    const categoriesQuery = adminDb
-      .collection(COLLECTIONS.CATEGORIES)
+    const categoriesQuery = getRefCollection(COLLECTIONS.CATEGORIES)
       .where("userId", "==", userId)
       .where("isRemoved", "==", false);
 

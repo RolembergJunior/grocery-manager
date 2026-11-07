@@ -1,5 +1,6 @@
-import { adminDb } from "@/lib/firebaseAdmin";
 import { NextResponse } from "next/server";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 export async function PUT(req: Request) {
   try {
@@ -12,7 +13,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    await adminDb.collection("users").doc(userId).update({
+    await getRefCollection(COLLECTIONS.PROFILES, userId).update({
       hasCompletedOnboarding: true,
       onboardingCompletedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

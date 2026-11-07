@@ -2,10 +2,10 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import type { Product } from "@/app/type";
-import {
-  getProductsByUserId,
-  hardDeleteProduct,
-} from "@/lib/helpers/products-helpers";
+import { getProductsByUserId } from "@/lib/helpers/products-helpers";
+import { deleteProductCascade } from "@/lib/helpers/delete-cascade-helpers";
+import { getRefCollection } from "@/lib/firestore";
+import { COLLECTIONS } from "@/app/type";
 
 export const runtime = "nodejs";
 
@@ -69,10 +69,10 @@ export async function PUT(req: NextRequest) {
       };
 
       if (item.id) {
-        const docRef = adminDb.collection("products").doc(item.id);
+        const docRef = getRefCollection(COLLECTIONS.PRODUCTS, item.id);
         batch.update(docRef, productData);
       } else {
-        const docRef = adminDb.collection("products").doc();
+        const docRef = getRefCollection(COLLECTIONS.PRODUCTS).doc();
         batch.set(docRef, { ...productData, id: docRef.id });
       }
     }
@@ -106,9 +106,9 @@ export async function DELETE(req: NextRequest) {
 
     const { id } = body as { id: string };
 
-    await hardDeleteProduct(id);
+    const deleted = await deleteProductCascade(userId, id);
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, ...deleted });
   } catch (error) {
     console.error("Error deleting product:", error);
     return NextResponse.json(

@@ -7,7 +7,9 @@ import { schema } from "./schema";
 import z from "zod";
 import { toast } from "sonner";
 import { validateIfExists } from "./utils";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
+import { productsAtom } from "@/lib/atoms/products";
+import { removeListItemsAtom } from "@/lib/atoms/list-items";
 import { categoriesAtom } from "@/lib/atoms/categories";
 import {
   createCategory,
@@ -43,6 +45,8 @@ export default function CreateCategoryModal({
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
 
   const [categories, setCategories] = useAtom(categoriesAtom);
+  const setProducts = useSetAtom(productsAtom);
+  const removeListItems = useSetAtom(removeListItemsAtom);
 
   useEffect(() => {
     if (categoryToEdit && isModalOpen) {
@@ -151,10 +155,13 @@ export default function CreateCategoryModal({
 
     toast.promise(deleteCategory(categoryToEdit.id), {
       loading: "Excluindo categoria...",
-      success: () => {
+      success: ({ productIds, listItemIds }) => {
+        const deletedProducts = new Set(productIds);
         setCategories((prev) =>
           prev.filter((category) => category.id !== categoryToEdit.id)
         );
+        setProducts((prev) => prev.filter((p) => !deletedProducts.has(p.id)));
+        removeListItems(listItemIds);
 
         handleCloseModal();
         return "Categoria excluída com sucesso!";
